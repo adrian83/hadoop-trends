@@ -7,6 +7,7 @@ apply plugin: 'jetty'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -14,8 +15,14 @@ repositories {
 
 dependencies {
 	providedCompile 'javax.servlet:javax.servlet-api:3.0.1'
-	compile 'org.springframework:spring-webmvc:4.1.6.RELEASE'
 	
+	compile 'org.springframework:spring-webmvc:4.1.6.RELEASE'
+	compile 'org.springframework:spring-core:4.1.6.RELEASE'
+	compile 'org.springframework:spring-beans:4.1.6.RELEASE'
+	compile 'org.springframework:spring-context:4.1.6.RELEASE'
+	compile 'org.springframework:spring-web:4.1.6.RELEASE'
+	
+	compile 'javax.servlet:jstl:1.2'
 }
 
 // Embeded Jetty for testing

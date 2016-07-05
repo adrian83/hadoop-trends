@@ -1,14 +1,35 @@
 package ab.java.hadoop.trends;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
-import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
+import ab.java.hadoop.trends.config.AppConfig;
+import ab.java.hadoop.trends.config.WebConfig;
 
-public class AppInitializer implements WebApplicationInitializer {
+public class AppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+	
+	@Override
+	protected Class<?>[] getRootConfigClasses() {
+		return new Class[] { AppConfig.class };
+	}
+
+	@Override
+	protected Class<?>[] getServletConfigClasses() {
+		return new Class[] { WebConfig.class };
+	}
+
+	@Override
+	protected String[] getServletMappings() {
+		return new String[] { "/" };
+	}
+	
+}
+
+
+
+
+
+/*
+WebApplicationInitializer {
 
 	    @Override
 	    public void onStartup(ServletContext servletContext) throws ServletException {
@@ -26,3 +47,4 @@ public class AppInitializer implements WebApplicationInitializer {
 	    }
 	
 }
+*/

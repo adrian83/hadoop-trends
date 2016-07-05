@@ -12,4 +12,10 @@ public class Index {
     public String helloWorld() {
         return "Hello World";
     }
+    
+    @RequestMapping(value = {"hadoop-trends/index","/index"})
+    public String index() {
+        return "index";
+    }
+    
 }
