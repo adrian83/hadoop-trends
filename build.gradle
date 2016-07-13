@@ -28,6 +28,8 @@ dependencies {
 	
 	compile 'com.twitter:hbc-core:2.2.0'
 	
+	compile 'io.reactivex:rxjava:1.1.7'
+	
 	compile 'javax.servlet:jstl:1.2'
 }
 
