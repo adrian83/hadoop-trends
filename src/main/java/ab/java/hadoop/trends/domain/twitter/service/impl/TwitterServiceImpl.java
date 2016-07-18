@@ -21,7 +21,9 @@ import ab.java.hadoop.trends.config.TwitterConfig;
 import ab.java.hadoop.trends.domain.twitter.service.TwitterService;
 import ab.java.hadoop.trends.web.index.controller.Index;
 import rx.Observable;
+import rx.Observable.OnSubscribe;
 import rx.Observer;
+import rx.Subscriber;
 
 @Service
 public class TwitterServiceImpl implements TwitterService {
@@ -52,7 +54,30 @@ public class TwitterServiceImpl implements TwitterService {
 
 		// Establish a connection
 		client.connect();
+		
+		MyOnSubscribe ms = new MyOnSubscribe(client,queue);
+		
+		Observable<String> o = Observable.create(ms);
+		
+		o.subscribe(new Observer<String>(){
 
+			@Override
+			public void onCompleted() {
+				LOGGER.debug("----- END -----");
+			}
+
+			@Override
+			public void onError(Throwable e) {
+				LOGGER.debug("----- ERROR: "+e+" -----");
+			}
+
+			@Override
+			public void onNext(String t) {
+				LOGGER.debug("----- NEXT: "+t+" -----");
+			}});
+		
+		
+/*
 		// Do whatever needs to be done with messages
 		for (int msgRead = 0; msgRead < 100; msgRead++) {
 			if (client.isDone()) {
@@ -74,14 +99,69 @@ public class TwitterServiceImpl implements TwitterService {
 			}
 
 		}
-
+*/
 		client.stop();
 
 		// Print some stats
 		System.out.printf("The client read %d messages!\n", client.getStatsTracker().getNumMessages());
 
+
+		
+		
 	}
 	
 
+	
+}
+
+
+class MyOnSubscribe implements OnSubscribe<String> {
+
+	private BasicClient client;
+	private BlockingQueue<String> queue;
+	
+	
+	
+	public MyOnSubscribe(BasicClient client, BlockingQueue<String> queue) {
+		this.client = client;
+		this.queue = queue;
+	}
+
+
+
+	@Override
+	public void call(Subscriber<? super String> t) {
+		if(t.isUnsubscribed()){
+			return;
+		}
+		
+		for (int msgRead = 0; msgRead < 100; msgRead++) {
+			if (client.isDone()) {
+				//System.out.println("Client connection closed unexpectedly: " + client.getExitEvent().getMessage());
+				t.onCompleted();
+				break;
+			}
+
+			try {
+				String msg = queue.poll(5, TimeUnit.SECONDS);
+				if (msg == null) {
+					//System.out.println("Did not receive a message in 5 seconds");
+					t.onError(new Exception("Did not receive a message in 5 seconds"));
+				} else {
+					//System.out.println(msg);
+					//JSONObject jsonObj = new JSONObject("{\"phonetype\":\"N95\",\"cat\":\"WP\"}");
+					t.onNext(msg);
+				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+				t.onError(e);
+			}
+
+		}
+		if(!t.isUnsubscribed()){
+		t.onCompleted();
+		}
+	}
 	
 }

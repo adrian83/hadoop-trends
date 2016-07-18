@@ -31,7 +31,10 @@ dependencies {
 	compile 'io.reactivex:rxjava:1.1.7'
 	
 	compile 'javax.servlet:jstl:1.2'
+	
+	compile 'org.apache.kafka:kafka-clients:0.9.0.0'
 }
+
 
 
 
