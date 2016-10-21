@@ -1,8 +1,7 @@
 apply plugin: 'java'
-apply plugin: 'war'
 apply plugin: 'eclipse-wtp'
-apply plugin: 'jetty'
-
+apply plugin: 'war'
+apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -36,20 +35,6 @@ dependencies {
 }
 
 
-
-
-// Embeded Jetty for testing
-jettyRun{
-	contextPath = "hadoop-trends"
-	httpPort = 8080
-}
-
-jettyRunWar{
-	contextPath = "hadoop-trends"
-	httpPort = 8080
-}
-
-//For Eclipse IDE only
 eclipse {
 
   wtp {
@@ -59,7 +44,6 @@ eclipse {
       contextPath = 'hadoop-trends'
       
     }
-    
   }
 }
 
