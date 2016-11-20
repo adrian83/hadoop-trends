@@ -4,6 +4,6 @@ import rx.Observable;
 
 public interface TwitterService {
 	
-	void getTwitts();
+	Observable<String> getTwitts();
 
 }
