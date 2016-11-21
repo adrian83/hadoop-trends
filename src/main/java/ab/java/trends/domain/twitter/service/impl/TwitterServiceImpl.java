@@ -1,4 +1,4 @@
-package ab.java.hadoop.trends.domain.twitter.service.impl;
+package ab.java.trends.domain.twitter.service.impl;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -19,11 +19,10 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.BasicClient;
 import com.twitter.hbc.httpclient.auth.Authentication;
 
-import ab.java.hadoop.trends.config.TwitterConfig;
-import ab.java.hadoop.trends.domain.twitter.service.TwitterService;
+import ab.java.trends.config.TwitterConfig;
+import ab.java.trends.domain.twitter.service.TwitterService;
 import rx.Observable;
 import rx.Observable.OnSubscribe;
-import rx.Observer;
 import rx.Subscriber;
 
 @Service
@@ -56,7 +55,7 @@ public class TwitterServiceImpl implements TwitterService {
 				.processor(new StringDelimitedProcessor(queue))
 				.build();
 
-		client.connect();
+		//client.connect();
 		
 		LOGGER.info("Twitter client connected");
 	}

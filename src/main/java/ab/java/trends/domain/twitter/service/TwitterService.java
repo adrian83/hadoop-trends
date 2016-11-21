@@ -1,4 +1,4 @@
-package ab.java.hadoop.trends.domain.twitter.service;
+package ab.java.trends.domain.twitter.service;
 
 import rx.Observable;
 

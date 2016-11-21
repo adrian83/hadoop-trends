@@ -1,4 +1,4 @@
-package ab.java.hadoop.trends.config;
+package ab.java.trends.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -12,7 +12,7 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan("ab.java.hadoop")
+@ComponentScan("ab.java")
 public class WebConfig extends WebMvcConfigurerAdapter {
  
 	@Bean

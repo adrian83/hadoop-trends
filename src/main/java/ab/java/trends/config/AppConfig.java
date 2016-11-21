@@ -1,4 +1,4 @@
-package ab.java.hadoop.trends.config;
+package ab.java.trends.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

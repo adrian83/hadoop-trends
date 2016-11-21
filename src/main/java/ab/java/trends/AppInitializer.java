@@ -1,9 +1,9 @@
-package ab.java.hadoop.trends;
+package ab.java.trends;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
-import ab.java.hadoop.trends.config.AppConfig;
-import ab.java.hadoop.trends.config.WebConfig;
+import ab.java.trends.config.AppConfig;
+import ab.java.trends.config.WebConfig;
 
 public class AppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 	
@@ -36,7 +36,7 @@ WebApplicationInitializer {
 	 
 
 	        AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
-	        applicationContext.setConfigLocation("ab.java.hadoop.trends.config");
+	        applicationContext.setConfigLocation("ab.java.trends.config");
 	 
 	        DispatcherServlet dispatcherServlet = new DispatcherServlet(applicationContext);
 	        ServletRegistration.Dynamic servlet = servletContext.addServlet("mvc-dispatcher", dispatcherServlet);

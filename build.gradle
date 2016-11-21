@@ -32,6 +32,8 @@ dependencies {
 	compile 'javax.servlet:jstl:1.2'
 	
 	compile 'org.apache.kafka:kafka-clients:0.9.0.0'
+	
+	compile 'com.rethinkdb:rethinkdb-driver:2.3.3'
 }
 
 
@@ -41,12 +43,12 @@ eclipse {
     component {
       
       //define context path, default to project folder name
-      contextPath = 'hadoop-trends'
+      contextPath = 'trends'
       
     }
   }
 }
 
-
+// gradle appRun
 
 

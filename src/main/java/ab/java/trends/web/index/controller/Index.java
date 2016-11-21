@@ -1,4 +1,4 @@
-package ab.java.hadoop.trends.web.index.controller;
+package ab.java.trends.web.index.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import ab.java.hadoop.trends.domain.twitter.service.TwitterService;
+import ab.java.trends.domain.twitter.service.TwitterService;
 
 @Controller
 public class Index {
@@ -27,7 +27,7 @@ public class Index {
         return "Hello World";
     }
     
-    @RequestMapping(value = {"hadoop-trends/index","/index"})
+    @RequestMapping(value = {"trends/index","/index"})
     public String index() {
     	
         return "index";
