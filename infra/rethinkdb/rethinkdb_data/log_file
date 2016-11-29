@@ -1,0 +1,14 @@
+2016-11-29T21:50:36.847137701 0.222425s notice: Recursively removing directory /data/rethinkdb_data/tmp
+2016-11-29T21:50:36.858111749 0.233403s notice: Initializing directory /data/rethinkdb_data
+2016-11-29T21:50:36.858291420 0.233578s info: Creating a default database for your convenience. (This is because you ran 'rethinkdb' without 'create', 'serve', or '--join', and the directory '/data/rethinkdb_data' did not already exist or is empty.)
+2016-11-29T21:50:36.858346708 0.233633s notice: Running rethinkdb 2.3.5~0jessie (GCC 4.9.2)...
+2016-11-29T21:50:36.861508915 0.236798s notice: Running on Linux 4.4.33-1-MANJARO x86_64
+2016-11-29T21:50:36.861566434 0.236852s notice: Loading data from directory /data/rethinkdb_data
+2016-11-29T21:50:36.894997705 0.270286s info: Automatically using cache size of 4679 MB
+2016-11-29T21:50:36.929444552 0.304730s notice: Listening for intracluster connections on port 29015
+2016-11-29T21:50:36.930268726 0.305555s notice: Listening for client driver connections on port 28015
+2016-11-29T21:50:36.931369003 0.306655s notice: Listening for administrative HTTP connections on port 8080
+2016-11-29T21:50:36.964831928 0.340118s notice: Listening on cluster addresses: 127.0.0.1, 172.17.0.4, ::1, fe80::42:acff:fe11:4%9
+2016-11-29T21:50:36.999730261 0.375016s notice: Listening on driver addresses: 127.0.0.1, 172.17.0.4, ::1, fe80::42:acff:fe11:4%9
+2016-11-29T21:50:37.034253876 0.409540s notice: Listening on http addresses: 127.0.0.1, 172.17.0.4, ::1, fe80::42:acff:fe11:4%9
+2016-11-29T21:50:37.034275028 0.409561s notice: Server ready, "d474a3de26a7_xa2" 70c22e87-ede0-467b-82b6-1e9d761f0d53
