@@ -1,122 +1,96 @@
 package ab.java.trends.domain.twitter.service.impl;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import com.twitter.hbc.ClientBuilder;
-import com.twitter.hbc.core.Constants;
-import com.twitter.hbc.core.endpoint.StatusesSampleEndpoint;
-import com.twitter.hbc.core.processor.StringDelimitedProcessor;
-import com.twitter.hbc.httpclient.BasicClient;
-import com.twitter.hbc.httpclient.auth.Authentication;
-
 import ab.java.trends.config.TwitterConfig;
+import ab.java.trends.domain.twitter.domain.TwitterAuth;
 import ab.java.trends.domain.twitter.service.TwitterService;
 import rx.Observable;
 import rx.Observable.OnSubscribe;
 import rx.Subscriber;
+import twitter4j.Status;
+import twitter4j.StatusAdapter;
+import twitter4j.TwitterStream;
+import twitter4j.TwitterStreamFactory;
+import twitter4j.auth.AccessToken;
 
 @Service
 public class TwitterServiceImpl implements TwitterService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TwitterServiceImpl.class);
 
-	public static final long TIMEOUT = 5;
+	private TwitterStream twitterStream;
 
-	@Autowired
-	private TwitterConfig config;
-
-	private BlockingQueue<String> queue;
-	private BasicClient client;
-
+    @Autowired
+    private TwitterConfig twitterConfig;
+	
+    
 	@PostConstruct
 	public void connect() {
-		queue = new LinkedBlockingQueue<String>(10000);
+		
+		TwitterAuth auth = twitterConfig.getAuhentication();
+		
+		AccessToken accessToken = new AccessToken(auth.getToken(), auth.getSecret());
 
-		StatusesSampleEndpoint endpoint = new StatusesSampleEndpoint();
-		endpoint.stallWarnings(false);
-
-		Authentication auth = config.getAuhentication();
-
-		client = new ClientBuilder()
-				.name("sampleExampleClient")
-				.hosts(Constants.STREAM_HOST)
-				.endpoint(endpoint)
-				.authentication(auth)
-				.processor(new StringDelimitedProcessor(queue))
-				.build();
-
-		//client.connect();
+		twitterStream = new TwitterStreamFactory().getInstance();
+		
+		
+		twitterStream.setOAuthConsumer(auth.getCustomerKey(), auth.getCustomerSecret());
+		twitterStream.setOAuthAccessToken(accessToken);
+		
+		twitterStream.addListener(new StatusAdapter());
+		
+		twitterStream.sample();
 		
 		LOGGER.info("Twitter client connected");
 	}
-	
+
 	@PreDestroy
 	public void disconnect() {
-		client.stop();
+		
+		twitterStream.clearListeners();
+		twitterStream.cleanUp();
 		
 		LOGGER.info("Twitter client disconnected");
 	}
 
 	@Override
-	public Observable<String> getTwitts() {
+	public Observable<Status> getTwitts() {
 
-		final OnSubscribe<String> ms = new MyOnSubscribe(client, queue);
-
-		return Observable.create(ms);
-
-
+		return Observable.create(new MyOnSubscribe2(twitterStream));
 	}
 
 }
 
-class MyOnSubscribe implements OnSubscribe<String> {
 
-	private BasicClient client;
-	private BlockingQueue<String> queue;
+class MyOnSubscribe2 implements OnSubscribe<Status> {
 
-	public MyOnSubscribe(BasicClient client, BlockingQueue<String> queue) {
-		this.client = client;
-		this.queue = queue;
+	TwitterStream twitterStream;
+
+	public MyOnSubscribe2(TwitterStream twitterStream) {
+		this.twitterStream = twitterStream;
 	}
 
 	@Override
-	public void call(Subscriber<? super String> t) {
-		if (t.isUnsubscribed()) {
-			return;
-		}
+	public void call(Subscriber<? super Status> subscriber) {
 
-		while (true) {
-			if (client.isDone()) {
-				t.onCompleted();
-				break;
+		twitterStream.addListener(new StatusAdapter() {
+			public void onStatus(Status status) {
+				subscriber.onNext(status);
 			}
 
-			try {
-				String msg = queue.poll(TwitterServiceImpl.TIMEOUT, TimeUnit.SECONDS);
-				if (msg == null) {
-					t.onError(new Exception("Did not receive a message in 5 seconds"));
-				} else {
-					t.onNext(msg);
-				}
-			} catch (InterruptedException e) {
-				t.onError(e);
+			public void onException(Exception ex) {
+				subscriber.onError(ex);
 			}
+		});
 
-		}
-
-		if (!t.isUnsubscribed()) {
-			t.onCompleted();
-		}
 	}
 
 }

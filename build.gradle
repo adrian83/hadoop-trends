@@ -25,8 +25,6 @@ dependencies {
     compile 'org.slf4j:slf4j-log4j12:1.7.21'
     compile 'log4j:log4j:1.2.17'
 	
-	compile 'com.twitter:hbc-core:2.2.0'
-	
 	compile 'io.reactivex:rxjava:1.1.7'
 	
 	compile 'javax.servlet:jstl:1.2'
@@ -34,6 +32,10 @@ dependencies {
 	compile 'org.apache.kafka:kafka-clients:0.9.0.0'
 	
 	compile 'com.rethinkdb:rethinkdb-driver:2.3.3'
+	
+	compile 'org.twitter4j:twitter4j-core:4.0.5'
+	compile 'org.twitter4j:twitter4j-async:4.0.5'
+	compile 'org.twitter4j:twitter4j-stream:4.0.5'
 }
 
 

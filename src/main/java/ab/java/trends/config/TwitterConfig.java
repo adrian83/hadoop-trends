@@ -6,8 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
-import com.twitter.hbc.httpclient.auth.Authentication;
-import com.twitter.hbc.httpclient.auth.OAuth1;
+import ab.java.trends.domain.twitter.domain.TwitterAuth;
 
 @Configuration
 @PropertySource("classpath:config/twitter.properties")
@@ -23,12 +22,13 @@ public class TwitterConfig {
 	
 
 	@Bean
-	public Authentication getAuhentication() {
-		Authentication auth = new OAuth1(
-				env.getRequiredProperty(CUSTOMER_KEY),
-				env.getRequiredProperty(CUSTOMER_SECRET),
+	public TwitterAuth getAuhentication() {
+		TwitterAuth auth = new TwitterAuth(
 				env.getRequiredProperty(TOKEN),
-				env.getRequiredProperty(SECRET));
+				env.getRequiredProperty(SECRET),
+				env.getRequiredProperty(CUSTOMER_KEY),
+				env.getRequiredProperty(CUSTOMER_SECRET));
+		
 		return auth;
 	}
 
