@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import ab.java.trends.domain.twitter.service.TwitterService;
+import rx.Subscriber;
+import twitter4j.Status;
 
 @Controller
 public class Index {
@@ -22,7 +24,7 @@ public class Index {
     public String helloWorld() {
     	LOGGER.debug("------- just a test --------");
     	
-    	twitterService.getTwitts();
+
     	
         return "Hello World";
     }
