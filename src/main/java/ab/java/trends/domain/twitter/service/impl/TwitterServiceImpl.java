@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import ab.java.trends.config.TwitterConfig;
 import ab.java.trends.domain.twitter.domain.TwitterAuth;
 import ab.java.trends.domain.twitter.service.TwitterService;
-import ab.java.trends.domain.twitter.subscriber.HashTagSubscriber;
 import rx.Observable;
 import rx.Observable.OnSubscribe;
 import rx.Subscriber;
@@ -29,9 +28,6 @@ public class TwitterServiceImpl implements TwitterService {
     private TwitterStream twitterStream;
 
     @Autowired
-    private HashTagSubscriber hashTagSubscriber;
-
-    @Autowired
     private TwitterConfig twitterConfig;
 
     @PostConstruct
@@ -46,7 +42,16 @@ public class TwitterServiceImpl implements TwitterService {
         twitterStream.setOAuthConsumer(auth.getCustomerKey(), auth.getCustomerSecret());
         twitterStream.setOAuthAccessToken(accessToken);
 
-        twitterStream.addListener(new StatusAdapter());
+        twitterStream.addListener(new StatusAdapter() {
+            @Override
+            public void onStatus(Status status) {
+                //LOGGER.warn("Received:: {}", status.getText());
+            }
+
+            @Override
+            public void onException(Exception ex) {
+            }
+        });
 
         twitterStream.sample();
 
@@ -64,9 +69,7 @@ public class TwitterServiceImpl implements TwitterService {
 
     @Override
     public Observable<Status> getTwitts() {
-        Observable<Status> observable = Observable.create(new MyOnSubscribe2(twitterStream));
-        observable.subscribe(hashTagSubscriber);
-        return observable;
+        return Observable.create(new MyOnSubscribe2(twitterStream));
     }
 
 }
@@ -83,10 +86,12 @@ class MyOnSubscribe2 implements OnSubscribe<Status> {
     public void call(Subscriber<? super Status> subscriber) {
 
         twitterStream.addListener(new StatusAdapter() {
+            @Override
             public void onStatus(Status status) {
                 subscriber.onNext(status);
             }
 
+            @Override
             public void onException(Exception ex) {
                 subscriber.onError(ex);
             }

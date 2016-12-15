@@ -1,6 +1,8 @@
 package ab.java.trends.domain.twitter.subscriber;
 
 import ab.java.trends.domain.rethink.repository.RethinkRepository;
+import ab.java.trends.domain.twitter.hashtag.HashtagFinder;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,9 @@ public class HashTagSubscriber extends Subscriber<Status> {
     
     @Autowired
     private RethinkRepository rethinkRepository;
+    
+    @Autowired
+    private HashtagFinder hashtagFinder;
 
     @Override
     public void onCompleted() {
@@ -28,11 +33,17 @@ public class HashTagSubscriber extends Subscriber<Status> {
 
     @Override
     public void onNext(Status status) {
-        rethinkRepository.updateHashtags(status.getHashtagEntities());
-
+        //LOGGER.warn("Reading tags from {}",status.getText());
+        
+        Stream<String> hashtags = hashtagFinder.findHashtags(status.getText());
+ 
+        //LOGGER.warn("text: {}", status.getText());
+                
+        rethinkRepository.updateHashtags(hashtags);
+        
     }
     
-    
+
     
     
     

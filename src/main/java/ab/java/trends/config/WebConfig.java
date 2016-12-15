@@ -12,7 +12,7 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan("ab.java")
+@ComponentScan("ab.java.trends.web")
 public class WebConfig extends WebMvcConfigurerAdapter {
  
 	@Bean

@@ -7,11 +7,9 @@ import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 
 import ab.java.trends.config.RethinkDBConfig;
-import ab.java.trends.domain.twitter.subscriber.HashTagSubscriber;
-import java.util.Arrays;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import twitter4j.HashtagEntity;
 
 @Component
 public class RethinkRepository {
@@ -20,6 +18,8 @@ public class RethinkRepository {
 
     @Autowired
     private Connection connection;
+    
+    
 
     public void saveTwitt(Long id, String text) {
 
@@ -31,8 +31,8 @@ public class RethinkRepository {
 
     }
 
-    public void updateHashtags(HashtagEntity[] hashtags) {
-        Arrays.stream(hashtags).forEach(hashtag -> LOGGER.debug("Tag used {}", hashtag.getText()));
+    public void updateHashtags(Stream<String> hashtags) {
+        hashtags.forEach(hashtag -> LOGGER.warn("Tag used {}", hashtag));
     }
 
 }

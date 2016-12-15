@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'war'
-apply plugin: 'jetty'
+apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -39,5 +39,4 @@ dependencies {
     compile 'org.twitter4j:twitter4j-stream:4.0.5'
 }
 
-//gradle jettyRun will run your web application in an embedded Jetty web container. 
-//Running gradle jettyRunWar will build the WAR file, and then run it in an embedded web container.
+//gradle appRun
