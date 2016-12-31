@@ -1,42 +1,57 @@
+buildscript {
+	ext {
+		springBootVersion = '2.0.0.BUILD-SNAPSHOT'
+	}
+	repositories {
+		mavenCentral()
+		maven { url "https://repo.spring.io/snapshot" }
+		maven { url "https://repo.spring.io/milestone" }
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
 apply plugin: 'java'
-apply plugin: 'eclipse-wtp'
-apply plugin: 'war'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
 apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
+
+
+jar {
+	baseName = 'twitter_trends'
+	version = '0.0.1-SNAPSHOT'
+}
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-
 repositories {
-    mavenLocal()
-    mavenCentral()
+	mavenCentral()
+	maven { url "https://repo.spring.io/snapshot" }
+	maven { url "https://repo.spring.io/milestone" }
 }
 
 dependencies {
-    providedCompile 'javax.servlet:javax.servlet-api:3.0.1'
-	
-    compile 'org.springframework:spring-webmvc:4.1.6.RELEASE'
-    compile 'org.springframework:spring-core:4.1.6.RELEASE'
-    compile 'org.springframework:spring-beans:4.1.6.RELEASE'
-    compile 'org.springframework:spring-context:4.1.6.RELEASE'
-    compile 'org.springframework:spring-web:4.1.6.RELEASE'
-    compile 'org.springframework.kafka:spring-kafka:1.0.1.RELEASE'
 
-    compile 'org.slf4j:slf4j-api:1.7.21'
-    compile 'org.slf4j:slf4j-log4j12:1.7.21'
-    compile 'log4j:log4j:1.2.17'
-	
-    compile 'io.reactivex:rxjava:1.1.7'
-	
-    compile 'javax.servlet:jstl:1.2'
-	
-    compile 'org.apache.kafka:kafka-clients:0.9.0.0'
-	
-    compile 'com.rethinkdb:rethinkdb-driver:2.3.3'
+
+
 	
     compile 'org.twitter4j:twitter4j-core:4.0.5'
     compile 'org.twitter4j:twitter4j-async:4.0.5'
     compile 'org.twitter4j:twitter4j-stream:4.0.5'
+    
+    compile 'org.springframework.boot:spring-boot-starter'
+compile 'org.springframework.boot.experimental:spring-boot-autoconfigure-web-reactive'
+compile 'org.springframework.boot:spring-boot-starter-tomcat'
+compile 'com.fasterxml.jackson.core:jackson-databind'
+compile 'org.hibernate:hibernate-validator'
 }
 
-//gradle appRun
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.boot.experimental:spring-boot-dependencies-web-reactive:0.1.0.BUILD-SNAPSHOT"
+	}
+}
+
+

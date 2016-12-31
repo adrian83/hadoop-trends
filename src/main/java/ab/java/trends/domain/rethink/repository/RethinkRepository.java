@@ -18,8 +18,6 @@ public class RethinkRepository {
 
     @Autowired
     private Connection connection;
-    
-    
 
     public void saveTwitt(Long id, String text) {
 
@@ -29,6 +27,12 @@ public class RethinkRepository {
                 .insert(RethinkDB.r.hashMap("t_id", id).with("text", text))
                 .run(connection);
 
+    }
+
+    public void updateHashtag(String hashtag) {
+        RethinkDB.r.table("posts").get(1).update(
+                post -> RethinkDB.r.hashMap("tag", post.g("views").add(1).default_(0))
+        ).run(connection);
     }
 
     public void updateHashtags(Stream<String> hashtags) {

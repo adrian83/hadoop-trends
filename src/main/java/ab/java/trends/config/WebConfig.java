@@ -1,20 +1,13 @@
 package ab.java.trends.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
-import org.springframework.web.servlet.view.JstlView;
-import org.springframework.web.servlet.view.UrlBasedViewResolver;
 
 @Configuration
-@EnableWebMvc
+//@EnableWebMvc
 @ComponentScan("ab.java.trends.web")
-public class WebConfig extends WebMvcConfigurerAdapter {
- 
+public class WebConfig { // extends WebMvcConfigurerAdapter {
+ /*
 	@Bean
     public ViewResolver getViewResolver(){
 		UrlBasedViewResolver resolver = new org.springframework.web.servlet.view.UrlBasedViewResolver();
@@ -23,5 +16,5 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         resolver.setSuffix(".jsp");
         return resolver;
     }
-	
+	*/
 }
