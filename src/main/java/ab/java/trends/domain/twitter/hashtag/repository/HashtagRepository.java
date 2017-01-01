@@ -6,6 +6,11 @@ import org.springframework.stereotype.Component;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 
+import ab.java.trends.domain.twitter.hashtag.domain.Hashtag;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +39,26 @@ public class HashtagRepository {
 
     public void updateHashtags(Stream<String> hashtags) {
     	hashtags.forEach(hashtag -> updateHashtag(hashtag));
+    }
+    
+    public Stream<Hashtag> findMostPopular(int amount) {
+    	
+    	ArrayList<Object> result = RethinkDB.r
+        .db("twitter_trends")
+        .table("hashtags")
+        .orderBy(RethinkDB.r.desc("count"))
+        .limit(amount).run(connection);
+    	
+    	List<Hashtag> r = new ArrayList<>();
+    	
+    	for(Object m : result){
+    		@SuppressWarnings("unchecked")
+			Map<String, Object> map = (Map<String, Object>)m;
+    		r.add( new Hashtag(map.get("name").toString(), Integer.parseInt(map.get("count").toString())));
+    	}
+    	
+    	return r.stream();
+    	
     }
 
 }
