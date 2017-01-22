@@ -9,19 +9,14 @@ import com.rethinkdb.net.Connection;
 
 import ab.java.trends.config.RethinkDBConfig;
 import ab.java.trends.domain.twitter.hashtag.domain.Hashtag;
-import ab.java.trends.domain.twitter.hashtag.domain.PopularHashtags;
+
 import rx.Observable;
 import rx.Subscriber;
 import rx.Observable.OnSubscribe;
-import twitter4j.Status;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,19 +37,29 @@ public class HashtagRepository {
 		return RethinkDB.r.db(DB_NAME).table(TABLE_NAME);
 	}
 
-	public void updateHashtag(String hashtag) {
+	public Subscriber<String> updateHashtags() {
+		return new Subscriber<String>() {
 
-		hashtags().insert(RethinkDB.r.hashMap(NAME_FIELD, hashtag).with(COUNT_FIELD, 1))
-				.optArg("conflict",
-						(id, old_doc, new_doc) -> new_doc
-								.merge(RethinkDB.r.hashMap(COUNT_FIELD, old_doc.g(COUNT_FIELD).add(1))))
-				.run(connection);
+			@Override
+			public void onCompleted() {
+			}
 
-		LOGGER.info("Hashtag {} updated", hashtag);
-	}
+			@Override
+			public void onError(Throwable e) {
 
-	public void updateHashtags(Stream<String> hashtags) {
-		hashtags.forEach(hashtag -> updateHashtag(hashtag));
+			}
+
+			@Override
+			public void onNext(String hashtag) {
+				hashtags().insert(RethinkDB.r.hashMap(NAME_FIELD, hashtag).with(COUNT_FIELD, 1))
+						.optArg("conflict",
+								(id, old_doc, new_doc) -> new_doc
+										.merge(RethinkDB.r.hashMap(COUNT_FIELD, old_doc.g(COUNT_FIELD).add(1))))
+						.run(connection);
+
+				LOGGER.info("Hashtag {} updated", hashtag);
+			}
+		};
 	}
 
 	public Observable<Hashtag> findMostPopular(int amount) {
@@ -72,6 +77,7 @@ public class HashtagRepository {
 						subscriber.onNext(new Hashtag(map.get(NAME_FIELD).toString(),
 								Integer.parseInt(map.get(COUNT_FIELD).toString())));
 					}
+
 					subscriber.onCompleted();
 				} catch (Exception e) {
 					subscriber.onError(e);

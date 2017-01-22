@@ -1,7 +1,5 @@
 package ab.java.trends.domain.twitter.hashtag.domain;
 
-import java.util.Optional;
-
 public class Hashtag {
 
 	private final String name;
@@ -13,11 +11,11 @@ public class Hashtag {
 		this.count = count;
 	}
 	
-	public Optional<String> getName() {
-		return Optional.ofNullable(this.name);
+	public String getName() {
+		return this.name;
 	}
 	
-	public Optional<Integer> getCount() {
-		return Optional.ofNullable(this.count);
+	public Integer getCount() {
+		return this.count;
 	}
 }

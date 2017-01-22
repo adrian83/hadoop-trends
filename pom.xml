@@ -15,7 +15,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.0.0.BUILD-SNAPSHOT</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath /> 
 	</parent>
 
 	<properties>
@@ -25,6 +25,7 @@
 	</properties>
 
 	<dependencies>
+	
 		<dependency>
 			<groupId>org.springframework.boot.experimental</groupId>
 			<artifactId>spring-boot-starter-web-reactive</artifactId>
@@ -39,20 +40,13 @@
 		<dependency>
 			<groupId>io.reactivex</groupId>
 			<artifactId>rxjava</artifactId>
-			<version>1.2.4</version>
+			<version>1.2.4</version><!--$NO-MVN-MAN-VER$-->
 		</dependency>
 
-		<dependency>
-			<groupId>io.javaslang</groupId>
-			<artifactId>javaslang</artifactId>
-			<version>2.0.3</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/io.reactivex/rxjava-reactive-streams -->
 		<dependency>
 			<groupId>io.reactivex</groupId>
 			<artifactId>rxjava-reactive-streams</artifactId>
-			<version>1.2.1</version>
+			<version>1.2.1</version><!--$NO-MVN-MAN-VER$-->
 		</dependency>
 
 		<dependency>
@@ -81,7 +75,9 @@
 
 	</dependencies>
 
+
 	<dependencyManagement>
+	
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework.boot.experimental</groupId>
@@ -91,16 +87,21 @@
 				<scope>import</scope>
 			</dependency>
 		</dependencies>
+		
 	</dependencyManagement>
 
+
 	<build>
+	
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+		
 	</build>
+
 
 	<repositories>
 
@@ -123,6 +124,7 @@
 		</repository>
 
 	</repositories>
+
 
 	<pluginRepositories>
 
