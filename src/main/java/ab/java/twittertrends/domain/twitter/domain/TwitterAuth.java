@@ -1,34 +1,13 @@
 package ab.java.twittertrends.domain.twitter.domain;
 
-public class TwitterAuth {
+import org.immutables.value.Value;
 
-	private final String token;
-	private final String secret;
-	private final String customerKey;
-	private final String customerSecret;
+@Value.Immutable
+public interface TwitterAuth {
 
-	public TwitterAuth(String token, String secret, String customerKey, String customerSecret) {
-		super();
-		this.token = token;
-		this.secret = secret;
-		this.customerKey = customerKey;
-		this.customerSecret = customerSecret;
-	}
-
-	public String getToken() {
-		return token;
-	}
-
-	public String getSecret() {
-		return secret;
-	}
-
-	public String getCustomerKey() {
-		return customerKey;
-	}
-
-	public String getCustomerSecret() {
-		return customerSecret;
-	}
+	String token();
+	String secret();
+	String customerKey();
+	String customerSecret();
 
 }

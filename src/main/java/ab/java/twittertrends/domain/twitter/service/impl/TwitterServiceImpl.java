@@ -35,11 +35,11 @@ public class TwitterServiceImpl implements TwitterService {
 
         TwitterAuth auth = twitterConfig.getAuhentication();
 
-        AccessToken accessToken = new AccessToken(auth.getToken(), auth.getSecret());
+        AccessToken accessToken = new AccessToken(auth.token(), auth.secret());
 
         twitterStream = new TwitterStreamFactory().getInstance();
 
-        twitterStream.setOAuthConsumer(auth.getCustomerKey(), auth.getCustomerSecret());
+        twitterStream.setOAuthConsumer(auth.customerKey(), auth.customerSecret());
         twitterStream.setOAuthAccessToken(accessToken);
 
         twitterStream.addListener(new StatusAdapter() {
