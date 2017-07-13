@@ -30,7 +30,7 @@ public class TwitterServiceImpl implements TwitterService {
     @Autowired
     private TwitterConfig twitterConfig;
 
-    @PostConstruct
+    //@PostConstruct
     public void connect() {
 
         TwitterAuth auth = twitterConfig.getAuhentication();
@@ -58,7 +58,7 @@ public class TwitterServiceImpl implements TwitterService {
         LOGGER.info("Twitter client connected");
     }
 
-    @PreDestroy
+    //@PreDestroy
     public void disconnect() {
 
         twitterStream.clearListeners();
@@ -69,7 +69,7 @@ public class TwitterServiceImpl implements TwitterService {
 
     @Override
     public Observable<Status> getTwitts() {
-        return Observable.create(new MyOnSubscribe2(twitterStream));
+        return Observable.empty();//.create(new MyOnSubscribe2(twitterStream));
     }
 
 }

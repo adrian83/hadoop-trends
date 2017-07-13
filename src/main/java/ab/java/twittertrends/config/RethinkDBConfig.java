@@ -17,8 +17,8 @@ import com.rethinkdb.net.Connection;
 @PropertySource("classpath:config/rethinkdb.properties")
 public class RethinkDBConfig {
 
-	private static final String HOST = "host";
-	private static final String PORT = "port";
+	private static final String HOST = "rethink_host";
+	private static final String PORT = "rethink_port";
 
 	public static final String DB_NAME = "twitter_trends";
 
@@ -52,5 +52,5 @@ public class RethinkDBConfig {
 
 		return RethinkDB.r.connection().hostname(host).port(port).connect();
 	}
-
+	
 }
