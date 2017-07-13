@@ -23,80 +23,68 @@ import twitter4j.auth.AccessToken;
 @Service
 public class TwitterServiceImpl implements TwitterService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwitterServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TwitterServiceImpl.class);
 
-    private TwitterStream twitterStream;
+	private TwitterStream twitterStream;
 
-    @Autowired
-    private TwitterConfig twitterConfig;
+	@Autowired
+	private TwitterConfig twitterConfig;
 
-    //@PostConstruct
-    public void connect() {
+	@PostConstruct
+	public void connect() {
 
-        TwitterAuth auth = twitterConfig.getAuhentication();
+		TwitterAuth auth = twitterConfig.getAuhentication();
 
-        AccessToken accessToken = new AccessToken(auth.token(), auth.secret());
+		AccessToken accessToken = new AccessToken(auth.token(), auth.secret());
 
-        twitterStream = new TwitterStreamFactory().getInstance();
+		twitterStream = new TwitterStreamFactory().getInstance();
 
-        twitterStream.setOAuthConsumer(auth.customerKey(), auth.customerSecret());
-        twitterStream.setOAuthAccessToken(accessToken);
+		twitterStream.setOAuthConsumer(auth.customerKey(), auth.customerSecret());
+		twitterStream.setOAuthAccessToken(accessToken);
 
-        twitterStream.addListener(new StatusAdapter() {
-            @Override
-            public void onStatus(Status status) {
-                //LOGGER.warn("Received:: {}", status.getText());
-            }
+		twitterStream.addListener(new StatusAdapter() {
+			@Override
+			public void onStatus(Status status) {
+			}
 
-            @Override
-            public void onException(Exception ex) {
-            }
-        });
+			@Override
+			public void onException(Exception ex) {
+			}
+		});
 
-        twitterStream.sample();
+		twitterStream.sample();
 
-        LOGGER.info("Twitter client connected");
-    }
+		LOGGER.info("Twitter client connected");
+	}
 
-    //@PreDestroy
-    public void disconnect() {
+	@PreDestroy
+	public void disconnect() {
 
-        twitterStream.clearListeners();
-        twitterStream.cleanUp();
+		twitterStream.clearListeners();
+		twitterStream.cleanUp();
 
-        LOGGER.info("Twitter client disconnected");
-    }
+		LOGGER.info("Twitter client disconnected");
+	}
 
-    @Override
-    public Observable<Status> getTwitts() {
-        return Observable.empty();//.create(new MyOnSubscribe2(twitterStream));
-    }
+	@Override
+	public Observable<Status> getTwitts() {
+		return Observable.create(new OnSubscribe<Status>() {
+			public void call(Subscriber<? super Status> subscriber) {
 
-}
+				twitterStream.addListener(new StatusAdapter() {
+					@Override
+					public void onStatus(Status status) {
+						subscriber.onNext(status);
+					}
 
-class MyOnSubscribe2 implements OnSubscribe<Status> {
+					@Override
+					public void onException(Exception ex) {
+						subscriber.onError(ex);
+					}
+				});
 
-    TwitterStream twitterStream;
-
-    public MyOnSubscribe2(TwitterStream twitterStream) {
-        this.twitterStream = twitterStream;
-    }
-
-    @Override
-    public void call(Subscriber<? super Status> subscriber) {
-
-        twitterStream.addListener(new StatusAdapter() {
-            @Override
-            public void onStatus(Status status) {
-                subscriber.onNext(status);
-            }
-
-            @Override
-            public void onException(Exception ex) {
-                subscriber.onError(ex);
-            }
-        });
-
-    }
+			}
+		});
+	}
 
 }
