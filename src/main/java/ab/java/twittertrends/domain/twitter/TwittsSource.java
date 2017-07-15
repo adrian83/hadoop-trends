@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.service.impl;
+package ab.java.twittertrends.domain.twitter;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import ab.java.twittertrends.config.TwitterConfig;
 import ab.java.twittertrends.domain.twitter.domain.TwitterAuth;
-import ab.java.twittertrends.domain.twitter.service.TwitterService;
 import rx.Observable;
 import rx.Observable.OnSubscribe;
 import rx.Subscriber;
@@ -21,9 +20,9 @@ import twitter4j.TwitterStreamFactory;
 import twitter4j.auth.AccessToken;
 
 @Service
-public class TwitterServiceImpl implements TwitterService {
+public class TwittsSource {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TwitterServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TwittsSource.class);
 
 	private TwitterStream twitterStream;
 
@@ -66,8 +65,7 @@ public class TwitterServiceImpl implements TwitterService {
 		LOGGER.info("Twitter client disconnected");
 	}
 
-	@Override
-	public Observable<Status> getTwitts() {
+	public Observable<Status> twitts() {
 		return Observable.create(new OnSubscribe<Status>() {
 			public void call(Subscriber<? super Status> subscriber) {
 

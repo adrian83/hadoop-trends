@@ -3,7 +3,7 @@ package ab.java.twittertrends.web.hashtag;
 import java.time.LocalDate;
 import java.util.List;
 
-import ab.java.twittertrends.domain.twitter.hashtag.domain.Hashtag;
+import ab.java.twittertrends.domain.twitter.hashtag.Hashtag;
 
 public class PopularHashtagsDto {
 
