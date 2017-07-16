@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,4 +35,15 @@ public class HashtagRepository {
 				.collect(Collectors.toList());
 	}
 
+	public List<HashtagDoc> popularHashtags(int count) {
+	
+		LOGGER.debug("Fetch {} most popular hashtags", count);
+
+		return reactiveMongoTemplate
+		.findAll(HashtagDoc.class)
+		.sort(Comparator.<HashtagDoc>comparingLong(t -> t.getCount()))
+		.buffer(count)
+		.blockFirst();
+	}
+	
 }
