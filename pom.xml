@@ -15,7 +15,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.0.0.M2</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath /> 
 	</parent>
 
 	<properties>
@@ -45,17 +45,17 @@
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
-		
-				<dependency>
+
+
+		<dependency>
 			<groupId>io.reactivex</groupId>
 			<artifactId>rxjava</artifactId>
-			<version>1.2.4</version><!--$NO-MVN-MAN-VER$-->
+			<version>1.2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>io.reactivex</groupId>
 			<artifactId>rxjava-reactive-streams</artifactId>
-			<version>1.2.1</version><!--$NO-MVN-MAN-VER$-->
+			<version>1.2.1</version>
 		</dependency>
 
 
@@ -74,25 +74,21 @@
 			<artifactId>twitter4j-stream</artifactId>
 			<version>4.0.5</version>
 		</dependency>
-		
-				<dependency>
+
+		<dependency>
 			<groupId>org.immutables</groupId>
 			<artifactId>value</artifactId>
 			<version>2.4.3</version>
 			<scope>provided</scope>
 		</dependency>
-		
-		
-<!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
-<dependency>
-    <groupId>org.mongodb</groupId>
-    <artifactId>mongo-java-driver</artifactId>
-    <version>3.4.2</version>
-</dependency>
 
- 
-		
-		
+
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>

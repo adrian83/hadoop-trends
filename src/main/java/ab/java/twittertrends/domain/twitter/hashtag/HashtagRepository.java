@@ -7,6 +7,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import ab.java.twittertrends.domain.common.Observables;
+import reactor.core.publisher.Flux;
+import rx.Observable;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,15 +39,16 @@ public class HashtagRepository {
 				.collect(Collectors.toList());
 	}
 
-	public List<HashtagDoc> popularHashtags(int count) {
+	public Observable<List<HashtagDoc>> popularHashtags(int count) {
 	
 		LOGGER.debug("Fetch {} most popular hashtags", count);
 
-		return reactiveMongoTemplate
+		Flux<List<HashtagDoc>> flux = reactiveMongoTemplate
 		.findAll(HashtagDoc.class)
-		.sort(Comparator.<HashtagDoc>comparingLong(t -> t.getCount()))
-		.buffer(count)
-		.blockFirst();
+				.sort(Comparator.<HashtagDoc>comparingLong(t -> t.getCount()).reversed())
+				.buffer(count);
+				
+				return Observables.fromFlux(flux);
 	}
 	
 }
