@@ -1,4 +1,4 @@
-package ab.java.twittertrends.web.hashtag;
+package ab.java.twittertrends.web.twitter.controller;
 
 import java.util.List;
 
@@ -17,8 +17,8 @@ public class HashtagController {
 @Autowired
 private HashtagFetcher hashtagFetcher;
 
-	@RequestMapping(value = "/hashtags/popular")
-	public Observable<List<Hashtag>> starters() {
+	@RequestMapping(value = "/hashtags")
+	public Observable<List<Hashtag>> hashtags() {
 		
 		return hashtagFetcher.hashtags().first();
 	}

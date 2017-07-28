@@ -40,7 +40,7 @@ public class HashtagProcessor {
 		twittsSource.twitts()
 		.map(s -> s.getText())
         .flatMap(text -> hashtagFinder.findHashtags(text))
-        .buffer(500)
+        .buffer(200)
         .subscribe(hashtags -> {
         	List<Hashtag> tags = hashtags.stream()
         	.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))

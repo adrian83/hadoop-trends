@@ -20,8 +20,6 @@ public class HashtagFetcher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HashtagFetcher.class);
 
-
-	
 	@Autowired
 	private HashtagRepository mongoRepository;
 	
@@ -48,9 +46,5 @@ public class HashtagFetcher {
 	public Observable<List<Hashtag>> hashtags() {
 		return hashtags;
 	}
-	
-	
-	
-	
 	
 }
