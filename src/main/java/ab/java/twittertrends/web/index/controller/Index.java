@@ -21,7 +21,7 @@ public class Index {
         return "Hello World";
     }
 
-    @RequestMapping(value = {"trends/index", "/index"})
+    @RequestMapping(value = "/index")
     public String index() {
 
         return "index";

@@ -66,7 +66,7 @@ public class TwittsSource {
 	}
 
 	public Observable<Status> twitts() {
-		return Observable.create(new OnSubscribe<Status>() {
+		return Observable.unsafeCreate(new OnSubscribe<Status>() {
 			public void call(Subscriber<? super Status> subscriber) {
 
 				twitterStream.addListener(new StatusAdapter() {

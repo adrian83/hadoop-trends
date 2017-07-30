@@ -16,7 +16,7 @@ public class HashtagFinder {
 
 	public Observable<String> findHashtags(String text) {
 
-		return Observable.create(new OnSubscribe<String>() {
+		return Observable.unsafeCreate(new OnSubscribe<String>() {
 
 			@Override
 			public void call(Subscriber<? super String> subscriber) {
