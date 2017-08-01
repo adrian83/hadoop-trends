@@ -48,7 +48,7 @@ public class HashtagRepository {
 				.sort(Comparator.<HashtagDoc>comparingLong(t -> t.getCount()).reversed())
 				.buffer(count);
 				
-				return Observables.fromFlux(flux);
+				return Observables.fromFlux(flux).first().onBackpressureDrop();
 	}
 	
 }

@@ -18,7 +18,6 @@ public class RetwittController {
 	
 	@RequestMapping(value = "/retwitts")
 	public Observable<List<Retwitt>> retwitts() {
-		
 		return retwittFetcher.retwitts().first();
 	}
 	

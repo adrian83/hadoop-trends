@@ -30,7 +30,7 @@ public class HashtagFetcher {
 	public void postCreate() {
 		LOGGER.debug("Starting reading hashtags");
 		
- 		hashtags = Observable.interval(5, TimeUnit.SECONDS)
+ 		hashtags = Observable.interval(10, TimeUnit.SECONDS)
 				.flatMap(i -> mongoRepository.popularHashtags(10)		
 						.map(hdl -> hdl.stream()
 								.map(hd -> (Hashtag)ImmutableHashtag.builder()
