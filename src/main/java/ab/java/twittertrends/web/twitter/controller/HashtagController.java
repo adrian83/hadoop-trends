@@ -23,7 +23,7 @@ public class HashtagController {
 		return hashtagFetcher.hashtags().first();
 	}
 
-	@GetMapping(name = "/sse/hashtags", produces = "text/event-stream")
+	@GetMapping(value = "/sse/hashtags", produces = "text/event-stream")
 	public Observable<ServerSentEvent<List<Hashtag>>> sseHashtags() {
 		return hashtagFetcher.hashtags().map(l -> ServerSentEvent.builder(l).build());
 	}

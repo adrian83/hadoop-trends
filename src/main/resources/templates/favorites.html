@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-    <title>Twitter trends :: Popular hashtags</title>
+    <title>Twitter trends :: Most favorites</title>
 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
@@ -14,17 +14,17 @@
 
     <script type="text/javascript">
 
-    var source = new EventSource("/sse/hashtags");
+    var source = new EventSource("/sse/favorites");
     source.onmessage = function(event) {
-        var newHashtags = JSON.parse(event.data);
-        if(newHashtags.length > 0){
+        var newFavorites = JSON.parse(event.data);
+        if(newFavorites.length > 0){
         	document.getElementById("info").innerHTML = "";
         }
         var html = "<ul class=\"list-group\">";
-        for(var i=0; i < newHashtags.length; i++){
-        	var hashtag = newHashtags[i];
-        	var a = "<a target=\"_blank\" href=\"https://twitter.com/hashtag/" + hashtag.name.substring(1) + "\">" + hashtag.name + "</a>";
-        	html += "<li class=\"list-group-item\"><span class=\"badge\">" + hashtag.count + "</span>" + a + "</li>";
+        for(var i=0; i < newFavorites.length; i++){
+        	var hashtag = newFavorites[i];
+        	var a = "<a target=\"_blank\" href=\"https://twitter.com/hashtag/" + hashtag.id + "\">" + hashtag.id + "</a>";
+        	html += "<li class=\"list-group-item\"><span class=\"badge\">" + hashtag.favorite + "</span>" + a + "</li>";
         }
         html += "</ul>";
         document.getElementById("result").innerHTML = html;
