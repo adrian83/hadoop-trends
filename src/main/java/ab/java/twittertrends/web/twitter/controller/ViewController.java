@@ -26,4 +26,9 @@ public class ViewController {
 		return "favorites";
 	}
 	
+	@RequestMapping(value = "/view/replies")
+	public String replies() {
+		return "replies";
+	}
+	
 }
