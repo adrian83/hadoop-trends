@@ -47,10 +47,10 @@ public class ReplyRepository {
 		
 		LOGGER.debug("Fetch {} replies", count);
 
-		Flux<List<ReplyDoc>> flux = reactiveMongoTemplate
-		.findAll(ReplyDoc.class)
+		Flux<List<ReplyDoc>> flux = reactiveMongoTemplate.findAll(ReplyDoc.class)
 				.sort(Comparator.<ReplyDoc>comparingLong(t -> t.getCount()).reversed())
-				.buffer(count).take(1);
+				.buffer(count)
+				.take(1);
 				
 				return Observables.fromFlux(flux);
 	}

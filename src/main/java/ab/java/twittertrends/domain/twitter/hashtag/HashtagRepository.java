@@ -43,10 +43,10 @@ public class HashtagRepository {
 	
 		LOGGER.debug("Fetch {} most popular hashtags", count);
 
-		Flux<List<HashtagDoc>> flux = reactiveMongoTemplate
-		.findAll(HashtagDoc.class)
+		Flux<List<HashtagDoc>> flux = reactiveMongoTemplate.findAll(HashtagDoc.class)
 				.sort(Comparator.<HashtagDoc>comparingLong(t -> t.getCount()).reversed())
-				.buffer(count);
+				.buffer(count)
+				.take(1);
 				
 				return Observables.fromFlux(flux).first().onBackpressureDrop();
 	}

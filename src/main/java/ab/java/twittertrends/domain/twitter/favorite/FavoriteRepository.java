@@ -17,8 +17,6 @@ import ab.java.twittertrends.domain.common.Observables;
 import reactor.core.publisher.Flux;
 import rx.Observable;
 
-
-
 @Component
 public class FavoriteRepository {
 
@@ -26,11 +24,10 @@ public class FavoriteRepository {
 
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
-	
-	
+
 	public void save(List<Favorite> favorites) {
 		System.out.println(favorites);
-		
+
 		LOGGER.debug("Saving / updating {} favorites", favorites.size());
 
 		favorites.stream()
@@ -40,18 +37,17 @@ public class FavoriteRepository {
 				.map(m -> m.block()) // TODO this need to be fixed
 				.collect(Collectors.toList());
 	}
-	
+
 	public Observable<List<FavoriteDoc>> favorites(int count) {
-		
+
 		LOGGER.debug("Fetch {} most popular favorites", count);
 
-		Flux<List<FavoriteDoc>> flux = reactiveMongoTemplate
-		.findAll(FavoriteDoc.class)
+		Flux<List<FavoriteDoc>> flux = reactiveMongoTemplate.findAll(FavoriteDoc.class)
 				.sort(Comparator.<FavoriteDoc>comparingLong(t -> t.getFaworite()).reversed())
-				.buffer(count);
-				
-				return Observables.fromFlux(flux);
+				.buffer(count)
+				.take(1);
+
+		return Observables.fromFlux(flux);
 	}
-	
-	
+
 }

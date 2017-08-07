@@ -45,10 +45,10 @@ public class RetwittRepository {
 		
 		LOGGER.debug("Fetch {} most popular twitts", count);
 
-		Flux<List<RetwittDoc>> flux = reactiveMongoTemplate
-		.findAll(RetwittDoc.class)
+		Flux<List<RetwittDoc>> flux = reactiveMongoTemplate.findAll(RetwittDoc.class)
 				.sort(Comparator.<RetwittDoc>comparingLong(t -> t.getRetwitted()).reversed())
-				.buffer(count);
+				.buffer(count)
+				.take(1);
 				
 				return Observables.fromFlux(flux);
 	}
