@@ -10,29 +10,28 @@
 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="/js/sseclient.js"></script>
 
     <script type="text/javascript">
-
-    var source = new EventSource("/sse/replies");
-    source.onmessage = function(event) {
-        var newHashtags = JSON.parse(event.data);
-        if(newHashtags.length > 0){
+    
+    function onMsg(newReplies) {
+        if(newReplies.length > 0){
         	document.getElementById("info").innerHTML = "";
         }
         var html = "<ul class=\"list-group\">";
-        for(var i=0; i < newHashtags.length; i++){
-        	var hashtag = newHashtags[i];
-        	//alert(hashtag.id);
-        	var a = "<a target=\"_blank\" href=\"https://twitter.com/" + hashtag.user + "/status/" + hashtag.id + "\">" + hashtag.user + " - " + hashtag.id + "</a>";
-        	html += "<li class=\"list-group-item\"><span class=\"badge\">" + hashtag.count + "</span>" + a + "</li>";
+        for(var i=0; i < newReplies.length; i++){
+        	var reply = newReplies[i];
+        	var a = "<a target=\"_blank\" href=\"https://twitter.com/" + reply.user + "/status/" + reply.id + "\">" + reply.user + " - " + reply.id + "</a>";
+        	html += "<li class=\"list-group-item\"><span class=\"badge\">" + reply.count + "</span>" + a + "</li>";
         }
         html += "</ul>";
         document.getElementById("result").innerHTML = html;
-    };
-    source.onopen = function(event) {
-    	document.getElementById("info").innerHTML = "<div class=\"alert alert-info\" role=\"alert\">Some data should appear soon.</div>";
-    };
+    }
+    
+    var client = new SseClient("/sse/replies", "info", onMsg);
+    client.start();
 
     </script>
   </head>

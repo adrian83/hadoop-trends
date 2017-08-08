@@ -10,12 +10,13 @@
 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="/js/sseclient.js"></script>
 
     <script type="text/javascript">
 
-    var source = new EventSource("/sse/favorites");
-    source.onmessage = function(event) {
+    function onMsg(newFavorites) {
         var newFavorites = JSON.parse(event.data);
         if(newFavorites.length > 0){
         	document.getElementById("info").innerHTML = "";
@@ -28,11 +29,11 @@
         }
         html += "</ul>";
         document.getElementById("result").innerHTML = html;
-    };
-    source.onopen = function(event) {
-    	document.getElementById("info").innerHTML = "<div class=\"alert alert-info\" role=\"alert\">Some data should appear soon.</div>";
-    };
-
+    }
+    
+    var client = new SseClient("/sse/favorites", "info", onMsg);
+    client.start();
+    
     </script>
   </head>
 
