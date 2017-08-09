@@ -1,74 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-    <title>Twitter trends</title>
+		<title>Twitter trends</title>
 
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-  </head>
+		<script src="/js/menu.js"></script>
 
-  <body>
+	</head>
 
-    <div class="container">
+	<body>
 
-      <div class="masthead">
-        <h3 class="text-muted">Twitter trends</h3>
-      </div>
+		<div class="container">
+
+			<div class="masthead">
+				<h3 class="text-muted"><a href="/">Twitter trends</a></h3>
+			</div>
       
-      <br/>
+            <br/>
       
-	<div class="bs-example" data-example-id="inverted-navbar"> 
-		<nav class="navbar navbar-inverse"> 
-			<div class="container-fluid"> 
-				<div class="navbar-header"> 
-					<button type="button" class="collapsed navbar-toggle" 
-							data-toggle="collapse" data-target="#bs-example-navbar-collapse-9" 
-							aria-expanded="false"> 
-						<span class="sr-only">Toggle navigation</span> 
-						<span class="icon-bar"></span> 
-						<span class="icon-bar"></span> 
-						<span class="icon-bar"></span> 
-					</button> 
-					<a href="#" class="navbar-brand">Trends</a> 
-				</div> 
-				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-9"> 
-					<ul class="nav navbar-nav"> 
-						<li class="active">
-							<a href="#">index</a>
-						</li> 
-						<li>
-							<a href="/view/hashtags">hashtags</a>
-						</li> 
-						<li>
-							<a href="/view/retwitts">retwitts</a>
-						</li> 
-						<li>
-							<a href="/view/favorites">favorites</a>
-						</li> 
-						<li>
-							<a href="/view/replies">replies</a>
-						</li> 
-					</ul> 
-				</div> 
-			</div> 
-		</nav> 
-	</div>
+			<div id="menu"></div>
       
-        <br/>
-      
+			<script type="text/javascript">new Menu("x", "menu").draw();</script>
 
+		</div> 
 
-    </div> 
-
-  </body>
+	</body>
 </html>
 
 
