@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.retwitt;
+package ab.java.twittertrends.domain.twitter.retwitt.repository;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,6 +14,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.common.Observables;
+import ab.java.twittertrends.domain.twitter.retwitt.ImmutableRetwitt;
+import ab.java.twittertrends.domain.twitter.retwitt.Retwitt;
 import reactor.core.publisher.Flux;
 import rx.Observable;
 
@@ -41,12 +43,16 @@ public class RetwittRepository {
 				.collect(Collectors.toList());
 	}
 	
-	public Observable<List<RetwittDoc>> popularTwitts(int count) {
+	public Observable<List<Retwitt>> popularTwitts(int count) {
 		
 		LOGGER.debug("Fetch {} most popular twitts", count);
 
-		Flux<List<RetwittDoc>> flux = reactiveMongoTemplate.findAll(RetwittDoc.class)
+		Flux<List<Retwitt>> flux = reactiveMongoTemplate.findAll(RetwittDoc.class)
 				.sort(Comparator.<RetwittDoc>comparingLong(t -> t.getRetwitted()).reversed())
+				.map(doc -> (Retwitt) ImmutableRetwitt.builder()
+						.id(doc.getTwittId())
+						.retwitted(doc.getRetwitted())
+						.build())
 				.buffer(count)
 				.take(1);
 				

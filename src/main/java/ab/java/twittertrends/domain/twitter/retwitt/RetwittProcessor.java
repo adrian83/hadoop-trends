@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.TwittsSource;
+import ab.java.twittertrends.domain.twitter.retwitt.repository.RetwittRepository;
 
 @Component
 public class RetwittProcessor {

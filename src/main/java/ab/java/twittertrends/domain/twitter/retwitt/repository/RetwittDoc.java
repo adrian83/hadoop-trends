@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.retwitt;
+package ab.java.twittertrends.domain.twitter.retwitt.repository;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

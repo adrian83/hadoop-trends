@@ -2,7 +2,6 @@ package ab.java.twittertrends.domain.twitter.reply;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -11,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ab.java.twittertrends.domain.twitter.reply.repository.ReplyRepository;
 import rx.Observable;
 import rx.observables.ConnectableObservable;
 
@@ -29,14 +29,7 @@ public class ReplyFetcher {
 		LOGGER.debug("Starting reading replies");
 		
 		replies = Observable.interval(5, TimeUnit.SECONDS)
-				.flatMap(i -> replyRepository.replies(10)		
-						.map(hdl -> hdl.stream()
-								.map(hd -> (Reply)ImmutableReply.builder()
-										.id(hd.getTwittId().toString())
-										.user(hd.getUser())
-										.count(hd.getCount())
-										.build())
-								.collect(Collectors.toList())))
+				.flatMap(i -> replyRepository.replies(10))	
  				.publish();
  		
 		replies.connect();

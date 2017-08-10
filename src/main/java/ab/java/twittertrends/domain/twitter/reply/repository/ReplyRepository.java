@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.reply;
+package ab.java.twittertrends.domain.twitter.reply.repository;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,6 +14,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.common.Observables;
+import ab.java.twittertrends.domain.twitter.reply.ImmutableReply;
+import ab.java.twittertrends.domain.twitter.reply.Reply;
 import reactor.core.publisher.Flux;
 import rx.Observable;
 
@@ -29,7 +31,6 @@ public class ReplyRepository {
 	
 	
 	public void save(List<Reply> replies) {
-		System.out.println(replies);
 		
 		LOGGER.debug("Saving / updating {} replies", replies.size());
 
@@ -43,16 +44,20 @@ public class ReplyRepository {
 				.collect(Collectors.toList());
 	}
 	
-	public Observable<List<ReplyDoc>> replies(int count) {
+	public Observable<List<Reply>> replies(int count) {
 		
 		LOGGER.debug("Fetch {} replies", count);
 
-		Flux<List<ReplyDoc>> flux = reactiveMongoTemplate.findAll(ReplyDoc.class)
+		Flux<List<Reply>> flux = reactiveMongoTemplate.findAll(ReplyDoc.class)
 				.sort(Comparator.<ReplyDoc>comparingLong(t -> t.getCount()).reversed())
+				.map(doc -> (Reply) ImmutableReply.builder()
+						.user(doc.getUser())
+						.id(doc.getTwittId().toString())
+						.build())
 				.buffer(count)
 				.take(1);
 				
-				return Observables.fromFlux(flux);
+		return Observables.fromFlux(flux);
 	}
 
 }
