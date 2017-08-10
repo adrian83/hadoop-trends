@@ -8,11 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.TwittsSource;
+import ab.java.twittertrends.domain.twitter.favorite.repository.FavoriteRepository;
 
 @Component
 public class FavoriteProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FavoriteProcessor.class);
+	
+	private static final int DEF_BUFFER_SIZE = 20;
 
 	@Autowired
 	private TwittsSource twittsSource;
@@ -24,7 +27,6 @@ public class FavoriteProcessor {
 	@PostConstruct
 	public void postCreate() {
 		LOGGER.debug("Starting processing favorites");
-		
 		persistTwitts();
 	}
 	
@@ -35,10 +37,8 @@ public class FavoriteProcessor {
 				.id(s.getId())
 				.favorite(s.getFavoriteCount())
 				.build())
-        .buffer(2)
+        .buffer(DEF_BUFFER_SIZE)
         .subscribe(favoriteRepository::save);
 	}
-	
-	
-	
+
 }

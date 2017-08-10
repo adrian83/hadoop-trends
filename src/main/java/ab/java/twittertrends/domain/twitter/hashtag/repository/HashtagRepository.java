@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.hashtag;
+package ab.java.twittertrends.domain.twitter.hashtag.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -8,6 +8,9 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.common.Observables;
+import ab.java.twittertrends.domain.twitter.hashtag.Hashtag;
+import ab.java.twittertrends.domain.twitter.hashtag.HashtagProcessor;
+import ab.java.twittertrends.domain.twitter.hashtag.ImmutableHashtag;
 import reactor.core.publisher.Flux;
 import rx.Observable;
 
@@ -27,7 +30,6 @@ public class HashtagRepository {
 	private ReactiveMongoTemplate reactiveMongoTemplate;
 
 	public void save(List<Hashtag> hashtags) {
-		System.out.println(hashtags);
 		
 		LOGGER.debug("Saving / updating {} hashtags", hashtags.size());
 
@@ -39,12 +41,16 @@ public class HashtagRepository {
 				.collect(Collectors.toList());
 	}
 
-	public Observable<List<HashtagDoc>> popularHashtags(int count) {
+	public Observable<List<Hashtag>> popularHashtags(int count) {
 	
 		LOGGER.debug("Fetch {} most popular hashtags", count);
 
-		Flux<List<HashtagDoc>> flux = reactiveMongoTemplate.findAll(HashtagDoc.class)
+		Flux<List<Hashtag>> flux = reactiveMongoTemplate.findAll(HashtagDoc.class)
 				.sort(Comparator.<HashtagDoc>comparingLong(t -> t.getCount()).reversed())
+				.map(doc -> (Hashtag) ImmutableHashtag.builder()
+						.name(doc.getName())
+						.count(doc.getCount())
+						.build() )
 				.buffer(count)
 				.take(1);
 				

@@ -28,5 +28,4 @@ public class HashtagController {
 		return hashtagFetcher.hashtags().map(l -> ServerSentEvent.builder(l).build());
 	}
 
-
 }

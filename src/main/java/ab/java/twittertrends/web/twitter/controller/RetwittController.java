@@ -27,4 +27,5 @@ public class RetwittController {
 	public Observable<ServerSentEvent<List<Retwitt>>> sseRetwitts() {
 		return retwittFetcher.retwitts().map(l -> ServerSentEvent.builder(l).build());
 	}
+	
 }

@@ -28,5 +28,4 @@ public class ReplyController {
 		return replyFetcher.replies().map(l -> ServerSentEvent.builder(l).build());
 	}
 
-
 }

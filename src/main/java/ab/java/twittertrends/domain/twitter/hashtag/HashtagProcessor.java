@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ab.java.twittertrends.domain.twitter.TwittsSource;
+import ab.java.twittertrends.domain.twitter.hashtag.repository.HashtagRepository;
 
 @Component
 public class HashtagProcessor {

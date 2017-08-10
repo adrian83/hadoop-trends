@@ -1,10 +1,7 @@
 package ab.java.twittertrends.domain.twitter.hashtag;
 
-
-
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -12,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import ab.java.twittertrends.domain.twitter.hashtag.repository.HashtagRepository;
 import rx.Observable;
 import rx.observables.ConnectableObservable;
 
@@ -31,13 +30,7 @@ public class HashtagFetcher {
 		LOGGER.debug("Starting reading hashtags");
 		
  		hashtags = Observable.interval(10, TimeUnit.SECONDS)
-				.flatMap(i -> mongoRepository.popularHashtags(10)		
-						.map(hdl -> hdl.stream()
-								.map(hd -> (Hashtag)ImmutableHashtag.builder()
-										.count(hd.getCount())
-										.name(hd.getName())
-										.build())
-								.collect(Collectors.toList())))
+				.flatMap(i -> mongoRepository.popularHashtags(10))
  				.publish();
  		
  		hashtags.connect();

@@ -29,6 +29,8 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
 	private static final String HOST_PROP = "mongo_host";
 	private static final String PORT_PROP = "mongo_port";
 	private static final String DB_NAME_PROP = "mongo_db_name";
+	
+	private static final String MONGO_URL_PATTERN = "mongodb://%s:%s";
 
 	@Autowired
 	private Environment env;
@@ -37,7 +39,7 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
 	@Bean
 	public MongoClient mongoClient() {
 		final String connectionStr = String.format(
-				"mongodb://%s:%s", 
+				MONGO_URL_PATTERN, 
 				env.getRequiredProperty(HOST_PROP),
 				env.getRequiredProperty(PORT_PROP, Integer.class));
 		return MongoClients.create(connectionStr);

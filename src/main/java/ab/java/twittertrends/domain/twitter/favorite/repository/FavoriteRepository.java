@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.favorite;
+package ab.java.twittertrends.domain.twitter.favorite.repository;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,6 +14,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.common.Observables;
+import ab.java.twittertrends.domain.twitter.favorite.Favorite;
+import ab.java.twittertrends.domain.twitter.favorite.ImmutableFavorite;
 import reactor.core.publisher.Flux;
 import rx.Observable;
 
@@ -38,12 +40,16 @@ public class FavoriteRepository {
 				.collect(Collectors.toList());
 	}
 
-	public Observable<List<FavoriteDoc>> favorites(int count) {
+	public Observable<List<Favorite>> favorites(int count) {
 
 		LOGGER.debug("Fetch {} most popular favorites", count);
 
-		Flux<List<FavoriteDoc>> flux = reactiveMongoTemplate.findAll(FavoriteDoc.class)
-				.sort(Comparator.<FavoriteDoc>comparingLong(t -> t.getFaworite()).reversed())
+		Flux<List<Favorite>> flux = reactiveMongoTemplate.findAll(FavoriteDoc.class)
+				.sort(Comparator.<FavoriteDoc>comparingLong(FavoriteDoc::getFaworite).reversed())
+				.map(doc -> (Favorite)ImmutableFavorite.builder()
+						.id(doc.getTwittId())
+						.favorite(doc.getFaworite())
+						.build())
 				.buffer(count)
 				.take(1);
 
