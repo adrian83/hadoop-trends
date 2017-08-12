@@ -2,11 +2,11 @@ package ab.java.twittertrends.domain.twitter.reply;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import rx.observables.ConnectableObservable;
 @Component
 public class ReplyFetcher {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ReplyFetcher.class);
+	private static final Logger LOGGER = Logger.getLogger(ReplyFetcher.class.getSimpleName());
 
 	@Autowired
 	private ReplyRepository replyRepository;
@@ -26,13 +26,14 @@ public class ReplyFetcher {
 		
 	@PostConstruct
 	public void postCreate() {
-		LOGGER.debug("Starting reading replies");
+		LOGGER.log(Level.INFO, "Created");
 		
 		replies = Observable.interval(5, TimeUnit.SECONDS)
-				.flatMap(i -> replyRepository.replies(10))	
+				.flatMap(i -> replyRepository.mostReplied(10))	
  				.publish();
  		
 		replies.connect();
+		LOGGER.log(Level.INFO, "Hot observable started");
 	}
 	
 	public Observable<List<Reply>> replies() {

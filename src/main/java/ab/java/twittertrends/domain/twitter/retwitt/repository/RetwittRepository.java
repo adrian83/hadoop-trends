@@ -2,10 +2,10 @@ package ab.java.twittertrends.domain.twitter.retwitt.repository;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,21 +19,18 @@ import ab.java.twittertrends.domain.twitter.retwitt.Retwitt;
 import reactor.core.publisher.Flux;
 import rx.Observable;
 
-
-
 @Component
 public class RetwittRepository {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RetwittRepository.class);
+	private static final Logger LOGGER = Logger.getLogger(RetwittRepository.class.getSimpleName());
 
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
 	
 	
 	public void save(List<Retwitt> retwitts) {
-		System.out.println(retwitts);
 		
-		LOGGER.debug("Saving / updating {} retwitts", retwitts.size());
+		LOGGER.log(Level.INFO, "Saving / updating {0} retwitts", retwitts.size());
 
 		retwitts.stream()
 				// it has to be changed to bulk operations in the near future
@@ -43,9 +40,9 @@ public class RetwittRepository {
 				.collect(Collectors.toList());
 	}
 	
-	public Observable<List<Retwitt>> popularTwitts(int count) {
+	public Observable<List<Retwitt>> mostRetwitted(int count) {
 		
-		LOGGER.debug("Fetch {} most popular twitts", count);
+		LOGGER.log(Level.INFO, "Getting {0} retwitts", count);
 
 		Flux<List<Retwitt>> flux = reactiveMongoTemplate.findAll(RetwittDoc.class)
 				.sort(Comparator.<RetwittDoc>comparingLong(t -> t.getRetwitted()).reversed())
@@ -56,7 +53,9 @@ public class RetwittRepository {
 				.buffer(count)
 				.take(1);
 				
-				return Observables.fromFlux(flux);
+		return Observables.fromFlux(flux)
+				.first()
+				.onBackpressureDrop();
 	}
 	
 	

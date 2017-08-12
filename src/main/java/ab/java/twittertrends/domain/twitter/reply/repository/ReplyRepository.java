@@ -2,10 +2,11 @@ package ab.java.twittertrends.domain.twitter.reply.repository;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -24,7 +25,7 @@ import rx.Observable;
 @Component
 public class ReplyRepository {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ReplyRepository.class);
+	private static final Logger LOGGER = Logger.getLogger(ReplyRepository.class.getSimpleName());
 
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
@@ -32,7 +33,7 @@ public class ReplyRepository {
 	
 	public void save(List<Reply> replies) {
 		
-		LOGGER.debug("Saving / updating {} replies", replies.size());
+		LOGGER.log(Level.INFO, "Saving / updating {0} replies", replies.size());
 
 		replies.stream()
 				// it has to be changed to bulk operations in the near future
@@ -44,20 +45,23 @@ public class ReplyRepository {
 				.collect(Collectors.toList());
 	}
 	
-	public Observable<List<Reply>> replies(int count) {
+	public Observable<List<Reply>> mostReplied(int count) {
 		
-		LOGGER.debug("Fetch {} replies", count);
+		LOGGER.log(Level.INFO, "Getting {0} replies", count);
 
 		Flux<List<Reply>> flux = reactiveMongoTemplate.findAll(ReplyDoc.class)
 				.sort(Comparator.<ReplyDoc>comparingLong(t -> t.getCount()).reversed())
 				.map(doc -> (Reply) ImmutableReply.builder()
 						.user(doc.getUser())
 						.id(doc.getTwittId().toString())
+						.count(doc.getCount())
 						.build())
 				.buffer(count)
 				.take(1);
 				
-		return Observables.fromFlux(flux);
+		return Observables.fromFlux(flux)
+				.first()
+				.onBackpressureDrop();
 	}
 
 }

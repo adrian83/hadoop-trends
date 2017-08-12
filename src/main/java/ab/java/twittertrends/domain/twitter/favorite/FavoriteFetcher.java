@@ -2,11 +2,12 @@ package ab.java.twittertrends.domain.twitter.favorite;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,7 @@ import rx.observables.ConnectableObservable;
 @Component
 public class FavoriteFetcher {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(FavoriteFetcher.class);
+	private static final Logger LOGGER = Logger.getLogger(FavoriteProcessor.class.getSimpleName());
 
 	@Autowired
 	private FavoriteRepository favoriteRepository;
@@ -26,13 +27,14 @@ public class FavoriteFetcher {
 		
 	@PostConstruct
 	public void postCreate() {
-		LOGGER.debug("Starting reading favorites");
+		LOGGER.log(Level.INFO, "Created");
 		
 		favorites = Observable.interval(5, TimeUnit.SECONDS)
-				.flatMap(i -> favoriteRepository.favorites(10))
+				.flatMap(i -> favoriteRepository.mostFavorited(10))
  				.publish();
  		
 		favorites.connect();
+		LOGGER.log(Level.INFO, "Hot observable started");
 	}
 	
 	public Observable<List<Favorite>> favorites() {

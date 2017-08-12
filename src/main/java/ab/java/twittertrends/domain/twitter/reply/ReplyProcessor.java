@@ -1,9 +1,11 @@
 package ab.java.twittertrends.domain.twitter.reply;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,8 +15,10 @@ import ab.java.twittertrends.domain.twitter.reply.repository.ReplyRepository;
 @Component
 public class ReplyProcessor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ReplyProcessor.class);
+	private static final Logger LOGGER = Logger.getLogger(ReplyProcessor.class.getSimpleName());
 
+	private static final int DEF_BUFFER_SIZE = 1000;
+	
 	@Autowired
 	private TwittsSource twittsSource;
 	
@@ -24,12 +28,13 @@ public class ReplyProcessor {
 	
 	@PostConstruct
 	public void postCreate() {
-		LOGGER.debug("Starting processing retwitts");
-		
-		persistTwitts();
+		LOGGER.log(Level.INFO, "ReplyProcessor created");
+		persistReplies();
 	}
 	
-	private void persistTwitts() {
+	private void persistReplies() {
+		LOGGER.log(Level.INFO, "Starting persisting replies");
+		
 		twittsSource.twitts()
 		.filter(s -> s.getInReplyToStatusId() > 0)
 		.map(s -> (Reply)ImmutableReply.builder()
@@ -37,7 +42,7 @@ public class ReplyProcessor {
 				.count(1)
 				.user(s.getInReplyToScreenName())
 				.build())
-        .buffer(50)
+        .buffer(DEF_BUFFER_SIZE)
         .subscribe(replyRepository::save);
 	}
 	

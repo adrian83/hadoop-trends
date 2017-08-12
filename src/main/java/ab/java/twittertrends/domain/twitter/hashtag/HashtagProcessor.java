@@ -18,7 +18,7 @@ public class HashtagProcessor {
 
 	private static final Logger LOGGER = Logger.getLogger(HashtagProcessor.class.getSimpleName());
 
-	private static final int DEF_BUFFER_SIZE = 100;
+	private static final int DEF_BUFFER_SIZE = 1000;
 	
 	@Autowired
 	private TwittsSource twittsSource;
@@ -27,7 +27,7 @@ public class HashtagProcessor {
 	private HashtagFinder hashtagFinder;
 	
 	@Autowired
-	private HashtagRepository mongoRepository;
+	private HashtagRepository hashtagRepository;
 	
 	
 	@PostConstruct
@@ -44,7 +44,7 @@ public class HashtagProcessor {
         .flatMap(hashtagFinder::findHashtags)
         .buffer(DEF_BUFFER_SIZE)
         .subscribe(hashtags -> {
-        	LOGGER.log(Level.INFO, String.format("Persisting %s hashtags", hashtags.size()));
+        	LOGGER.log(Level.INFO, "Persisting {0} hashtags", hashtags.size());
         	
         	List<Hashtag> tags = hashtags.stream()
         	.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
@@ -56,7 +56,7 @@ public class HashtagProcessor {
         			.build())
         	.collect(Collectors.toList());
         	
-        	mongoRepository.save(tags);
+        	hashtagRepository.save(tags);
         	
         });
 	}
