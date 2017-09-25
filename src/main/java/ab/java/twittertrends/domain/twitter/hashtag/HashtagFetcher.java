@@ -1,19 +1,18 @@
 package ab.java.twittertrends.domain.twitter.hashtag;
 
+import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.hashtag.repository.HashtagRepository;
-import rx.Observable;
-import rx.observables.ConnectableObservable;
+import reactor.core.publisher.ConnectableFlux;
+import reactor.core.publisher.Flux;
 
 @Component
 public class HashtagFetcher {
@@ -23,14 +22,14 @@ public class HashtagFetcher {
 	@Autowired
 	private HashtagRepository hashtagRepository;
 	
-	private ConnectableObservable<List<Hashtag>> hashtags;
+	private ConnectableFlux<List<Hashtag>> hashtags;
 	
 	
 	@PostConstruct
 	public void postCreate() {
 		LOGGER.log(Level.INFO, "Created");
 		
- 		hashtags = Observable.interval(10, TimeUnit.SECONDS)
+ 		hashtags = Flux.interval(Duration.ofSeconds(5l))
 				.flatMap(i -> hashtagRepository.popularHashtags(10))
  				.publish();
  		
@@ -38,7 +37,7 @@ public class HashtagFetcher {
  		LOGGER.log(Level.INFO, "Hot observable started");
 	}
 	
-	public Observable<List<Hashtag>> hashtags() {
+	public Flux<List<Hashtag>> hashtags() {
 		return hashtags;
 	}
 	

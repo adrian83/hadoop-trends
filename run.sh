@@ -5,12 +5,19 @@ usage() {
 
     Usage: $(basename $0) <command>
 
+    start                 Starts the app.
     run-docker            Starts Docker on Arch based GNU Linux.
     run-mongo             Starts MongoDB docker image.
     run-infra             Starts Docker and RethinkDB and Redis
 
 EOF
 	exit 1
+}
+
+start() {
+	set -e
+		mvn clean package && java -jar target/twitter-trends-java-0.0.1-SNAPSHOT.jar
+	set +e
 }
 
 run-docker() {
@@ -38,6 +45,9 @@ run-infra() {
 CMD="$1"
 shift
 case "$CMD" in
+	start)
+		start
+	;;
 	run-docker)
 		run-docker
 	;;

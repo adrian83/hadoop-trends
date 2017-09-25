@@ -1,7 +1,7 @@
 package ab.java.twittertrends.domain.twitter.reply;
 
+import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.reply.repository.ReplyRepository;
-import rx.Observable;
-import rx.observables.ConnectableObservable;
+import reactor.core.publisher.ConnectableFlux;
+import reactor.core.publisher.Flux;
 
 @Component
 public class ReplyFetcher {
@@ -22,13 +22,13 @@ public class ReplyFetcher {
 	@Autowired
 	private ReplyRepository replyRepository;
 	
-	private ConnectableObservable<List<Reply>> replies;
+	private ConnectableFlux<List<Reply>> replies;
 		
 	@PostConstruct
 	public void postCreate() {
 		LOGGER.log(Level.INFO, "Created");
 		
-		replies = Observable.interval(5, TimeUnit.SECONDS)
+		replies = Flux.interval(Duration.ofSeconds(5l))
 				.flatMap(i -> replyRepository.mostReplied(10))	
  				.publish();
  		
@@ -36,7 +36,7 @@ public class ReplyFetcher {
 		LOGGER.log(Level.INFO, "Hot observable started");
 	}
 	
-	public Observable<List<Reply>> replies() {
+	public Flux<List<Reply>> replies() {
 		return replies;
 	}
 	

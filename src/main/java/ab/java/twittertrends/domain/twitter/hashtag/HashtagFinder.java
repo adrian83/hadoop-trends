@@ -2,27 +2,28 @@ package ab.java.twittertrends.domain.twitter.hashtag;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.Observable.OnSubscribe;
+import reactor.core.publisher.Flux;
+
 
 @Component
 public class HashtagFinder {
 	private static final String HASHTAG_PATTERN_STR = "#[a-zA-Z0-9]{1,}";
 	private static final Pattern HASHTAG_PATTERN = Pattern.compile(HASHTAG_PATTERN_STR);
 
-	public Observable<String> findHashtags(String text) {
-
-		return Observable.unsafeCreate(new OnSubscribe<String>() {
+	public Flux<String> findHashtags(String text) {
+		
+		return Flux.from(new Publisher<String>() {
 
 			@Override
-			public void call(Subscriber<? super String> subscriber) {
-
+			public void subscribe(Subscriber<? super String> subscriber) {
 				if (StringUtils.isEmpty(text)) {
-					subscriber.onCompleted();
+					subscriber.onComplete();
 				}
 
 				Matcher matcher = HASHTAG_PATTERN.matcher(text);
@@ -30,7 +31,7 @@ public class HashtagFinder {
 				while (matcher.find()) {
 					subscriber.onNext(text.substring(matcher.start(), matcher.end()));
 				}
-				subscriber.onCompleted();
+				subscriber.onComplete();
 			}
 		});
 	}

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ab.java.twittertrends.domain.twitter.hashtag.Hashtag;
 import ab.java.twittertrends.domain.twitter.hashtag.HashtagFetcher;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 @RestController
 public class HashtagController {
@@ -19,12 +19,12 @@ public class HashtagController {
 	private HashtagFetcher hashtagFetcher;
 
 	@RequestMapping(value = "/hashtags")
-	public Observable<List<Hashtag>> hashtags() {
-		return hashtagFetcher.hashtags().first();
+	public Flux<List<Hashtag>> hashtags() {
+		return hashtagFetcher.hashtags().take(1l);
 	}
 
 	@GetMapping(value = "/sse/hashtags", produces = "text/event-stream")
-	public Observable<ServerSentEvent<List<Hashtag>>> sseHashtags() {
+	public Flux<ServerSentEvent<List<Hashtag>>> sseHashtags() {
 		return hashtagFetcher.hashtags().map(l -> ServerSentEvent.builder(l).build());
 	}
 

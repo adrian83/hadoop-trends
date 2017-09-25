@@ -1,7 +1,7 @@
 package ab.java.twittertrends.domain.twitter.retwitt;
 
+import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.retwitt.repository.RetwittRepository;
-import rx.Observable;
-import rx.observables.ConnectableObservable;
+import reactor.core.publisher.ConnectableFlux;
+import reactor.core.publisher.Flux;
 
 @Component
 public class RetwittFetcher {
@@ -22,13 +22,13 @@ public class RetwittFetcher {
 	@Autowired
 	private RetwittRepository retwittRepository;
 	
-	private ConnectableObservable<List<Retwitt>> retwitts;
+	private ConnectableFlux<List<Retwitt>> retwitts;
 		
 	@PostConstruct
 	public void postCreate() {
 		LOGGER.log(Level.INFO, "Created");
 		
-		retwitts = Observable.interval(5, TimeUnit.SECONDS)
+		retwitts = Flux.interval(Duration.ofSeconds(5l))
 				.flatMap(i -> retwittRepository.mostRetwitted(10))
  				.publish();
  		
@@ -36,7 +36,7 @@ public class RetwittFetcher {
 		LOGGER.log(Level.INFO, "Hot observable started");
 	}
 	
-	public Observable<List<Retwitt>> retwitts() {
+	public Flux<List<Retwitt>> retwitts() {
 		return retwitts;
 	}
 	

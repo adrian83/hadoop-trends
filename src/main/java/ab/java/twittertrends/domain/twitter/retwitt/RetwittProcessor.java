@@ -33,7 +33,7 @@ public class RetwittProcessor {
 	
 	private void persistRetwitts() {
 		LOGGER.log(Level.INFO, "Starting persisting retwitts");
-		
+		/*
 		twittsSource.twitts()
 		.filter(s -> s.getRetweetCount() > 0)
 		.map(s -> (Retwitt)ImmutableRetwitt.builder()
@@ -42,6 +42,7 @@ public class RetwittProcessor {
 				.build())
         .buffer(DEF_BUFFER_SIZE)
         .subscribe(retwittRepository::save);
+        */
 	}
 	
 	

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ab.java.twittertrends.domain.twitter.favorite.Favorite;
 import ab.java.twittertrends.domain.twitter.favorite.FavoriteFetcher;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 @RestController
 public class FavoriteController {
@@ -19,12 +19,12 @@ public class FavoriteController {
 	private FavoriteFetcher favoriteFetcher;
 	
 	@RequestMapping(value = "/favorites")
-	public Observable<List<Favorite>> favorites() {
-		return favoriteFetcher.favorites().first();
+	public Flux<List<Favorite>> favorites() {
+		return favoriteFetcher.favorites().take(1);
 	}
 	
 	@GetMapping(value = "/sse/favorites", produces = "text/event-stream")
-	public Observable<ServerSentEvent<List<Favorite>>> sseFavorites() {
+	public Flux<ServerSentEvent<List<Favorite>>> sseFavorites() {
 		return favoriteFetcher.favorites().map(l -> ServerSentEvent.builder(l).build());
 	}
 }

@@ -3,6 +3,8 @@ package ab.java.twittertrends.domain.twitter;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +12,7 @@ import org.springframework.stereotype.Service;
 
 import ab.java.twittertrends.config.TwitterConfig;
 import ab.java.twittertrends.domain.twitter.domain.TwitterAuth;
-import rx.Observable;
-import rx.Observable.OnSubscribe;
-import rx.Subscriber;
+import reactor.core.publisher.Flux;
 import twitter4j.Status;
 import twitter4j.StatusAdapter;
 import twitter4j.TwitterStream;
@@ -25,6 +25,8 @@ public class TwittsSource {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TwittsSource.class);
 
 	private TwitterStream twitterStream;
+	
+	private Flux<Status> flux;
 
 	@Autowired
 	private TwitterConfig twitterConfig;
@@ -52,6 +54,25 @@ public class TwittsSource {
 		});
 
 		twitterStream.sample();
+		
+		flux = Flux.from(new Publisher<Status>() {
+
+			@Override
+			public void subscribe(Subscriber<? super Status> subscriber) {
+
+				twitterStream.addListener(new StatusAdapter() {
+					@Override
+					public void onStatus(Status status) {
+						subscriber.onNext(status);
+					}
+
+					@Override
+					public void onException(Exception ex) {
+						subscriber.onError(ex);
+					}
+				});
+			}
+		});
 
 		LOGGER.info("Twitter client connected");
 	}
@@ -65,24 +86,9 @@ public class TwittsSource {
 		LOGGER.info("Twitter client disconnected");
 	}
 
-	public Observable<Status> twitts() {
-		return Observable.unsafeCreate(new OnSubscribe<Status>() {
-			public void call(Subscriber<? super Status> subscriber) {
-
-				twitterStream.addListener(new StatusAdapter() {
-					@Override
-					public void onStatus(Status status) {
-						subscriber.onNext(status);
-					}
-
-					@Override
-					public void onException(Exception ex) {
-						subscriber.onError(ex);
-					}
-				});
-
-			}
-		});
+	public Flux<Status> twitts() {
+		
+		return flux;
 	}
 
 }
