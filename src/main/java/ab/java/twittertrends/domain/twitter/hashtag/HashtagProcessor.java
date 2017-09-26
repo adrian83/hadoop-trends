@@ -18,7 +18,7 @@ public class HashtagProcessor {
 
 	private static final Logger LOGGER = Logger.getLogger(HashtagProcessor.class.getSimpleName());
 
-	private static final int DEF_BUFFER_SIZE = 1000;
+	private static final int DEF_BUFFER_SIZE = 10;
 	
 	@Autowired
 	private TwittsSource twittsSource;

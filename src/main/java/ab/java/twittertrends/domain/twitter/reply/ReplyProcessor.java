@@ -17,7 +17,7 @@ public class ReplyProcessor {
 
 	private static final Logger LOGGER = Logger.getLogger(ReplyProcessor.class.getSimpleName());
 
-	private static final int DEF_BUFFER_SIZE = 1000;
+	private static final int DEF_BUFFER_SIZE = 10;
 	
 	@Autowired
 	private TwittsSource twittsSource;

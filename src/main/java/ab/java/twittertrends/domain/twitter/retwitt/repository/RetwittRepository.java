@@ -13,11 +13,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import ab.java.twittertrends.domain.common.Observables;
 import ab.java.twittertrends.domain.twitter.retwitt.ImmutableRetwitt;
 import ab.java.twittertrends.domain.twitter.retwitt.Retwitt;
 import reactor.core.publisher.Flux;
-import rx.Observable;
 
 @Component
 public class RetwittRepository {
@@ -40,7 +38,7 @@ public class RetwittRepository {
 				.collect(Collectors.toList());
 	}
 	
-	public Observable<List<Retwitt>> mostRetwitted(int count) {
+	public Flux<List<Retwitt>> mostRetwitted(int count) {
 		
 		LOGGER.log(Level.INFO, "Getting {0} retwitts", count);
 
@@ -51,11 +49,10 @@ public class RetwittRepository {
 						.retwitted(doc.getRetwitted())
 						.build())
 				.buffer(count)
-				.take(1);
-				
-		return Observables.fromFlux(flux)
-				.first()
+				.take(1)
 				.onBackpressureDrop();
+				
+		return flux;
 	}
 	
 	

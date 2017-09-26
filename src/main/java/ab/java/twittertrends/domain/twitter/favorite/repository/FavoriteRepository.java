@@ -13,12 +13,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import ab.java.twittertrends.domain.common.Observables;
 import ab.java.twittertrends.domain.twitter.favorite.Favorite;
 import ab.java.twittertrends.domain.twitter.favorite.ImmutableFavorite;
 import ab.java.twittertrends.domain.twitter.hashtag.repository.HashtagRepository;
 import reactor.core.publisher.Flux;
-import rx.Observable;
 
 @Component
 public class FavoriteRepository {
@@ -42,7 +40,7 @@ public class FavoriteRepository {
 				.collect(Collectors.toList());
 	}
 
-	public Observable<List<Favorite>> mostFavorited(int count) {
+	public Flux<List<Favorite>> mostFavorited(int count) {
 
 		LOGGER.log(Level.INFO, "Getting {0} favorites", count);
 
@@ -53,11 +51,10 @@ public class FavoriteRepository {
 						.favorite(doc.getFaworite())
 						.build())
 				.buffer(count)
-				.take(1);
-
-		return Observables.fromFlux(flux)
-				.first()
+				.take(1)
 				.onBackpressureDrop();
+
+		return flux;
 	}
 
 }

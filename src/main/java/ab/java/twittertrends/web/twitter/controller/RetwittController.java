@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ab.java.twittertrends.domain.twitter.retwitt.Retwitt;
 import ab.java.twittertrends.domain.twitter.retwitt.RetwittFetcher;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 @RestController
 public class RetwittController {
@@ -19,12 +19,12 @@ public class RetwittController {
 	private RetwittFetcher retwittFetcher;
 	
 	@RequestMapping(value = "/retwitts")
-	public Observable<List<Retwitt>> retwitts() {
-		return retwittFetcher.retwitts().first();
+	public Flux<List<Retwitt>> retwitts() {
+		return retwittFetcher.retwitts().take(1);
 	}
 	
 	@GetMapping(value = "/sse/retwitts", produces = "text/event-stream")
-	public Observable<ServerSentEvent<List<Retwitt>>> sseRetwitts() {
+	public Flux<ServerSentEvent<List<Retwitt>>> sseRetwitts() {
 		return retwittFetcher.retwitts().map(l -> ServerSentEvent.builder(l).build());
 	}
 	

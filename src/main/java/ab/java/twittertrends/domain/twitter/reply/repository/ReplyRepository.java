@@ -14,11 +14,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import ab.java.twittertrends.domain.common.Observables;
 import ab.java.twittertrends.domain.twitter.reply.ImmutableReply;
 import ab.java.twittertrends.domain.twitter.reply.Reply;
 import reactor.core.publisher.Flux;
-import rx.Observable;
 
 
 
@@ -45,7 +43,7 @@ public class ReplyRepository {
 				.collect(Collectors.toList());
 	}
 	
-	public Observable<List<Reply>> mostReplied(int count) {
+	public Flux<List<Reply>> mostReplied(int count) {
 		
 		LOGGER.log(Level.INFO, "Getting {0} replies", count);
 
@@ -57,11 +55,9 @@ public class ReplyRepository {
 						.count(doc.getCount())
 						.build())
 				.buffer(count)
-				.take(1);
+				.take(1).onBackpressureDrop();
 				
-		return Observables.fromFlux(flux)
-				.first()
-				.onBackpressureDrop();
+		return flux;
 	}
 
 }

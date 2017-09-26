@@ -7,11 +7,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import ab.java.twittertrends.domain.common.Observables;
 import ab.java.twittertrends.domain.twitter.hashtag.Hashtag;
 import ab.java.twittertrends.domain.twitter.hashtag.ImmutableHashtag;
 import reactor.core.publisher.Flux;
-import rx.Observable;
 
 import java.util.Comparator;
 import java.util.List;
@@ -41,7 +39,7 @@ public class HashtagRepository {
 				.collect(Collectors.toList());
 	}
 
-	public Observable<List<Hashtag>> popularHashtags(int count) {
+	public Flux<List<Hashtag>> popularHashtags(int count) {
 
 		LOGGER.log(Level.INFO, "Getting {0} hashtags", count);
 
@@ -51,11 +49,9 @@ public class HashtagRepository {
 						.name(doc.getName())
 						.count(doc.getCount())
 						.build())
-				.buffer(count).take(1);
+				.buffer(count).take(1).onBackpressureDrop();
 
-		return Observables.fromFlux(flux)
-				.first()
-				.onBackpressureDrop();
+		return flux;
 	}
 
 }
