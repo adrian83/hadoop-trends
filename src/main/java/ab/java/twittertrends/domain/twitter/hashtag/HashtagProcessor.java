@@ -39,7 +39,7 @@ public class HashtagProcessor {
 	private void persistHashtags() {
 		LOGGER.log(Level.INFO, "Starting persisting hashtags");
 		
-		twittsSource.twitts()
+		twittsSource.twittsFlux()
 		.map(Status::getText)
         .flatMap(hashtagFinder::findHashtags)
         .buffer(DEF_BUFFER_SIZE)
@@ -59,6 +59,7 @@ public class HashtagProcessor {
         	hashtagRepository.save(tags);
         	
         });
+        
 	}
 	
 	

@@ -33,8 +33,8 @@ public class FavoriteProcessor {
 	
 	private void persistFavorities() {
 		LOGGER.log(Level.INFO, "Starting persisting favorites");
-		
-		twittsSource.twitts()
+	
+		twittsSource.twittsFlux()
 		.filter(s -> s.getFavoriteCount() > 0)
 		.map(s -> (Favorite) ImmutableFavorite.builder()
 				.id(s.getId())
@@ -42,6 +42,7 @@ public class FavoriteProcessor {
 				.build())
         .buffer(DEF_BUFFER_SIZE)
         .subscribe(favoriteRepository::save);
+        
 	}
 
 }

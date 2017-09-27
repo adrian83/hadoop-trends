@@ -35,7 +35,7 @@ public class ReplyProcessor {
 	private void persistReplies() {
 		LOGGER.log(Level.INFO, "Starting persisting replies");
 		
-		twittsSource.twitts()
+		twittsSource.twittsFlux()
 		.filter(s -> s.getInReplyToStatusId() > 0)
 		.map(s -> (Reply)ImmutableReply.builder()
 				.id(String.valueOf(s.getInReplyToStatusId()))
@@ -44,8 +44,7 @@ public class ReplyProcessor {
 				.build())
         .buffer(DEF_BUFFER_SIZE)
         .subscribe(replyRepository::save);
+        
 	}
-	
-	
 	
 }

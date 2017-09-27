@@ -3,6 +3,7 @@ package ab.java.twittertrends.domain.twitter;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +11,8 @@ import org.springframework.stereotype.Service;
 
 import ab.java.twittertrends.config.TwitterConfig;
 import ab.java.twittertrends.domain.twitter.domain.TwitterAuth;
-import rx.Observable;
-import rx.Observable.OnSubscribe;
-import rx.Subscriber;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 import twitter4j.Status;
 import twitter4j.StatusAdapter;
 import twitter4j.TwitterStream;
@@ -44,6 +44,7 @@ public class TwittsSource {
 		twitterStream.addListener(new StatusAdapter() {
 			@Override
 			public void onStatus(Status status) {
+
 			}
 
 			@Override
@@ -65,24 +66,28 @@ public class TwittsSource {
 		LOGGER.info("Twitter client disconnected");
 	}
 
-	public Observable<Status> twitts() {
-		return Observable.unsafeCreate(new OnSubscribe<Status>() {
-			public void call(Subscriber<? super Status> subscriber) {
+	public Flux<Status> twittsFlux() {
+
+		return Flux.from(new Publisher<Status>() {
+
+			@Override
+			public void subscribe(org.reactivestreams.Subscriber<? super Status> subscriber) {
 
 				twitterStream.addListener(new StatusAdapter() {
 					@Override
 					public void onStatus(Status status) {
+						LOGGER.debug(status.toString());
 						subscriber.onNext(status);
 					}
 
 					@Override
 					public void onException(Exception ex) {
-						subscriber.onError(ex);
+						ex.printStackTrace();
+						// subscriber.onError(ex);
 					}
 				});
-
 			}
-		});
+		}).subscribeOn(Schedulers.parallel());
 	}
 
 }
