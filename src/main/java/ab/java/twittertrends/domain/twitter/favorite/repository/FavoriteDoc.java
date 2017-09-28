@@ -8,8 +8,9 @@ class FavoriteDoc {
 
 	@Id
 	private String id;
-	private Long twittId;
-	private Integer faworite;
+	private String twittId;
+	private Integer favorite;
+	private String user;
 	
 	public String getId() {
 		return id;
@@ -19,20 +20,30 @@ class FavoriteDoc {
 		this.id = id;
 	}
 	
-	public Long getTwittId() {
+	public String getTwittId() {
 		return twittId;
 	}
 	
-	public void setTwittId(Long twittId) {
+	public void setTwittId(String twittId) {
 		this.twittId = twittId;
 	}
-	
-	public Integer getFaworite() {
-		return faworite;
-	}
-	
-	public void setFaworite(Integer faworite) {
-		this.faworite = faworite;
+
+	public Integer getFavorite() {
+		return favorite;
 	}
 
+	public void setFavorite(Integer favorite) {
+		this.favorite = favorite;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	
+	
 }

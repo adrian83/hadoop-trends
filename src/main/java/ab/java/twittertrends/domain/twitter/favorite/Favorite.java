@@ -9,6 +9,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(as = ImmutableFavorite.class)
 @JsonDeserialize(as = ImmutableFavorite.class)
 public interface Favorite {
-	long id();
+	
+	String id();
+	
 	int favorite();
+	
+	String user();
 }

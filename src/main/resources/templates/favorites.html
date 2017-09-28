@@ -24,9 +24,9 @@
 		        }
 		        var html = "<ul class=\"list-group\">";
 		        for(var i=0; i < newFavorites.length; i++){
-		        	var hashtag = newFavorites[i];
-		        	var a = "<a target=\"_blank\" href=\"https://twitter.com/hashtag/" + hashtag.id + "\">" + hashtag.id + "</a>";
-		        	html += "<li class=\"list-group-item\"><span class=\"badge\">" + hashtag.favorite + "</span>" + a + "</li>";
+		        	var favorite = newFavorites[i];
+		        	var a = "<a target=\"_blank\" href=\"https://twitter.com/" + favorite.user + "/status/" + favorite.id + "\">" + favorite.user + " - " + favorite.id + "</a>";
+		        	html += "<li class=\"list-group-item\"><span class=\"badge\">" + favorite.favorite + "</span>" + a + "</li>";
 		        }
 		        html += "</ul>";
 		        document.getElementById("result").innerHTML = html;

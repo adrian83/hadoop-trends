@@ -34,7 +34,7 @@ public class FavoriteRepository {
 				// it has to be changed to bulk operations in the near future
 				.map(t -> reactiveMongoTemplate.upsert(
 						Query.query(Criteria.where("twittId").is(t.id())),
-						Update.update("twittId", t.id()).set("favorite", t.favorite()), 
+						Update.update("twittId", t.id()).set("favorite", t.favorite()).set("user", t.user()), 
 						"favorites"))
 				.map(m -> m.block()) // TODO this need to be fixed
 				.collect(Collectors.toList());
@@ -45,10 +45,11 @@ public class FavoriteRepository {
 		LOGGER.log(Level.INFO, "Getting {0} favorites", count);
 
 		Flux<List<Favorite>> flux = reactiveMongoTemplate.findAll(FavoriteDoc.class)
-				.sort(Comparator.<FavoriteDoc>comparingLong(FavoriteDoc::getFaworite).reversed())
+				.sort(Comparator.<FavoriteDoc>comparingLong(FavoriteDoc::getFavorite).reversed())
 				.map(doc -> (Favorite)ImmutableFavorite.builder()
 						.id(doc.getTwittId())
-						.favorite(doc.getFaworite())
+						.favorite(doc.getFavorite())
+						.user(doc.getUser())
 						.build())
 				.buffer(count)
 				.take(1)
