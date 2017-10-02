@@ -5,19 +5,19 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.TwittsSource;
 import ab.java.twittertrends.domain.twitter.reply.repository.ReplyRepository;
 
+import reactor.core.publisher.Mono;
+import twitter4j.Status;
+
 @Component
 public class ReplyProcessor {
 
 	private static final Logger LOGGER = Logger.getLogger(ReplyProcessor.class.getSimpleName());
-
-	private static final int DEF_BUFFER_SIZE = 10;
 	
 	@Autowired
 	private TwittsSource twittsSource;
@@ -32,18 +32,24 @@ public class ReplyProcessor {
 		persistReplies();
 	}
 	
+	private boolean shouldProcess(Status status) {
+		return status.getInReplyToStatusId() > 0 
+				&& status.getInReplyToScreenName() != null;
+	}
+	
 	private void persistReplies() {
 		LOGGER.log(Level.INFO, "Starting persisting replies");
 		
 		twittsSource.twittsFlux()
-		.filter(s -> s.getInReplyToStatusId() > 0)
+		.filter(this::shouldProcess)
 		.map(s -> (Reply)ImmutableReply.builder()
 				.id(String.valueOf(s.getInReplyToStatusId()))
 				.count(1)
 				.user(s.getInReplyToScreenName())
 				.build())
-        .buffer(DEF_BUFFER_SIZE)
-        .subscribe(replyRepository::save);
+        .map(replyRepository::saveSingle)
+        .map(Mono::block)
+        .subscribe(ur -> LOGGER.log(Level.INFO, "Saved reply: {0}", ur.getUpsertedId()));     
         
 	}
 	

@@ -33,7 +33,7 @@ public class FavoriteFetcher {
  				.publish();
  		
 		favorites.connect();
-		LOGGER.log(Level.INFO, "Hot observable started");
+		LOGGER.log(Level.INFO, "Hot Flux started");
 	}
 	
 	public Flux<List<Favorite>> favorites() {

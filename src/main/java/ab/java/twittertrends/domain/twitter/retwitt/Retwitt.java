@@ -11,8 +11,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutableRetwitt.class)
 public interface Retwitt {
 
-	long id();
+	String id();
 	
 	int retwitted();
+	
+	String user();
 	
 }

@@ -4,8 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -14,10 +12,13 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import com.mongodb.client.result.UpdateResult;
+
 import ab.java.twittertrends.domain.twitter.reply.ImmutableReply;
 import ab.java.twittertrends.domain.twitter.reply.Reply;
-import reactor.core.publisher.Flux;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 
 @Component
@@ -28,26 +29,14 @@ public class ReplyRepository {
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
 	
-	
-	public void save(List<Reply> replies) {
-		
-		LOGGER.log(Level.INFO, "Saving / updating {0} replies", replies.size());
-
-		replies.stream()
-				// it has to be changed to bulk operations in the near future
-				.map(t -> reactiveMongoTemplate.upsert(Query.query(Criteria.where("twittId").is(t.id())),
-				Update.update("twittId", t.id())
-				.set("user", t.user())
-				.inc("count", t.count().intValue()), "replies"))
-				.map(m -> m.block()) // TODO this need to be fixed
-				.collect(Collectors.toList());
+	public Mono<UpdateResult> saveSingle(Reply reply) {
+		LOGGER.log(Level.INFO, "Saving / updating {0}", reply);
+		return reactiveMongoTemplate.upsert(Query.query(Criteria.where("twittId").is(reply.id())), Update.update("twittId", reply.id()).set("user", reply.user()).inc("count", reply.count().intValue()), "replies");
 	}
 	
 	public Flux<List<Reply>> mostReplied(int count) {
-		
 		LOGGER.log(Level.INFO, "Getting {0} replies", count);
-
-		Flux<List<Reply>> flux = reactiveMongoTemplate.findAll(ReplyDoc.class)
+		return reactiveMongoTemplate.findAll(ReplyDoc.class)
 				.sort(Comparator.<ReplyDoc>comparingLong(t -> t.getCount()).reversed())
 				.map(doc -> (Reply) ImmutableReply.builder()
 						.user(doc.getUser())
@@ -55,9 +44,8 @@ public class ReplyRepository {
 						.count(doc.getCount())
 						.build())
 				.buffer(count)
-				.take(1).onBackpressureDrop();
-				
-		return flux;
+				.take(1)
+				.onBackpressureDrop();
 	}
 
 }

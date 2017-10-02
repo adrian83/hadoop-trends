@@ -35,7 +35,6 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
 	@Autowired
 	private Environment env;
 
-	@Override
 	@Bean
 	public MongoClient mongoClient() {
 		final String connectionStr = String.format(
@@ -82,6 +81,11 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
 
 	public String getDatabaseName() {
 		return env.getRequiredProperty(DB_NAME_PROP);
+	}
+
+	
+	public MongoClient reactiveMongoClient() {
+		return mongoClient();
 	}
 
 }

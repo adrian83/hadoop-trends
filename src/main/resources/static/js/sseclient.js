@@ -15,7 +15,7 @@ class SseClient {
 	        onMsg(data);
 	    };
 	    source.onopen = function(event) {
-	    	document.getElementById(i).innerHTML = "<div class=\"alert alert-info\" role=\"alert\">Some data should appear soon.</div>";
+	    	document.getElementById(i).innerHTML = "<div class=\"alert alert-info\" role=\"alert\">Data should appear soon.</div>";
 	    };
   }
   
