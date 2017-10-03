@@ -24,6 +24,10 @@ import reactor.core.publisher.Mono;
 @Component
 public class ReplyRepository {
 
+	private static final String COUNT_LABEL = "count";
+	private static final String USER_LABEL = "user";
+	private static final String TWITT_ID_LABEL = "twittId";
+
 	private static final Logger LOGGER = Logger.getLogger(ReplyRepository.class.getSimpleName());
 
 	@Autowired
@@ -31,7 +35,12 @@ public class ReplyRepository {
 	
 	public Mono<UpdateResult> saveSingle(Reply reply) {
 		LOGGER.log(Level.INFO, "Saving / updating {0}", reply);
-		return reactiveMongoTemplate.upsert(Query.query(Criteria.where("twittId").is(reply.id())), Update.update("twittId", reply.id()).set("user", reply.user()).inc("count", reply.count().intValue()), "replies");
+		return reactiveMongoTemplate.upsert(
+				Query.query(Criteria.where(TWITT_ID_LABEL).is(reply.id())), 
+				Update.update(TWITT_ID_LABEL, reply.id())
+					.set(USER_LABEL, reply.user())
+					.inc(COUNT_LABEL, reply.count().intValue()), 
+				ReplyDoc.REPLIES);
 	}
 	
 	public Flux<List<Reply>> mostReplied(int count) {

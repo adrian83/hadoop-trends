@@ -3,8 +3,10 @@ package ab.java.twittertrends.domain.twitter.favorite.repository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "favorites")
+@Document(collection = FavoriteDoc.FAVORITES)
 class FavoriteDoc {
+	
+	public final static String FAVORITES = "favorites";
 
 	@Id
 	private String id;
@@ -44,6 +46,4 @@ class FavoriteDoc {
 		this.user = user;
 	}
 
-	
-	
 }

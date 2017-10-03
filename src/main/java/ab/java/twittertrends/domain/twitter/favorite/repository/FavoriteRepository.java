@@ -24,6 +24,10 @@ import reactor.core.publisher.Mono;
 @Component
 public class FavoriteRepository {
 
+	private static final String USER_LABEL = "user";
+	private static final String FAVORITE_LABEL = "favorite";
+	private static final String TWITT_ID_LABEL = "twittId";
+
 	private static final Logger LOGGER = Logger.getLogger(HashtagRepository.class.getSimpleName());
 
 	@Autowired
@@ -32,10 +36,9 @@ public class FavoriteRepository {
 	public Mono<UpdateResult> saveSingle(Favorite favorite) {
 		LOGGER.log(Level.INFO,"Saving favorite {0}", favorite);
 		 return reactiveMongoTemplate.upsert(
-				 Query.query(Criteria.where("twittId").is(favorite.id())), 
-				 Update.update("twittId", favorite.id())
-				 	.set("favorite", favorite.favorite())
-					.set("user", favorite.user()), "favorites");
+				 Query.query(Criteria.where(TWITT_ID_LABEL).is(favorite.id())), 
+				 Update.update(TWITT_ID_LABEL, favorite.id()).set(FAVORITE_LABEL, favorite.favorite()).set(USER_LABEL, favorite.user()), 
+				 FavoriteDoc.FAVORITES);
 	}
 	
 	public Flux<List<Favorite>> mostFavorited(int count) {

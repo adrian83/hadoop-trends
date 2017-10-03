@@ -3,8 +3,11 @@ package ab.java.twittertrends.domain.twitter.hashtag.repository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "hashtags")
+@Document(collection = HashtagDoc.HASHTAGS)
 class HashtagDoc {
+	
+	public static final String HASHTAGS = "hashtags";
+	
 	@Id
 	private String id;
 	private String name;

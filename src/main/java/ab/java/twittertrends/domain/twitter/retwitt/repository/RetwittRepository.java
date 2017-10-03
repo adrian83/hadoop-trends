@@ -23,6 +23,12 @@ import reactor.core.publisher.Mono;
 @Component
 public class RetwittRepository {
 
+	private static final String USER_LABEL = "user";
+
+	private static final String RETWITTED_LABEL = "retwitted";
+
+	private static final String TWITT_ID_LABEL = "twittId";
+
 	private static final Logger LOGGER = Logger.getLogger(RetwittRepository.class.getSimpleName());
 
 	@Autowired
@@ -31,8 +37,9 @@ public class RetwittRepository {
 	public Mono<UpdateResult> saveSingle(Retwitt retwitt) {
 		LOGGER.log(Level.INFO, "Saving / updating {0}", retwitt);
 		return reactiveMongoTemplate.upsert(
-				Query.query(Criteria.where("twittId").is(retwitt.id())), 
-				Update.update("twittId", retwitt.id()).set("retwitted", retwitt.retwitted()).set("user", retwitt.user()), "retwitts");
+				Query.query(Criteria.where(TWITT_ID_LABEL).is(retwitt.id())), 
+				Update.update(TWITT_ID_LABEL, retwitt.id()).set(RETWITTED_LABEL, retwitt.retwitted()).set(USER_LABEL, retwitt.user()), 
+				RetwittDoc.RETWITTS);
 	}
 	
 	public Flux<List<Retwitt>> mostRetwitted(int count) {

@@ -23,6 +23,9 @@ import java.util.logging.Logger;
 @Component
 public class HashtagRepository {
 
+	private static final String COUNT_LABEL = "count";
+	private static final String NAME_LABEL = "name";
+
 	private static final Logger LOGGER = Logger.getLogger(HashtagRepository.class.getSimpleName());
 
 	@Autowired
@@ -31,9 +34,9 @@ public class HashtagRepository {
 	public Mono<UpdateResult> saveSingle(Hashtag hashtag) {
 		LOGGER.log(Level.INFO, "Saving / updating {0}", hashtag);
 		return reactiveMongoTemplate.upsert(
-						Query.query(Criteria.where("name").is(hashtag.name())),
-						Update.update("name", hashtag.name()).inc("count", hashtag.count().intValue()), 
-						"hashtags");
+				Query.query(Criteria.where(NAME_LABEL).is(hashtag.name())),
+				Update.update(NAME_LABEL, hashtag.name()).inc(COUNT_LABEL, hashtag.count().intValue()), 
+				HashtagDoc.HASHTAGS);
 	}
 	
 	public Flux<List<Hashtag>> popularHashtags(int count) {
