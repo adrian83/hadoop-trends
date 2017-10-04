@@ -5,7 +5,7 @@
 
 	<groupId>ab.java</groupId>
 	<artifactId>twitter-trends-java</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>twitter-trends-java</name>

@@ -15,5 +15,4 @@ Simple application for Twitter analysis. Application is written in [Java 8](http
 ### INSIDE
 1. Spring 5 - Reactive Web Framework
 2. Spring Data - Reactive MongoDB
-3. RxJava (Hot and Cold Observables)
-4. Server Sides Events
+3. Server Sides Events

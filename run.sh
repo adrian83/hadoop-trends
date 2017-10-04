@@ -7,7 +7,8 @@ usage() {
 
     run-docker            Starts Docker on Arch based GNU Linux.
     run-mongo             Starts MongoDB docker image.
-    run-infra             Starts Docker and RethinkDB and Redis
+    run-infra             Starts Docker and RethinkDB and Redis.
+    start                 Builds and starts app.
 
 EOF
 	exit 1
@@ -26,7 +27,6 @@ run-mongo() {
 	set +e
 }
 
-
 run-infra() {
 	set -e
 		run-docker
@@ -34,6 +34,12 @@ run-infra() {
 	set +e
 }
 
+start() {
+	set -e
+		mvn clean install
+		java -jar target/twitter-trends-java-1.0.0.jar
+	set +e
+}
 
 CMD="$1"
 shift
@@ -46,6 +52,9 @@ case "$CMD" in
 	;;
 	run-infra)
 		run-infra
+	;;
+	start)
+		start
 	;;
 	*)
 		usage
