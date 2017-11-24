@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.TwittsSource;
-import ab.java.twittertrends.domain.twitter.favorite.repository.FavoriteRepository;
+import ab.java.twittertrends.domain.twitter.common.Repository;
 
 import reactor.core.publisher.Mono;
 import twitter4j.Status;
@@ -23,7 +23,7 @@ public class FavoriteProcessor {
 	private TwittsSource twittsSource;
 	
 	@Autowired
-	private FavoriteRepository favoriteRepository;
+	private Repository<Favorite> favoriteRepository;
 	
 	
 	@PostConstruct
@@ -51,7 +51,7 @@ public class FavoriteProcessor {
 				.favorite(s.getRetweetedStatus().getFavoriteCount())
 				.user(s.getRetweetedStatus().getUser().getScreenName())
 				.build())
-		.map(favoriteRepository::saveSingle)
+		.map(favoriteRepository::save)
 		.map(Mono::block)
 		.subscribe(ur -> LOGGER.log(Level.INFO, "Saved favorite: {0}", ur.getUpsertedId()));        
 	}

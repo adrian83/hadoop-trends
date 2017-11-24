@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.client.result.UpdateResult;
 
+import ab.java.twittertrends.domain.twitter.common.Repository;
 import ab.java.twittertrends.domain.twitter.retwitt.ImmutableRetwitt;
 import ab.java.twittertrends.domain.twitter.retwitt.Retwitt;
 
@@ -21,7 +22,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class RetwittRepository {
+public class RetwittRepository implements Repository<Retwitt>{
 
 	private static final String USER_LABEL = "user";
 
@@ -33,16 +34,9 @@ public class RetwittRepository {
 
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
-	
-	public Mono<UpdateResult> saveSingle(Retwitt retwitt) {
-		LOGGER.log(Level.INFO, "Saving / updating {0}", retwitt);
-		return reactiveMongoTemplate.upsert(
-				Query.query(Criteria.where(TWITT_ID_LABEL).is(retwitt.id())), 
-				Update.update(TWITT_ID_LABEL, retwitt.id()).set(RETWITTED_LABEL, retwitt.retwitted()).set(USER_LABEL, retwitt.user()), 
-				RetwittDoc.RETWITTS);
-	}
-	
-	public Flux<List<Retwitt>> mostRetwitted(int count) {
+
+	@Override
+	public Flux<List<Retwitt>> take(int count) {
 		LOGGER.log(Level.INFO, "Getting {0} retwitts", count);
 		return reactiveMongoTemplate.findAll(RetwittDoc.class)
 				.sort(Comparator.<RetwittDoc>comparingLong(t -> t.getRetwitted()).reversed())
@@ -54,6 +48,15 @@ public class RetwittRepository {
 				.buffer(count)
 				.take(1)
 				.onBackpressureDrop();
+	}
+
+	@Override
+	public Mono<UpdateResult> save(Retwitt retwitt) {
+		LOGGER.log(Level.INFO, "Saving / updating {0}", retwitt);
+		return reactiveMongoTemplate.upsert(
+				Query.query(Criteria.where(TWITT_ID_LABEL).is(retwitt.id())), 
+				Update.update(TWITT_ID_LABEL, retwitt.id()).set(RETWITTED_LABEL, retwitt.retwitted()).set(USER_LABEL, retwitt.user()), 
+				RetwittDoc.RETWITTS);
 	}
 	
 	

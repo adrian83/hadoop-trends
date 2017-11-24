@@ -50,7 +50,7 @@ public class RetwittProcessor {
 				.retwitted(s.getRetweetedStatus().getRetweetCount())
 				.user(s.getRetweetedStatus().getUser().getScreenName())
 				.build())
-        .map(retwittRepository::saveSingle)
+        .map(retwittRepository::save)
         .map(Mono::block)
         .subscribe(ur -> LOGGER.log(Level.INFO, "Saved retwitt: {0}", ur.getUpsertedId()));  
         

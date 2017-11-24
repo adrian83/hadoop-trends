@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.client.result.UpdateResult;
 
+import ab.java.twittertrends.domain.twitter.common.Repository;
 import ab.java.twittertrends.domain.twitter.hashtag.Hashtag;
 import ab.java.twittertrends.domain.twitter.hashtag.ImmutableHashtag;
 
@@ -21,7 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
-public class HashtagRepository {
+public class HashtagRepository implements Repository<Hashtag> {
 
 	private static final String COUNT_LABEL = "count";
 	private static final String NAME_LABEL = "name";
@@ -31,15 +32,8 @@ public class HashtagRepository {
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
 
-	public Mono<UpdateResult> saveSingle(Hashtag hashtag) {
-		LOGGER.log(Level.INFO, "Saving / updating {0}", hashtag);
-		return reactiveMongoTemplate.upsert(
-				Query.query(Criteria.where(NAME_LABEL).is(hashtag.name())),
-				Update.update(NAME_LABEL, hashtag.name()).inc(COUNT_LABEL, hashtag.count().intValue()), 
-				HashtagDoc.HASHTAGS);
-	}
-	
-	public Flux<List<Hashtag>> popularHashtags(int count) {
+	@Override
+	public Flux<List<Hashtag>> take(int count) {
 		LOGGER.log(Level.INFO, "Getting {0} hashtags", count);
 		return reactiveMongoTemplate.findAll(HashtagDoc.class)
 				.sort(Comparator.<HashtagDoc>comparingLong(t -> t.getCount()).reversed())
@@ -50,7 +44,15 @@ public class HashtagRepository {
 				.buffer(count)
 				.take(1)
 				.onBackpressureDrop();
+	}
 
+	@Override
+	public Mono<UpdateResult> save(Hashtag hashtag) {
+		LOGGER.log(Level.INFO, "Saving / updating {0}", hashtag);
+		return reactiveMongoTemplate.upsert(
+				Query.query(Criteria.where(NAME_LABEL).is(hashtag.name())),
+				Update.update(NAME_LABEL, hashtag.name()).inc(COUNT_LABEL, hashtag.count().intValue()), 
+				HashtagDoc.HASHTAGS);
 	}
 
 }

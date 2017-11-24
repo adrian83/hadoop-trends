@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.client.result.UpdateResult;
 
+import ab.java.twittertrends.domain.twitter.common.Repository;
 import ab.java.twittertrends.domain.twitter.favorite.Favorite;
 import ab.java.twittertrends.domain.twitter.favorite.ImmutableFavorite;
 import ab.java.twittertrends.domain.twitter.hashtag.repository.HashtagRepository;
@@ -22,7 +23,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class FavoriteRepository {
+public class FavoriteRepository implements Repository<Favorite> {
 
 	private static final String USER_LABEL = "user";
 	private static final String FAVORITE_LABEL = "favorite";
@@ -33,15 +34,8 @@ public class FavoriteRepository {
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
 
-	public Mono<UpdateResult> saveSingle(Favorite favorite) {
-		LOGGER.log(Level.INFO,"Saving favorite {0}", favorite);
-		 return reactiveMongoTemplate.upsert(
-				 Query.query(Criteria.where(TWITT_ID_LABEL).is(favorite.id())), 
-				 Update.update(TWITT_ID_LABEL, favorite.id()).set(FAVORITE_LABEL, favorite.favorite()).set(USER_LABEL, favorite.user()), 
-				 FavoriteDoc.FAVORITES);
-	}
-	
-	public Flux<List<Favorite>> mostFavorited(int count) {
+	@Override
+	public Flux<List<Favorite>> take(int count) {
 		LOGGER.log(Level.INFO, "Getting {0} favorites", count);
 		return reactiveMongoTemplate.findAll(FavoriteDoc.class)
 				.sort(Comparator.<FavoriteDoc>comparingLong(FavoriteDoc::getFavorite).reversed())
@@ -53,6 +47,15 @@ public class FavoriteRepository {
 				.buffer(count)
 				.take(1)
 				.onBackpressureDrop();
+	}
+
+	@Override
+	public Mono<UpdateResult> save(Favorite favorite) {
+		LOGGER.log(Level.INFO,"Saving favorite {0}", favorite);
+		 return reactiveMongoTemplate.upsert(
+				 Query.query(Criteria.where(TWITT_ID_LABEL).is(favorite.id())), 
+				 Update.update(TWITT_ID_LABEL, favorite.id()).set(FAVORITE_LABEL, favorite.favorite()).set(USER_LABEL, favorite.user()), 
+				 FavoriteDoc.FAVORITES);
 	}
 
 }

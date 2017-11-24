@@ -10,7 +10,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ab.java.twittertrends.domain.twitter.retwitt.repository.RetwittRepository;
+import ab.java.twittertrends.domain.twitter.common.Repository;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 
@@ -20,7 +20,7 @@ public class RetwittFetcher {
 	private static final Logger LOGGER = Logger.getLogger(RetwittFetcher.class.getSimpleName());
 
 	@Autowired
-	private RetwittRepository retwittRepository;
+	private Repository<Retwitt> retwittRepository;
 	
 	private ConnectableFlux<List<Retwitt>> retwitts;
 		
@@ -29,7 +29,7 @@ public class RetwittFetcher {
 		LOGGER.log(Level.INFO, "Created");
 		
 		retwitts = Flux.interval(Duration.ofSeconds(10))
-				.flatMap(i -> retwittRepository.mostRetwitted(10))
+				.flatMap(i -> retwittRepository.take(10))
  				.publish();
  		
 		retwitts.connect();

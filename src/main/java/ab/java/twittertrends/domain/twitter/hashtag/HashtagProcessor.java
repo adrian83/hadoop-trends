@@ -50,7 +50,7 @@ public class HashtagProcessor {
         		.stream()
         		.map(e -> (Hashtag) ImmutableHashtag.builder().name(e.getKey()).count(e.getValue()).build())
         		.collect(Collectors.toList()))
-        .map(hashtagRepository::saveSingle)
+        .map(hashtagRepository::save)
         .map(Mono::block)
         .subscribe(ur -> LOGGER.log(Level.INFO, "Saved hashtag: {0}", ur.getUpsertedId()));      
 	}

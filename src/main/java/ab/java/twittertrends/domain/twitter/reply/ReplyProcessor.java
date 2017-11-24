@@ -47,7 +47,7 @@ public class ReplyProcessor {
 				.count(1)
 				.user(s.getInReplyToScreenName())
 				.build())
-        .map(replyRepository::saveSingle)
+        .map(replyRepository::save)
         .map(Mono::block)
         .subscribe(ur -> LOGGER.log(Level.INFO, "Saved reply: {0}", ur.getUpsertedId()));     
         

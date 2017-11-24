@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.client.result.UpdateResult;
 
+import ab.java.twittertrends.domain.twitter.common.Repository;
 import ab.java.twittertrends.domain.twitter.reply.ImmutableReply;
 import ab.java.twittertrends.domain.twitter.reply.Reply;
 
@@ -22,7 +23,7 @@ import reactor.core.publisher.Mono;
 
 
 @Component
-public class ReplyRepository {
+public class ReplyRepository implements Repository<Reply> {
 
 	private static final String COUNT_LABEL = "count";
 	private static final String USER_LABEL = "user";
@@ -32,18 +33,9 @@ public class ReplyRepository {
 
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
-	
-	public Mono<UpdateResult> saveSingle(Reply reply) {
-		LOGGER.log(Level.INFO, "Saving / updating {0}", reply);
-		return reactiveMongoTemplate.upsert(
-				Query.query(Criteria.where(TWITT_ID_LABEL).is(reply.id())), 
-				Update.update(TWITT_ID_LABEL, reply.id())
-					.set(USER_LABEL, reply.user())
-					.inc(COUNT_LABEL, reply.count().intValue()), 
-				ReplyDoc.REPLIES);
-	}
-	
-	public Flux<List<Reply>> mostReplied(int count) {
+
+	@Override
+	public Flux<List<Reply>> take(int count) {
 		LOGGER.log(Level.INFO, "Getting {0} replies", count);
 		return reactiveMongoTemplate.findAll(ReplyDoc.class)
 				.sort(Comparator.<ReplyDoc>comparingLong(t -> t.getCount()).reversed())
@@ -55,6 +47,17 @@ public class ReplyRepository {
 				.buffer(count)
 				.take(1)
 				.onBackpressureDrop();
+	}
+
+	@Override
+	public Mono<UpdateResult> save(Reply reply) {
+		LOGGER.log(Level.INFO, "Saving / updating {0}", reply);
+		return reactiveMongoTemplate.upsert(
+				Query.query(Criteria.where(TWITT_ID_LABEL).is(reply.id())), 
+				Update.update(TWITT_ID_LABEL, reply.id())
+					.set(USER_LABEL, reply.user())
+					.inc(COUNT_LABEL, reply.count().intValue()), 
+				ReplyDoc.REPLIES);
 	}
 
 }
