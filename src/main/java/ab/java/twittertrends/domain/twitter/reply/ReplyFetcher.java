@@ -10,12 +10,13 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ab.java.twittertrends.domain.twitter.common.Fetcher;
 import ab.java.twittertrends.domain.twitter.common.Repository;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 
 @Component
-public class ReplyFetcher {
+public class ReplyFetcher implements Fetcher<Reply> {
 
 	private static final Logger LOGGER = Logger.getLogger(ReplyFetcher.class.getSimpleName());
 
@@ -35,8 +36,9 @@ public class ReplyFetcher {
 		replies.connect();
 		LOGGER.log(Level.INFO, "Hot observable started");
 	}
-	
-	public Flux<List<Reply>> replies() {
+
+	@Override
+	public Flux<List<Reply>> elements() {
 		return replies;
 	}
 	

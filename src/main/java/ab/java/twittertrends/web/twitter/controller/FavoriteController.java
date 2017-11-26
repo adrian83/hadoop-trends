@@ -17,7 +17,6 @@ public class FavoriteController {
 	@Autowired 
 	private Fetcher<Favorite> favoriteFetcher;
 	
-	
 	@GetMapping(value = "/sse/favorites", produces = "text/event-stream")
 	public Flux<ServerSentEvent<List<Favorite>>> sseFavorites() {
 		return favoriteFetcher.elements().map(l -> ServerSentEvent.builder(l).build());
