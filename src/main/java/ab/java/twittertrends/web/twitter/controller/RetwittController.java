@@ -12,14 +12,14 @@ import ab.java.twittertrends.domain.twitter.retwitt.Retwitt;
 import reactor.core.publisher.Flux;
 
 @RestController
-public class RetwittController {
+public class RetwittController extends SseController<Retwitt> {
 
 	@Autowired 
 	private Fetcher<Retwitt> retwittFetcher;
 	
 	@GetMapping(value = "/sse/retwitts", produces = "text/event-stream")
 	public Flux<ServerSentEvent<List<Retwitt>>> sseRetwitts() {
-		return retwittFetcher.elements().map(l -> ServerSentEvent.builder(l).build());
+		return toSse(retwittFetcher.elements());
 	}
 	
 }

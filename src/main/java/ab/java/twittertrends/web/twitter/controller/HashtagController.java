@@ -12,14 +12,14 @@ import ab.java.twittertrends.domain.twitter.hashtag.Hashtag;
 import reactor.core.publisher.Flux;
 
 @RestController
-public class HashtagController {
+public class HashtagController extends SseController<Hashtag> {
 
 	@Autowired
 	private Fetcher<Hashtag> hashtagFetcher;
 
 	@GetMapping(value = "/sse/hashtags", produces = "text/event-stream")
 	public Flux<ServerSentEvent<List<Hashtag>>> sseHashtags() {
-		return hashtagFetcher.elements().map(l -> ServerSentEvent.builder(l).build());
+		return toSse(hashtagFetcher.elements());
 	}
 
 }

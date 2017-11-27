@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ab.java.twittertrends.config.TwitterConfig;
-import ab.java.twittertrends.domain.twitter.domain.TwitterAuth;
+import ab.java.twittertrends.domain.twitter.common.TwitterAuth;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 import twitter4j.Status;

@@ -12,13 +12,13 @@ import ab.java.twittertrends.domain.twitter.favorite.Favorite;
 import reactor.core.publisher.Flux;
 
 @RestController
-public class FavoriteController {
+public class FavoriteController extends SseController<Favorite> {
 
 	@Autowired 
 	private Fetcher<Favorite> favoriteFetcher;
 	
 	@GetMapping(value = "/sse/favorites", produces = "text/event-stream")
 	public Flux<ServerSentEvent<List<Favorite>>> sseFavorites() {
-		return favoriteFetcher.elements().map(l -> ServerSentEvent.builder(l).build());
+		return toSse(favoriteFetcher.elements());
 	}
 }

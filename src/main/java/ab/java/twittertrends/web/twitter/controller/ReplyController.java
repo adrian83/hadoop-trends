@@ -12,14 +12,14 @@ import ab.java.twittertrends.domain.twitter.reply.Reply;
 import reactor.core.publisher.Flux;
 
 @RestController
-public class ReplyController {
+public class ReplyController extends SseController<Reply> {
 
 	@Autowired
 	private Fetcher<Reply> replyFetcher;
 
 	@GetMapping(value = "/sse/replies", produces = "text/event-stream")
 	public Flux<ServerSentEvent<List<Reply>>> sseReplies() {
-		return replyFetcher.elements().map(l -> ServerSentEvent.builder(l).build());
+		return toSse(replyFetcher.elements());
 	}
 
 }

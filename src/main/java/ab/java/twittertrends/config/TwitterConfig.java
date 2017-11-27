@@ -6,8 +6,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
-import ab.java.twittertrends.domain.twitter.domain.ImmutableTwitterAuth;
-import ab.java.twittertrends.domain.twitter.domain.TwitterAuth;
+import ab.java.twittertrends.domain.twitter.common.ImmutableTwitterAuth;
+import ab.java.twittertrends.domain.twitter.common.TwitterAuth;
+
+
 
 @Configuration
 @PropertySource("classpath:config/twitter.properties")

@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.domain;
+package ab.java.twittertrends.domain.twitter.common;
 
 import org.immutables.value.Value;
 
@@ -9,5 +9,4 @@ public interface TwitterAuth {
 	String secret();
 	String customerKey();
 	String customerSecret();
-
 }
