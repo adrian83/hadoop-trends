@@ -15,8 +15,6 @@ import ab.java.twittertrends.domain.twitter.hashtag.repository.HashtagRepository
 
 import twitter4j.Status;
 
-import reactor.core.publisher.Mono;
-
 
 @Component
 public class HashtagProcessor {
@@ -50,9 +48,8 @@ public class HashtagProcessor {
         		.stream()
         		.map(e -> (Hashtag) ImmutableHashtag.builder().name(e.getKey()).count(e.getValue()).build())
         		.collect(Collectors.toList()))
-        .map(hashtagRepository::save)
-        .map(Mono::block)
-        .subscribe(ur -> LOGGER.log(Level.INFO, "Saved hashtag: {0}", ur.getUpsertedId()));      
+        .map(hashtagRepository::save) 
+		.subscribe(mur -> mur.subscribe(ur -> LOGGER.log(Level.INFO, "Saved hashtag: {0}", ur.getUpsertedId())));
 	}
 	
 }

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import ab.java.twittertrends.domain.twitter.TwittsSource;
 import ab.java.twittertrends.domain.twitter.reply.repository.ReplyRepository;
 
-import reactor.core.publisher.Mono;
 import twitter4j.Status;
 
 @Component
@@ -48,8 +47,7 @@ public class ReplyProcessor {
 				.user(s.getInReplyToScreenName())
 				.build())
         .map(replyRepository::save)
-        .map(Mono::block)
-        .subscribe(ur -> LOGGER.log(Level.INFO, "Saved reply: {0}", ur.getUpsertedId()));     
+		.subscribe(mur -> mur.subscribe(ur -> LOGGER.log(Level.INFO, "Saved reply: {0}", ur.getUpsertedId())));   
         
 	}
 	

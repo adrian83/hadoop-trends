@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import ab.java.twittertrends.domain.twitter.TwittsSource;
 import ab.java.twittertrends.domain.twitter.common.Repository;
 
-import reactor.core.publisher.Mono;
 import twitter4j.Status;
 
 @Component
@@ -52,8 +51,8 @@ public class FavoriteProcessor {
 				.user(s.getRetweetedStatus().getUser().getScreenName())
 				.build())
 		.map(favoriteRepository::save)
-		.map(Mono::block)
-		.subscribe(ur -> LOGGER.log(Level.INFO, "Saved favorite: {0}", ur.getUpsertedId()));        
+		.subscribe(mur -> mur.subscribe(ur -> LOGGER.log(Level.INFO, "Saved favorite: {0}", ur.getUpsertedId())));
+   
 	}
 
 }
