@@ -1,5 +1,6 @@
 package ab.java.twittertrends.domain.twitter.favorite.repository;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
@@ -12,12 +13,12 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
 import ab.java.twittertrends.domain.twitter.common.Repository;
 import ab.java.twittertrends.domain.twitter.favorite.Favorite;
 import ab.java.twittertrends.domain.twitter.favorite.ImmutableFavorite;
-import ab.java.twittertrends.domain.twitter.hashtag.repository.HashtagRepository;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,7 +30,7 @@ public class FavoriteRepository implements Repository<Favorite> {
 	private static final String FAVORITE_LABEL = "favorite";
 	private static final String TWITT_ID_LABEL = "twittId";
 
-	private static final Logger LOGGER = Logger.getLogger(HashtagRepository.class.getSimpleName());
+	private static final Logger LOGGER = Logger.getLogger(FavoriteRepository.class.getSimpleName());
 
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
@@ -58,4 +59,13 @@ public class FavoriteRepository implements Repository<Favorite> {
 				 FavoriteDoc.FAVORITES);
 	}
 
+	@Override
+	public Mono<DeleteResult> deleteOlderThan(LocalDateTime time) {
+		LOGGER.log(Level.INFO, "Removing favorities older than {0}", time);
+		
+		return reactiveMongoTemplate.remove(
+				Query.query(Criteria.where(FavoriteDoc.LAST_UPDATE_LABEL).lte(time)), 
+				FavoriteDoc.FAVORITES);
+	}
+	
 }

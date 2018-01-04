@@ -1,5 +1,6 @@
 package ab.java.twittertrends.domain.twitter.retwitt.repository;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
 import ab.java.twittertrends.domain.twitter.common.Repository;
@@ -59,5 +61,13 @@ public class RetwittRepository implements Repository<Retwitt>{
 				RetwittDoc.RETWITTS);
 	}
 	
+	@Override
+	public Mono<DeleteResult> deleteOlderThan(LocalDateTime time) {
+		LOGGER.log(Level.INFO, "Removing retwitts older than {0}", time);
+		
+		return reactiveMongoTemplate.remove(
+				Query.query(Criteria.where(RetwittDoc.LAST_UPDATE_LABEL).lte(time)), 
+				RetwittDoc.RETWITTS);
+	}
 	
 }

@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
 import ab.java.twittertrends.domain.twitter.common.Repository;
@@ -16,6 +17,7 @@ import ab.java.twittertrends.domain.twitter.hashtag.ImmutableHashtag;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
@@ -26,6 +28,7 @@ public class HashtagRepository implements Repository<Hashtag> {
 
 	private static final String COUNT_LABEL = "count";
 	private static final String NAME_LABEL = "name";
+	
 
 	private static final Logger LOGGER = Logger.getLogger(HashtagRepository.class.getSimpleName());
 
@@ -49,9 +52,21 @@ public class HashtagRepository implements Repository<Hashtag> {
 	@Override
 	public Mono<UpdateResult> save(Hashtag hashtag) {
 		LOGGER.log(Level.INFO, "Saving / updating {0}", hashtag);
+		
 		return reactiveMongoTemplate.upsert(
 				Query.query(Criteria.where(NAME_LABEL).is(hashtag.name())),
-				Update.update(NAME_LABEL, hashtag.name()).inc(COUNT_LABEL, hashtag.count().intValue()), 
+				Update.update(NAME_LABEL, hashtag.name())
+					.set(HashtagDoc.LAST_UPDATE_LABEL, utcNow())
+					.inc(COUNT_LABEL, hashtag.count().intValue()), 
+				HashtagDoc.HASHTAGS);
+	}
+	
+	@Override
+	public Mono<DeleteResult> deleteOlderThan(LocalDateTime time) {
+		LOGGER.log(Level.INFO, "Removing hashtags older than {0}", time);
+		
+		return reactiveMongoTemplate.remove(
+				Query.query(Criteria.where(HashtagDoc.LAST_UPDATE_LABEL).lte(time)), 
 				HashtagDoc.HASHTAGS);
 	}
 

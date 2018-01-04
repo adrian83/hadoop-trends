@@ -3,8 +3,10 @@ package ab.java.twittertrends.domain.twitter.hashtag.repository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import ab.java.twittertrends.domain.twitter.common.TwitterDoc;
+
 @Document(collection = HashtagDoc.HASHTAGS)
-class HashtagDoc {
+class HashtagDoc extends TwitterDoc {
 	
 	public static final String HASHTAGS = "hashtags";
 	
@@ -36,5 +38,5 @@ class HashtagDoc {
 	public void setCount(Long count) {
 		this.count = count;
 	}
-	
+
 }

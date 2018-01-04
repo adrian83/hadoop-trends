@@ -3,8 +3,10 @@ package ab.java.twittertrends.domain.twitter.reply.repository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import ab.java.twittertrends.domain.twitter.common.TwitterDoc;
+
 @Document(collection = ReplyDoc.REPLIES)
-public class ReplyDoc {
+public class ReplyDoc extends TwitterDoc {
 
 	public final static String REPLIES = "replies";
 	

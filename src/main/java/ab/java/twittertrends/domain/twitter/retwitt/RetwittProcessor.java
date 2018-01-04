@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import ab.java.twittertrends.domain.twitter.TwittsSource;
 import ab.java.twittertrends.domain.twitter.retwitt.repository.RetwittRepository;
 
-import reactor.core.publisher.Mono;
 import twitter4j.Status;
 
 @Component
