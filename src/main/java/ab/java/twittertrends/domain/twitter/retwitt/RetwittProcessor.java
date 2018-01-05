@@ -1,10 +1,10 @@
 package ab.java.twittertrends.domain.twitter.retwitt;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ import twitter4j.Status;
 @Component
 public class RetwittProcessor {
 
-	private static final Logger LOGGER = Logger.getLogger(RetwittProcessor.class.getSimpleName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(RetwittProcessor.class);
 	
 	@Autowired
 	private TwittsSource twittsSource;
@@ -27,7 +27,7 @@ public class RetwittProcessor {
 	
 	@PostConstruct
 	public void postCreate() {
-		LOGGER.log(Level.INFO, "RetwittProcessor created");
+		LOGGER.info("RetwittProcessor created");
 		persistRetwitts();
 	}
 	
@@ -40,7 +40,7 @@ public class RetwittProcessor {
 	}
 	
 	private void persistRetwitts() {
-		LOGGER.log(Level.INFO, "Starting persisting retwitts");
+		LOGGER.info("Starting persisting retwitts");
 		
 		twittsSource.twittsFlux()
 		.filter(this::shouldProcess)
@@ -50,7 +50,7 @@ public class RetwittProcessor {
 				.user(s.getRetweetedStatus().getUser().getScreenName())
 				.build())
         .map(retwittRepository::save)
-		.subscribe(mur -> mur.subscribe(ur -> LOGGER.log(Level.INFO, "Saved retwitt: {0}", ur.getUpsertedId())));          
+		.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved retwitt: {0}", ur.getUpsertedId())));          
 	}
 	
 	

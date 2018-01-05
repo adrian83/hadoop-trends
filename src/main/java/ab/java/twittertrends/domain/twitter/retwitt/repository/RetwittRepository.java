@@ -3,9 +3,9 @@ package ab.java.twittertrends.domain.twitter.retwitt.repository;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,7 +19,6 @@ import com.mongodb.client.result.UpdateResult;
 import ab.java.twittertrends.domain.twitter.common.Repository;
 import ab.java.twittertrends.domain.twitter.retwitt.ImmutableRetwitt;
 import ab.java.twittertrends.domain.twitter.retwitt.Retwitt;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,19 +26,18 @@ import reactor.core.publisher.Mono;
 public class RetwittRepository implements Repository<Retwitt>{
 
 	private static final String USER_LABEL = "user";
-
 	private static final String RETWITTED_LABEL = "retwitted";
-
 	private static final String TWITT_ID_LABEL = "twittId";
 
-	private static final Logger LOGGER = Logger.getLogger(RetwittRepository.class.getSimpleName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(RetwittRepository.class);
 
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
 
 	@Override
 	public Flux<List<Retwitt>> take(int count) {
-		LOGGER.log(Level.INFO, "Getting {0} retwitts", count);
+		LOGGER.info("Getting {0} retwitts", count);
+		
 		return reactiveMongoTemplate.findAll(RetwittDoc.class)
 				.sort(Comparator.<RetwittDoc>comparingLong(t -> t.getRetwitted()).reversed())
 				.map(doc -> (Retwitt) ImmutableRetwitt.builder()
@@ -54,7 +52,8 @@ public class RetwittRepository implements Repository<Retwitt>{
 
 	@Override
 	public Mono<UpdateResult> save(Retwitt retwitt) {
-		LOGGER.log(Level.INFO, "Saving / updating {0}", retwitt);
+		LOGGER.info("Saving / updating {0}", retwitt);
+		
 		return reactiveMongoTemplate.upsert(
 				Query.query(Criteria.where(TWITT_ID_LABEL).is(retwitt.id())), 
 				Update.update(TWITT_ID_LABEL, retwitt.id()).set(RETWITTED_LABEL, retwitt.retwitted()).set(USER_LABEL, retwitt.user()), 
@@ -63,7 +62,7 @@ public class RetwittRepository implements Repository<Retwitt>{
 	
 	@Override
 	public Mono<DeleteResult> deleteOlderThan(LocalDateTime time) {
-		LOGGER.log(Level.INFO, "Removing retwitts older than {0}", time);
+		LOGGER.info("Removing retwitts older than {0}", time);
 		
 		return reactiveMongoTemplate.remove(
 				Query.query(Criteria.where(RetwittDoc.LAST_UPDATE_LABEL).lte(time)), 

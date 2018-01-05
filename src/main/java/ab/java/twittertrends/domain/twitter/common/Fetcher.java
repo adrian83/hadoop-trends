@@ -8,4 +8,6 @@ public interface Fetcher <T> {
 
 	Flux<List<T>> elements();
 	
+	public void removeUnused();
+	
 }

@@ -48,8 +48,9 @@ public class HashtagFetcher implements Fetcher<Hashtag> {
 		return hashtags;
 	}
 	
-	@Scheduled(fixedRate = 60000)
-	public void removeOld() {
+	@Override
+	@Scheduled(fixedRate = 60000, initialDelay = 1000*60*60)
+	public void removeUnused() {
 		Mono<DeleteResult> result = hashtagRepository.deleteOlderThan(LocalDateTime.now().minusHours(1));
 		result.subscribe(
         		dr -> LOGGER.log(Level.INFO, "Hashtags removed {0}", dr.getDeletedCount()), 
