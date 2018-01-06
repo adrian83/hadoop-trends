@@ -50,7 +50,7 @@ public class RetwittProcessor {
 				.user(s.getRetweetedStatus().getUser().getScreenName())
 				.build())
         .map(retwittRepository::save)
-		.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved retwitt: {0}", ur.getUpsertedId())));          
+		.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved retwitt: {}", ur.getUpsertedId())));          
 	}
 	
 	

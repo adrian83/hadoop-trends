@@ -1,8 +1,8 @@
 package ab.java.twittertrends.domain.twitter.retwitt;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
@@ -48,11 +48,11 @@ public class RetwittFetcher implements Fetcher<Retwitt> {
 	}
 	
 	@Override
-	@Scheduled(fixedRate = 60000, initialDelay = 1000*60)
+	@Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
 	public void removeUnused() {
-		Mono<DeleteResult> result = retwittRepository.deleteOlderThan(LocalDateTime.now().minusMinutes(1));
+		Mono<DeleteResult> result = retwittRepository.deleteOlderThan(1, TimeUnit.MINUTES);
 		result.subscribe(
-        		dr -> LOGGER.warn("Retwitts removed {0}", dr.getDeletedCount()), 
-        		t -> LOGGER.error("Exception during removing retwitts {0}", t));
+        		dr -> LOGGER.warn("Retwitts removed {}", dr.getDeletedCount()), 
+        		t -> LOGGER.error("Exception during removing retwitts {}", t));
 	}
 }

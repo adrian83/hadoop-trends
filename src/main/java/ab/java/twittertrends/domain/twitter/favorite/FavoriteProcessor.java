@@ -1,22 +1,20 @@
 package ab.java.twittertrends.domain.twitter.favorite;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.TwittsSource;
 import ab.java.twittertrends.domain.twitter.common.Repository;
-
 import twitter4j.Status;
 
 @Component
 public class FavoriteProcessor {
 
-	private static final Logger LOGGER = Logger.getLogger(FavoriteProcessor.class.getSimpleName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(FavoriteProcessor.class);
 	
 	@Autowired
 	private TwittsSource twittsSource;
@@ -27,7 +25,7 @@ public class FavoriteProcessor {
 	
 	@PostConstruct
 	public void postCreate() {
-		LOGGER.log(Level.INFO, "FavoriteProcessor created");
+		LOGGER.info("FavoriteProcessor created");
 		persistFavorities();
 	}
 	
@@ -41,7 +39,7 @@ public class FavoriteProcessor {
 	}
 	
 	private void persistFavorities() {
-		LOGGER.log(Level.INFO, "Starting persisting favorites");
+		LOGGER.info("Starting persisting favorites");
 	
 		twittsSource.twittsFlux()
 		.filter(this::shouldProcess)
@@ -51,7 +49,7 @@ public class FavoriteProcessor {
 				.user(s.getRetweetedStatus().getUser().getScreenName())
 				.build())
 		.map(favoriteRepository::save)
-		.subscribe(mur -> mur.subscribe(ur -> LOGGER.log(Level.INFO, "Saved favorite: {0}", ur.getUpsertedId())));
+		.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved favorite: {}", ur.getUpsertedId())));
    
 	}
 

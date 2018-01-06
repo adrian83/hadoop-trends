@@ -1,11 +1,11 @@
 package ab.java.twittertrends.domain.twitter.favorite.repository;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,25 +19,25 @@ import com.mongodb.client.result.UpdateResult;
 import ab.java.twittertrends.domain.twitter.common.Repository;
 import ab.java.twittertrends.domain.twitter.favorite.Favorite;
 import ab.java.twittertrends.domain.twitter.favorite.ImmutableFavorite;
-
+import ab.java.twittertrends.domain.twitter.retwitt.repository.RetwittRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
 public class FavoriteRepository implements Repository<Favorite> {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(RetwittRepository.class);
 
 	private static final String USER_LABEL = "user";
 	private static final String FAVORITE_LABEL = "favorite";
 	private static final String TWITT_ID_LABEL = "twittId";
-
-	private static final Logger LOGGER = Logger.getLogger(FavoriteRepository.class.getSimpleName());
 
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
 
 	@Override
 	public Flux<List<Favorite>> take(int count) {
-		LOGGER.log(Level.INFO, "Getting {0} favorites", count);
+		LOGGER.info("Getting {} favorites", count);
 		return reactiveMongoTemplate.findAll(FavoriteDoc.class)
 				.sort(Comparator.<FavoriteDoc>comparingLong(FavoriteDoc::getFavorite).reversed())
 				.map(doc -> (Favorite)ImmutableFavorite.builder()
@@ -52,19 +52,22 @@ public class FavoriteRepository implements Repository<Favorite> {
 
 	@Override
 	public Mono<UpdateResult> save(Favorite favorite) {
-		LOGGER.log(Level.INFO,"Saving favorite {0}", favorite);
+		LOGGER.info("Saving favorite {}", favorite);
 		 return reactiveMongoTemplate.upsert(
 				 Query.query(Criteria.where(TWITT_ID_LABEL).is(favorite.id())), 
-				 Update.update(TWITT_ID_LABEL, favorite.id()).set(FAVORITE_LABEL, favorite.favorite()).set(USER_LABEL, favorite.user()), 
+				 Update.update(TWITT_ID_LABEL, favorite.id())
+				 	.set(FAVORITE_LABEL, favorite.favorite())
+				 	.set(FavoriteDoc.LAST_UPDATE_LABEL, utcNow())
+				 	.set(USER_LABEL, favorite.user()), 
 				 FavoriteDoc.FAVORITES);
 	}
 
 	@Override
-	public Mono<DeleteResult> deleteOlderThan(LocalDateTime time) {
-		LOGGER.log(Level.INFO, "Removing favorities older than {0}", time);
+	public Mono<DeleteResult> deleteOlderThan(long amount, TimeUnit unit) {
+		LOGGER.info("Removing favorities older than {} {}", amount, unit);
 		
 		return reactiveMongoTemplate.remove(
-				Query.query(Criteria.where(FavoriteDoc.LAST_UPDATE_LABEL).lte(time)), 
+				Query.query(Criteria.where(FavoriteDoc.LAST_UPDATE_LABEL).lte(utcNowMinus(amount, unit))), 
 				FavoriteDoc.FAVORITES);
 	}
 	

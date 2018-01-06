@@ -1,10 +1,9 @@
 package ab.java.twittertrends.domain.twitter.reply;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,7 @@ import twitter4j.Status;
 @Component
 public class ReplyProcessor {
 
-	private static final Logger LOGGER = Logger.getLogger(ReplyProcessor.class.getSimpleName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(ReplyProcessor.class);
 	
 	@Autowired
 	private TwittsSource twittsSource;
@@ -27,7 +26,7 @@ public class ReplyProcessor {
 	
 	@PostConstruct
 	public void postCreate() {
-		LOGGER.log(Level.INFO, "ReplyProcessor created");
+		LOGGER.info("ReplyProcessor created");
 		persistReplies();
 	}
 	
@@ -37,7 +36,7 @@ public class ReplyProcessor {
 	}
 	
 	private void persistReplies() {
-		LOGGER.log(Level.INFO, "Starting persisting replies");
+		LOGGER.info("Starting persisting replies");
 		
 		twittsSource.twittsFlux()
 		.filter(this::shouldProcess)
@@ -47,7 +46,7 @@ public class ReplyProcessor {
 				.user(s.getInReplyToScreenName())
 				.build())
         .map(replyRepository::save)
-		.subscribe(mur -> mur.subscribe(ur -> LOGGER.log(Level.INFO, "Saved reply: {0}", ur.getUpsertedId())));   
+		.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved reply: {}", ur.getUpsertedId())));   
         
 	}
 	

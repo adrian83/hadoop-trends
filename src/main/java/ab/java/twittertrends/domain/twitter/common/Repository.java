@@ -1,9 +1,9 @@
 package ab.java.twittertrends.domain.twitter.common;
 
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -17,10 +17,15 @@ public interface Repository <T> {
 	
 	Mono<UpdateResult> save(T elem);
 	
-	Mono<DeleteResult> deleteOlderThan(LocalDateTime time);
+	Mono<DeleteResult> deleteOlderThan(long amount, TimeUnit unit);
 	
-	default LocalDateTime utcNow() {
-		return ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime();
+	default long utcNow() {
+		return ZonedDateTime.now(ZoneOffset.UTC).toEpochSecond();
 	}
 
+	default long utcNowMinus(long amount, TimeUnit unit) {
+		long seconds = unit.toSeconds(amount);
+		return ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(seconds).toEpochSecond();
+	}
+	
 }

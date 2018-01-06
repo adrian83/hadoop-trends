@@ -1,12 +1,12 @@
 package ab.java.twittertrends.domain.twitter.hashtag;
 
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ import twitter4j.Status;
 @Component
 public class HashtagProcessor {
 
-	private static final Logger LOGGER = Logger.getLogger(HashtagProcessor.class.getSimpleName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(HashtagProcessor.class);
 
 	private static final int DEF_BUFFER_SIZE = 100;
 	
@@ -32,12 +32,12 @@ public class HashtagProcessor {
 	
 	@PostConstruct
 	public void postCreate() {
-		LOGGER.log(Level.INFO, "HashtagProcessor created");
+		LOGGER.info("HashtagProcessor created");
 		persistHashtags();
 	}
 	
 	private void persistHashtags() {
-		LOGGER.log(Level.INFO, "Starting persisting hashtags");
+		LOGGER.info("Starting persisting hashtags");
 		twittsSource.twittsFlux()
 		.map(Status::getText)
         .flatMap(hashtagFinder::findHashtags)
@@ -50,8 +50,8 @@ public class HashtagProcessor {
         		.collect(Collectors.toList()))
         .map(hashtagRepository::save)
         .subscribe(
-        		mur -> mur.subscribe(ur -> LOGGER.log(Level.INFO, "Saved hashtag: {0}", ur.getUpsertedId())), 
-        		t -> LOGGER.log(Level.INFO, "Exception during processing hashtags {0}", t));
+        		mur -> mur.subscribe(ur -> LOGGER.info("Saved hashtag: {}", ur.getUpsertedId())), 
+        		t -> LOGGER.error("Exception during processing hashtags {}", t));
 		
 	}
 	

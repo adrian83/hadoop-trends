@@ -1,21 +1,19 @@
 package ab.java.twittertrends.domain.twitter.common;
 
-import java.time.LocalDateTime;
-
 public class TwitterDoc {
 
-	public static final String LAST_UPDATE_LABEL = "lastUpdate";
+	public static final String LAST_UPDATE_LABEL = "updated";
 	
-	private LocalDateTime lastUpdate;
+	private Long updated;
 
-	public LocalDateTime getLastUpdate() {
-		return lastUpdate;
+	public Long getUpdated() {
+		return updated;
 	}
 
-	public void setLastUpdate(LocalDateTime lastUpdate) {
-		this.lastUpdate = lastUpdate;
+	public void setUpdated(Long updated) {
+		this.updated = updated;
 	}
-	
+
 	
 	
 }

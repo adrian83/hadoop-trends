@@ -1,13 +1,13 @@
 package ab.java.twittertrends.domain.twitter.favorite;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class FavoriteFetcher implements Fetcher<Favorite> {
 
-	private static final Logger LOGGER = Logger.getLogger(FavoriteProcessor.class.getSimpleName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(FavoriteFetcher.class);
 
 	@Autowired
 	private Repository<Favorite> favoriteRepository;
@@ -32,14 +32,14 @@ public class FavoriteFetcher implements Fetcher<Favorite> {
 		
 	@PostConstruct
 	public void postCreate() {
-		LOGGER.log(Level.INFO, "Created");
+		LOGGER.info("Created");
 		
 		favorites = Flux.interval(Duration.ofSeconds(10))
 				.flatMap(i -> favoriteRepository.take(10))
  				.publish();
  		
 		favorites.connect();
-		LOGGER.log(Level.INFO, "Hot Flux started");
+		LOGGER.info("Hot Flux started");
 	}
 
 	@Override
@@ -48,12 +48,12 @@ public class FavoriteFetcher implements Fetcher<Favorite> {
 	}
 	
 	@Override
-	@Scheduled(fixedRate = 60000, initialDelay = 1000*60*60)
+	@Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
 	public void removeUnused() {
-		Mono<DeleteResult> result = favoriteRepository.deleteOlderThan(LocalDateTime.now().minusHours(1));
+		Mono<DeleteResult> result = favoriteRepository.deleteOlderThan(1, TimeUnit.MINUTES);
 		result.subscribe(
-        		dr -> LOGGER.log(Level.INFO, "Favorites removed {0}", dr.getDeletedCount()), 
-        		t -> LOGGER.log(Level.INFO, "Exception during removing favorites {0}", t));
+        		dr -> LOGGER.warn("Favorites removed {}", dr.getDeletedCount()), 
+        		t -> LOGGER.error("Exception during removing favorites {}", t));
 	}
 	
 }

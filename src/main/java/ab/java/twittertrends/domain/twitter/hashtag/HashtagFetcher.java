@@ -1,13 +1,13 @@
 package ab.java.twittertrends.domain.twitter.hashtag;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class HashtagFetcher implements Fetcher<Hashtag> {
 
-	private static final Logger LOGGER = Logger.getLogger(HashtagFetcher.class.getSimpleName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(HashtagFetcher.class);
 
 	@Autowired
 	private Repository<Hashtag> hashtagRepository;
@@ -33,14 +33,14 @@ public class HashtagFetcher implements Fetcher<Hashtag> {
 	
 	@PostConstruct
 	public void postCreate() {
-		LOGGER.log(Level.INFO, "Created");
+		LOGGER.info("Created");
 		
  		hashtags = Flux.interval(Duration.ofSeconds(10))
 				.flatMap(i -> hashtagRepository.take(10))
  				.publish();
  		
  		hashtags.connect();
- 		LOGGER.log(Level.INFO, "Hot observable started");
+ 		LOGGER.info("Hot observable started");
 	}
 	
 	@Override
@@ -49,12 +49,12 @@ public class HashtagFetcher implements Fetcher<Hashtag> {
 	}
 	
 	@Override
-	@Scheduled(fixedRate = 60000, initialDelay = 1000*60*60)
+	@Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
 	public void removeUnused() {
-		Mono<DeleteResult> result = hashtagRepository.deleteOlderThan(LocalDateTime.now().minusHours(1));
+		Mono<DeleteResult> result = hashtagRepository.deleteOlderThan(1, TimeUnit.MINUTES);
 		result.subscribe(
-        		dr -> LOGGER.log(Level.INFO, "Hashtags removed {0}", dr.getDeletedCount()), 
-        		t -> LOGGER.log(Level.INFO, "Exception during removing hashtags {0}", t));
+        		dr -> LOGGER.warn("Hashtags removed {}", dr.getDeletedCount()), 
+        		t -> LOGGER.error("Exception during removing hashtags {}", t));
 	}
 	
 }
