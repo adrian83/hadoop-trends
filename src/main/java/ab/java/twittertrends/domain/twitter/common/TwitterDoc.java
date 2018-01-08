@@ -14,6 +14,4 @@ public class TwitterDoc {
 		this.updated = updated;
 	}
 
-	
-	
 }

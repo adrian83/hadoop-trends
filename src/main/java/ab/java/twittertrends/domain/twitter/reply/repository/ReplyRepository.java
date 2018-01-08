@@ -17,6 +17,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
 import ab.java.twittertrends.domain.twitter.common.Repository;
+import ab.java.twittertrends.domain.twitter.common.Time;
 import ab.java.twittertrends.domain.twitter.hashtag.repository.HashtagRepository;
 import ab.java.twittertrends.domain.twitter.reply.ImmutableReply;
 import ab.java.twittertrends.domain.twitter.reply.Reply;
@@ -58,7 +59,7 @@ public class ReplyRepository implements Repository<Reply> {
 				Query.query(Criteria.where(TWITT_ID_LABEL).is(reply.id())), 
 				Update.update(TWITT_ID_LABEL, reply.id())
 					.set(USER_LABEL, reply.user())
-					.set(ReplyDoc.LAST_UPDATE_LABEL, utcNow())
+					.set(ReplyDoc.LAST_UPDATE_LABEL, Time.utcNow())
 					.inc(COUNT_LABEL, reply.count().intValue()), 
 				ReplyDoc.REPLIES);
 	}
@@ -68,7 +69,7 @@ public class ReplyRepository implements Repository<Reply> {
 		LOGGER.info("Removing replies older than {} {}", amount, unit);
 		
 		return reactiveMongoTemplate.remove(
-				Query.query(Criteria.where(ReplyDoc.LAST_UPDATE_LABEL).lte(utcNowMinus(amount, unit))), 
+				Query.query(Criteria.where(ReplyDoc.LAST_UPDATE_LABEL).lte(Time.utcNowMinus(amount, unit))), 
 				ReplyDoc.REPLIES);
 	}
 	

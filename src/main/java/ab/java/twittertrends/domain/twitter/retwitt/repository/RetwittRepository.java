@@ -17,6 +17,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
 import ab.java.twittertrends.domain.twitter.common.Repository;
+import ab.java.twittertrends.domain.twitter.common.Time;
 import ab.java.twittertrends.domain.twitter.retwitt.ImmutableRetwitt;
 import ab.java.twittertrends.domain.twitter.retwitt.Retwitt;
 import reactor.core.publisher.Flux;
@@ -59,7 +60,7 @@ public class RetwittRepository implements Repository<Retwitt>{
 				Update.update(TWITT_ID_LABEL, retwitt.id())
 					.set(RETWITTED_LABEL, retwitt.retwitted())
 					.set(USER_LABEL, retwitt.user())
-					.set(RetwittDoc.LAST_UPDATE_LABEL, utcNow()), 
+					.set(RetwittDoc.LAST_UPDATE_LABEL, Time.utcNow()), 
 				RetwittDoc.RETWITTS);
 	}
 	
@@ -68,7 +69,7 @@ public class RetwittRepository implements Repository<Retwitt>{
 		LOGGER.info("Removing retwitts older than {} {}", amount, unit);
 		
 		return reactiveMongoTemplate.remove(
-				Query.query(Criteria.where(RetwittDoc.LAST_UPDATE_LABEL).lte(utcNow()-5)), 
+				Query.query(Criteria.where(RetwittDoc.LAST_UPDATE_LABEL).lte(Time.utcNowMinus(amount, unit))), 
 				RetwittDoc.RETWITTS);
 	}
 	

@@ -17,6 +17,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
 import ab.java.twittertrends.domain.twitter.common.Repository;
+import ab.java.twittertrends.domain.twitter.common.Time;
 import ab.java.twittertrends.domain.twitter.favorite.Favorite;
 import ab.java.twittertrends.domain.twitter.favorite.ImmutableFavorite;
 import ab.java.twittertrends.domain.twitter.retwitt.repository.RetwittRepository;
@@ -57,7 +58,7 @@ public class FavoriteRepository implements Repository<Favorite> {
 				 Query.query(Criteria.where(TWITT_ID_LABEL).is(favorite.id())), 
 				 Update.update(TWITT_ID_LABEL, favorite.id())
 				 	.set(FAVORITE_LABEL, favorite.favorite())
-				 	.set(FavoriteDoc.LAST_UPDATE_LABEL, utcNow())
+				 	.set(FavoriteDoc.LAST_UPDATE_LABEL, Time.utcNow())
 				 	.set(USER_LABEL, favorite.user()), 
 				 FavoriteDoc.FAVORITES);
 	}
@@ -67,7 +68,7 @@ public class FavoriteRepository implements Repository<Favorite> {
 		LOGGER.info("Removing favorities older than {} {}", amount, unit);
 		
 		return reactiveMongoTemplate.remove(
-				Query.query(Criteria.where(FavoriteDoc.LAST_UPDATE_LABEL).lte(utcNowMinus(amount, unit))), 
+				Query.query(Criteria.where(FavoriteDoc.LAST_UPDATE_LABEL).lte(Time.utcNowMinus(amount, unit))), 
 				FavoriteDoc.FAVORITES);
 	}
 	

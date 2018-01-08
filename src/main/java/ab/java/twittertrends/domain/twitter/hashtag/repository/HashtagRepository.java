@@ -13,6 +13,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
 import ab.java.twittertrends.domain.twitter.common.Repository;
+import ab.java.twittertrends.domain.twitter.common.Time;
 import ab.java.twittertrends.domain.twitter.hashtag.Hashtag;
 import ab.java.twittertrends.domain.twitter.hashtag.ImmutableHashtag;
 import reactor.core.publisher.Flux;
@@ -54,7 +55,7 @@ public class HashtagRepository implements Repository<Hashtag> {
 		return reactiveMongoTemplate.upsert(
 				Query.query(Criteria.where(NAME_LABEL).is(hashtag.name())),
 				Update.update(NAME_LABEL, hashtag.name())
-					.set(HashtagDoc.LAST_UPDATE_LABEL, utcNow())
+					.set(HashtagDoc.LAST_UPDATE_LABEL, Time.utcNow())
 					.inc(COUNT_LABEL, hashtag.count().intValue()), 
 				HashtagDoc.HASHTAGS);
 	}
@@ -64,7 +65,7 @@ public class HashtagRepository implements Repository<Hashtag> {
 		LOGGER.info("Removing hashtags older than {} {}", amount, unit);
 		
 		return reactiveMongoTemplate.remove(
-				Query.query(Criteria.where(HashtagDoc.LAST_UPDATE_LABEL).lte(utcNowMinus(amount, unit))), 
+				Query.query(Criteria.where(HashtagDoc.LAST_UPDATE_LABEL).lte(Time.utcNowMinus(amount, unit))), 
 				HashtagDoc.HASHTAGS);
 	}
 
