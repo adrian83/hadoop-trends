@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.reply.repository;
+package ab.java.twittertrends.domain.twitter.reply;
 
 import java.util.Comparator;
 import java.util.List;
@@ -18,9 +18,7 @@ import com.mongodb.client.result.UpdateResult;
 
 import ab.java.twittertrends.domain.twitter.common.Repository;
 import ab.java.twittertrends.domain.twitter.common.Time;
-import ab.java.twittertrends.domain.twitter.hashtag.repository.HashtagRepository;
-import ab.java.twittertrends.domain.twitter.reply.ImmutableReply;
-import ab.java.twittertrends.domain.twitter.reply.Reply;
+import ab.java.twittertrends.domain.twitter.hashtag.HashtagRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -29,10 +27,6 @@ import reactor.core.publisher.Mono;
 public class ReplyRepository implements Repository<Reply> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HashtagRepository.class);
-	
-	private static final String COUNT_LABEL = "count";
-	private static final String USER_LABEL = "user";
-	private static final String TWITT_ID_LABEL = "twittId";
 
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
@@ -40,13 +34,8 @@ public class ReplyRepository implements Repository<Reply> {
 	@Override
 	public Flux<List<Reply>> take(int count) {
 		LOGGER.info("Getting {} replies", count);
-		return reactiveMongoTemplate.findAll(ReplyDoc.class)
-				.sort(Comparator.<ReplyDoc>comparingLong(t -> t.getCount()).reversed())
-				.map(doc -> (Reply) ImmutableReply.builder()
-						.user(doc.getUser())
-						.id(doc.getTwittId().toString())
-						.count(doc.getCount())
-						.build())
+		return reactiveMongoTemplate.findAll(Reply.class, Reply.REPLIES)
+				.sort(Comparator.<Reply>comparingLong(Reply::getCount).reversed())
 				.buffer(count)
 				.take(1)
 				.onBackpressureDrop();
@@ -56,12 +45,12 @@ public class ReplyRepository implements Repository<Reply> {
 	public Mono<UpdateResult> save(Reply reply) {
 		LOGGER.info("Saving / updating {}", reply);
 		return reactiveMongoTemplate.upsert(
-				Query.query(Criteria.where(TWITT_ID_LABEL).is(reply.id())), 
-				Update.update(TWITT_ID_LABEL, reply.id())
-					.set(USER_LABEL, reply.user())
-					.set(ReplyDoc.LAST_UPDATE_LABEL, Time.utcNow())
-					.inc(COUNT_LABEL, reply.count().intValue()), 
-				ReplyDoc.REPLIES);
+				Query.query(Criteria.where(Reply.TWITT_ID_LABEL).is(reply.getTwittId())), 
+				Update.update(Reply.TWITT_ID_LABEL, reply.getTwittId())
+					.set(Reply.USER_LABEL, reply.getUserName())
+					.set(Reply.LAST_UPDATE_LABEL, reply.getUpdated())
+					.inc(Reply.COUNT_LABEL, reply.getCount()), 
+				Reply.REPLIES);
 	}
 
 	@Override
@@ -69,8 +58,8 @@ public class ReplyRepository implements Repository<Reply> {
 		LOGGER.info("Removing replies older than {} {}", amount, unit);
 		
 		return reactiveMongoTemplate.remove(
-				Query.query(Criteria.where(ReplyDoc.LAST_UPDATE_LABEL).lte(Time.utcNowMinus(amount, unit))), 
-				ReplyDoc.REPLIES);
+				Query.query(Criteria.where(Reply.LAST_UPDATE_LABEL).lte(Time.utcNowMinus(amount, unit))), 
+				Reply.REPLIES);
 	}
 	
 }

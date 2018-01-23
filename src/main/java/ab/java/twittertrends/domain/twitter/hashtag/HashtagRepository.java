@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.hashtag.repository;
+package ab.java.twittertrends.domain.twitter.hashtag;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +14,6 @@ import com.mongodb.client.result.UpdateResult;
 
 import ab.java.twittertrends.domain.twitter.common.Repository;
 import ab.java.twittertrends.domain.twitter.common.Time;
-import ab.java.twittertrends.domain.twitter.hashtag.Hashtag;
-import ab.java.twittertrends.domain.twitter.hashtag.ImmutableHashtag;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -28,21 +26,14 @@ public class HashtagRepository implements Repository<Hashtag> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HashtagRepository.class);
 	
-	private static final String COUNT_LABEL = "count";
-	private static final String NAME_LABEL = "name";
-
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
 
 	@Override
 	public Flux<List<Hashtag>> take(int count) {
 		LOGGER.info("Getting {} hashtags", count);
-		return reactiveMongoTemplate.findAll(HashtagDoc.class)
-				.sort(Comparator.<HashtagDoc>comparingLong(t -> t.getCount()).reversed())
-				.map(doc -> (Hashtag) ImmutableHashtag.builder()
-						.name(doc.getName())
-						.count(doc.getCount())
-						.build())
+		return reactiveMongoTemplate.findAll(Hashtag.class, Hashtag.HASHTAGS)
+				.sort(Comparator.<Hashtag>comparingLong(Hashtag::getCount).reversed())
 				.buffer(count)
 				.take(1)
 				.onBackpressureDrop();
@@ -53,11 +44,11 @@ public class HashtagRepository implements Repository<Hashtag> {
 		LOGGER.info("Saving / updating {}", hashtag);
 		
 		return reactiveMongoTemplate.upsert(
-				Query.query(Criteria.where(NAME_LABEL).is(hashtag.name())),
-				Update.update(NAME_LABEL, hashtag.name())
-					.set(HashtagDoc.LAST_UPDATE_LABEL, Time.utcNow())
-					.inc(COUNT_LABEL, hashtag.count().intValue()), 
-				HashtagDoc.HASHTAGS);
+				Query.query(Criteria.where(Hashtag.NAME_LABEL).is(hashtag.getName())),
+				Update.update(Hashtag.NAME_LABEL, hashtag.getName())
+					.set(Hashtag.LAST_UPDATE_LABEL, hashtag.getUpdated())
+					.inc(Hashtag.COUNT_LABEL, hashtag.getCount()), 
+				Hashtag.HASHTAGS);
 	}
 	
 	@Override
@@ -65,8 +56,8 @@ public class HashtagRepository implements Repository<Hashtag> {
 		LOGGER.info("Removing hashtags older than {} {}", amount, unit);
 		
 		return reactiveMongoTemplate.remove(
-				Query.query(Criteria.where(HashtagDoc.LAST_UPDATE_LABEL).lte(Time.utcNowMinus(amount, unit))), 
-				HashtagDoc.HASHTAGS);
+				Query.query(Criteria.where(Hashtag.LAST_UPDATE_LABEL).lte(Time.utcNowMinus(amount, unit))), 
+				Hashtag.HASHTAGS);
 	}
 
 }

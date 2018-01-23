@@ -8,8 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.TwittsSource;
-import ab.java.twittertrends.domain.twitter.reply.repository.ReplyRepository;
-
+import ab.java.twittertrends.domain.twitter.common.Time;
 import twitter4j.Status;
 
 @Component
@@ -40,10 +39,11 @@ public class ReplyProcessor {
 		
 		twittsSource.twittsFlux()
 		.filter(this::shouldProcess)
-		.map(s -> (Reply)ImmutableReply.builder()
-				.id(String.valueOf(s.getInReplyToStatusId()))
+		.map(s -> Reply.builder()
 				.count(1)
-				.user(s.getInReplyToScreenName())
+				.userName(s.getInReplyToScreenName())
+				.twittId(String.valueOf(s.getInReplyToStatusId()))
+				.updated(Time.utcNow())
 				.build())
         .map(replyRepository::save)
 		.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved reply: {}", ur.getUpsertedId())));   

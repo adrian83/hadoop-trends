@@ -25,8 +25,8 @@
 		        var html = "<ul class=\"list-group\">";
 		        for(var i=0; i < newRetwitts.length; i++){
 		        	var retwitt = newRetwitts[i];
-		        	var a = "<a target=\"_blank\" href=\"https://twitter.com/" + retwitt.user + "/status/" + retwitt.id + "\">" + retwitt.user + " - " + retwitt.id + "</a>";
-		        	html += "<li class=\"list-group-item\"><span class=\"badge\">" + retwitt.retwitted + "</span>" + a + "</li>";
+		        	var a = "<a target=\"_blank\" href=\"https://twitter.com/" + retwitt.userName + "/status/" + retwitt.twittId + "\">" + retwitt.userName + " - " + retwitt.twittId + "</a>";
+		        	html += "<li class=\"list-group-item\"><span class=\"badge\">" + retwitt.count + "</span>" + a + "</li>";
 		        }
 		        html += "</ul>";
 		        document.getElementById("result").innerHTML = html;

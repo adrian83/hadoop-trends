@@ -9,8 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.TwittsSource;
-import ab.java.twittertrends.domain.twitter.retwitt.repository.RetwittRepository;
-
+import ab.java.twittertrends.domain.twitter.common.Time;
 import twitter4j.Status;
 
 @Component
@@ -44,10 +43,11 @@ public class RetwittProcessor {
 		
 		twittsSource.twittsFlux()
 		.filter(this::shouldProcess)
-		.map(s -> (Retwitt)ImmutableRetwitt.builder()
-				.id(String.valueOf(s.getRetweetedStatus().getId()))
-				.retwitted(s.getRetweetedStatus().getRetweetCount())
-				.user(s.getRetweetedStatus().getUser().getScreenName())
+		.map(s -> Retwitt.builder()
+				.twittId(String.valueOf(s.getRetweetedStatus().getId()))
+				.count(s.getRetweetedStatus().getRetweetCount())
+				.userName(s.getRetweetedStatus().getUser().getScreenName())
+				.updated(Time.utcNow())
 				.build())
         .map(retwittRepository::save)
 		.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved retwitt: {}", ur.getUpsertedId())));          

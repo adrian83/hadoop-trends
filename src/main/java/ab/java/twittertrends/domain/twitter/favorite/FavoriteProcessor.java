@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.TwittsSource;
 import ab.java.twittertrends.domain.twitter.common.Repository;
+import ab.java.twittertrends.domain.twitter.common.Time;
 import twitter4j.Status;
 
 @Component
@@ -43,10 +44,11 @@ public class FavoriteProcessor {
 	
 		twittsSource.twittsFlux()
 		.filter(this::shouldProcess)
-		.map(s -> (Favorite) ImmutableFavorite.builder()
-				.id(String.valueOf(s.getRetweetedStatus().getId()))
-				.favorite(s.getRetweetedStatus().getFavoriteCount())
-				.user(s.getRetweetedStatus().getUser().getScreenName())
+		.map(s -> (Favorite) Favorite.builder()
+				.twittId(String.valueOf(s.getRetweetedStatus().getId()))
+				.count(s.getRetweetedStatus().getFavoriteCount())
+				.userName(s.getRetweetedStatus().getUser().getScreenName())
+				.updated(Time.utcNow())
 				.build())
 		.map(favoriteRepository::save)
 		.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved favorite: {}", ur.getUpsertedId())));

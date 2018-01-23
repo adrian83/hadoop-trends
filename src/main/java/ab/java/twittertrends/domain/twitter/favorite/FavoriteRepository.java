@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.favorite.repository;
+package ab.java.twittertrends.domain.twitter.favorite;
 
 import java.util.Comparator;
 import java.util.List;
@@ -18,9 +18,7 @@ import com.mongodb.client.result.UpdateResult;
 
 import ab.java.twittertrends.domain.twitter.common.Repository;
 import ab.java.twittertrends.domain.twitter.common.Time;
-import ab.java.twittertrends.domain.twitter.favorite.Favorite;
-import ab.java.twittertrends.domain.twitter.favorite.ImmutableFavorite;
-import ab.java.twittertrends.domain.twitter.retwitt.repository.RetwittRepository;
+import ab.java.twittertrends.domain.twitter.retwitt.RetwittRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -29,9 +27,7 @@ public class FavoriteRepository implements Repository<Favorite> {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(RetwittRepository.class);
 
-	private static final String USER_LABEL = "user";
-	private static final String FAVORITE_LABEL = "favorite";
-	private static final String TWITT_ID_LABEL = "twittId";
+
 
 	@Autowired
 	private ReactiveMongoTemplate reactiveMongoTemplate;
@@ -39,13 +35,8 @@ public class FavoriteRepository implements Repository<Favorite> {
 	@Override
 	public Flux<List<Favorite>> take(int count) {
 		LOGGER.info("Getting {} favorites", count);
-		return reactiveMongoTemplate.findAll(FavoriteDoc.class)
-				.sort(Comparator.<FavoriteDoc>comparingLong(FavoriteDoc::getFavorite).reversed())
-				.map(doc -> (Favorite)ImmutableFavorite.builder()
-						.id(doc.getTwittId())
-						.favorite(doc.getFavorite())
-						.user(doc.getUser())
-						.build())
+		return reactiveMongoTemplate.findAll(Favorite.class, Favorite.FAVORITES)
+				.sort(Comparator.<Favorite>comparingLong(Favorite::getCount).reversed())
 				.buffer(count)
 				.take(1)
 				.onBackpressureDrop();
@@ -55,12 +46,12 @@ public class FavoriteRepository implements Repository<Favorite> {
 	public Mono<UpdateResult> save(Favorite favorite) {
 		LOGGER.info("Saving favorite {}", favorite);
 		 return reactiveMongoTemplate.upsert(
-				 Query.query(Criteria.where(TWITT_ID_LABEL).is(favorite.id())), 
-				 Update.update(TWITT_ID_LABEL, favorite.id())
-				 	.set(FAVORITE_LABEL, favorite.favorite())
-				 	.set(FavoriteDoc.LAST_UPDATE_LABEL, Time.utcNow())
-				 	.set(USER_LABEL, favorite.user()), 
-				 FavoriteDoc.FAVORITES);
+				 Query.query(Criteria.where(Favorite.TWITT_ID_LABEL).is(favorite.getTwittId())), 
+				 Update.update(Favorite.TWITT_ID_LABEL, favorite.getTwittId())
+				 	.set(Favorite.COUNT_LABEL, favorite.getCount())
+				 	.set(Favorite.LAST_UPDATE_LABEL, favorite.getUpdated())
+				 	.set(Favorite.USER_LABEL, favorite.getUserName()), 
+				 Favorite.FAVORITES);
 	}
 
 	@Override
@@ -68,8 +59,8 @@ public class FavoriteRepository implements Repository<Favorite> {
 		LOGGER.info("Removing favorities older than {} {}", amount, unit);
 		
 		return reactiveMongoTemplate.remove(
-				Query.query(Criteria.where(FavoriteDoc.LAST_UPDATE_LABEL).lte(Time.utcNowMinus(amount, unit))), 
-				FavoriteDoc.FAVORITES);
+				Query.query(Criteria.where(Favorite.LAST_UPDATE_LABEL).lte(Time.utcNowMinus(amount, unit))), 
+				Favorite.FAVORITES);
 	}
 	
 }

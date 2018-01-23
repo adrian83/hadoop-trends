@@ -31,14 +31,18 @@ public class TwittsSource {
 
 	@PostConstruct
 	public void connect() {
+		
+		LOGGER.info("Twitter client conecting");
 
 		TwitterAuth auth = twitterConfig.getAuhentication();
+		
+		LOGGER.info("Twitter client conecting. Auth: {}", auth);
 
-		AccessToken accessToken = new AccessToken(auth.token(), auth.secret());
+		AccessToken accessToken = new AccessToken(auth.getToken(), auth.getSecret());
 
 		twitterStream = new TwitterStreamFactory().getInstance();
 
-		twitterStream.setOAuthConsumer(auth.customerKey(), auth.customerSecret());
+		twitterStream.setOAuthConsumer(auth.getCustomerKey(), auth.getCustomerSecret());
 		twitterStream.setOAuthAccessToken(accessToken);
 
 		twitterStream.addListener(new StatusAdapter() {

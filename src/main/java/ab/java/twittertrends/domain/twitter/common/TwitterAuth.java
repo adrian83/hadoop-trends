@@ -1,12 +1,16 @@
 package ab.java.twittertrends.domain.twitter.common;
 
-import org.immutables.value.Value;
+import lombok.Builder;
+import lombok.ToString;
+import lombok.Value;
 
-@Value.Immutable
-public interface TwitterAuth {
+@Builder
+@Value
+@ToString
+public class TwitterAuth {
 
-	String token();
-	String secret();
-	String customerKey();
-	String customerSecret();
+	private String token;
+	private String secret;
+	private String customerKey;
+	private String customerSecret;
 }

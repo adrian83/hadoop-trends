@@ -11,8 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ab.java.twittertrends.domain.twitter.TwittsSource;
-import ab.java.twittertrends.domain.twitter.hashtag.repository.HashtagRepository;
-
+import ab.java.twittertrends.domain.twitter.common.Time;
 import twitter4j.Status;
 
 
@@ -46,7 +45,11 @@ public class HashtagProcessor {
         		.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
         		.entrySet()
         		.stream()
-        		.map(e -> (Hashtag) ImmutableHashtag.builder().name(e.getKey()).count(e.getValue()).build())
+        		.map(e -> Hashtag.builder()
+        				.count(e.getValue().intValue())
+        				.name(e.getKey())
+        				.updated(Time.utcNow())
+        				.build())
         		.collect(Collectors.toList()))
         .map(hashtagRepository::save)
         .subscribe(
