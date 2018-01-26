@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.hashtag;
+package ab.java.twittertrends.domain.twitter.favorite;
 
 import java.time.Duration;
 import java.util.List;
@@ -14,47 +14,46 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.client.result.DeleteResult;
 
-import ab.java.twittertrends.domain.twitter.common.Fetcher;
+import ab.java.twittertrends.domain.twitter.common.Service;
 import ab.java.twittertrends.domain.twitter.common.Repository;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class HashtagFetcher implements Fetcher<Hashtag> {
+public class FavoriteService implements Service<Favorite> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(HashtagFetcher.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FavoriteService.class);
 
 	@Autowired
-	private Repository<Hashtag> hashtagRepository;
+	private Repository<Favorite> favoriteRepository;
 	
-	private ConnectableFlux<List<Hashtag>> hashtags;
-	
-	
+	private ConnectableFlux<List<Favorite>> favorites;
+		
 	@PostConstruct
 	public void postCreate() {
 		LOGGER.info("Created");
 		
- 		hashtags = Flux.interval(Duration.ofSeconds(10))
-				.flatMap(i -> hashtagRepository.take(10))
+		favorites = Flux.interval(Duration.ofSeconds(10))
+				.flatMap(i -> favoriteRepository.take(10))
  				.publish();
  		
- 		hashtags.connect();
- 		LOGGER.info("Hot observable started");
+		favorites.connect();
+		LOGGER.info("Hot Flux started");
 	}
-	
+
 	@Override
-	public Flux<List<Hashtag>> elements() {
-		return hashtags;
+	public Flux<List<Favorite>> elements() {
+		return favorites;
 	}
 	
 	@Override
 	@Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
 	public void removeUnused() {
-		Mono<DeleteResult> result = hashtagRepository.deleteOlderThan(1, TimeUnit.MINUTES);
+		Mono<DeleteResult> result = favoriteRepository.deleteOlderThan(1, TimeUnit.MINUTES);
 		result.subscribe(
-        		dr -> LOGGER.warn("Hashtags removed {}", dr.getDeletedCount()), 
-        		t -> LOGGER.error("Exception during removing hashtags {}", t));
+        		dr -> LOGGER.warn("Favorites removed {}", dr.getDeletedCount()), 
+        		t -> LOGGER.error("Exception during removing favorites {}", t));
 	}
 	
 }

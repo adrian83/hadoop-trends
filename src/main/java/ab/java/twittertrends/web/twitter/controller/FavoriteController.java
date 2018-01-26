@@ -7,7 +7,7 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ab.java.twittertrends.domain.twitter.common.Fetcher;
+import ab.java.twittertrends.domain.twitter.common.Service;
 import ab.java.twittertrends.domain.twitter.favorite.Favorite;
 import reactor.core.publisher.Flux;
 
@@ -15,9 +15,9 @@ import reactor.core.publisher.Flux;
 public class FavoriteController extends SseController<Favorite> {
 
 	@Autowired 
-	private Fetcher<Favorite> favoriteFetcher;
+	private Service<Favorite> favoriteFetcher;
 	
-	@GetMapping(value = "/sse/favorites", produces = "text/event-stream")
+	@GetMapping(value = SSE_PATH + FAVORITES, produces = SSE_CONTENT_TYPE)
 	public Flux<ServerSentEvent<List<Favorite>>> sseFavorites() {
 		return toSse(favoriteFetcher.elements());
 	}

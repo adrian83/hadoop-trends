@@ -7,7 +7,7 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ab.java.twittertrends.domain.twitter.common.Fetcher;
+import ab.java.twittertrends.domain.twitter.common.Service;
 import ab.java.twittertrends.domain.twitter.reply.Reply;
 import reactor.core.publisher.Flux;
 
@@ -15,9 +15,9 @@ import reactor.core.publisher.Flux;
 public class ReplyController extends SseController<Reply> {
 
 	@Autowired
-	private Fetcher<Reply> replyFetcher;
+	private Service<Reply> replyFetcher;
 
-	@GetMapping(value = "/sse/replies", produces = "text/event-stream")
+	@GetMapping(value = SSE_PATH + REPLIES, produces = SSE_CONTENT_TYPE)
 	public Flux<ServerSentEvent<List<Reply>>> sseReplies() {
 		return toSse(replyFetcher.elements());
 	}

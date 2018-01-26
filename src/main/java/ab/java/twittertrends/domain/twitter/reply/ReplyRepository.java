@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
+import ab.java.twittertrends.common.Time;
 import ab.java.twittertrends.domain.twitter.common.Repository;
-import ab.java.twittertrends.domain.twitter.common.Time;
 import ab.java.twittertrends.domain.twitter.hashtag.HashtagRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

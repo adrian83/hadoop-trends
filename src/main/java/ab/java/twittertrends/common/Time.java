@@ -1,4 +1,4 @@
-package ab.java.twittertrends.domain.twitter.common;
+package ab.java.twittertrends.common;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;

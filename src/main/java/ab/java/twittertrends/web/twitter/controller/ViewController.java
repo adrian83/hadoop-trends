@@ -6,29 +6,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class ViewController {
 
-    @RequestMapping(value = {"/", "/index"})
-    public String index() {
-        return "index";
-    }
+	private static final String INDEX = "index";
+	protected static final String HASHTAGS = "hashtags";
+	protected static final String RETWEETS = "retwitts";
+	protected static final String FAVORITES = "favorites";
+	protected static final String REPLIES = "replies";
 	
-	@RequestMapping(value = "/view/hashtags")
+	protected static final String SSE_CONTENT_TYPE = "text/event-stream";
+	
+	protected static final String VIEW_PATH = "/view/";
+	protected static final String SSE_PATH = "/sse/";
+
+	@RequestMapping(value = { "/", "/" + INDEX })
+	public String index() {
+		return INDEX;
+	}
+
+	@RequestMapping(value = VIEW_PATH + HASHTAGS)
 	public String hashtags() {
-		return "hashtags";
+		return HASHTAGS;
 	}
-	
-	@RequestMapping(value = "/view/retwitts")
+
+	@RequestMapping(value = VIEW_PATH + RETWEETS)
 	public String retwitts() {
-		return "retwitts";
+		return RETWEETS;
 	}
-	
-	@RequestMapping(value = "/view/favorites")
+
+	@RequestMapping(value = VIEW_PATH + FAVORITES)
 	public String favorites() {
-		return "favorites";
+		return FAVORITES;
 	}
-	
-	@RequestMapping(value = "/view/replies")
+
+	@RequestMapping(value = VIEW_PATH + REPLIES)
 	public String replies() {
-		return "replies";
+		return REPLIES;
 	}
-	
+
 }

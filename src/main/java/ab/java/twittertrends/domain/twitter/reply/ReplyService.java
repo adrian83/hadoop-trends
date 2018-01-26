@@ -14,16 +14,16 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.client.result.DeleteResult;
 
-import ab.java.twittertrends.domain.twitter.common.Fetcher;
+import ab.java.twittertrends.domain.twitter.common.Service;
 import ab.java.twittertrends.domain.twitter.common.Repository;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class ReplyFetcher implements Fetcher<Reply> {
+public class ReplyService implements Service<Reply> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ReplyFetcher.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ReplyService.class);
 	
 	@Autowired
 	private Repository<Reply> replyRepository;

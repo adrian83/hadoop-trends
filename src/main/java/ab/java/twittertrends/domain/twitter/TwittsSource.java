@@ -35,8 +35,6 @@ public class TwittsSource {
 		LOGGER.info("Twitter client conecting");
 
 		TwitterAuth auth = twitterConfig.getAuhentication();
-		
-		LOGGER.info("Twitter client conecting. Auth: {}", auth);
 
 		AccessToken accessToken = new AccessToken(auth.getToken(), auth.getSecret());
 
@@ -48,7 +46,6 @@ public class TwittsSource {
 		twitterStream.addListener(new StatusAdapter() {
 			@Override
 			public void onStatus(Status status) {
-
 			}
 
 			@Override

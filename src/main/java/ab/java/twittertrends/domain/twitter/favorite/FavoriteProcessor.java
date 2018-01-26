@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ab.java.twittertrends.common.Time;
 import ab.java.twittertrends.domain.twitter.TwittsSource;
 import ab.java.twittertrends.domain.twitter.common.Repository;
-import ab.java.twittertrends.domain.twitter.common.Time;
 import twitter4j.Status;
 
 @Component
