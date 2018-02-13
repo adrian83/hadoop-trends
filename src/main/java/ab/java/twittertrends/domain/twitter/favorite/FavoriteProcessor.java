@@ -32,11 +32,12 @@ public class FavoriteProcessor {
 	
 	private boolean shouldProcess(Status status) {
 		Status retweetedStatus = status.getRetweetedStatus();
-		return retweetedStatus != null 
+		boolean f = retweetedStatus != null 
 				&& retweetedStatus.getFavoriteCount() > 0
 				&& retweetedStatus.getId() > 0
 				&& retweetedStatus.getUser() != null
 				&& retweetedStatus.getUser().getScreenName() != null;
+				return f;
 	}
 	
 	private void persistFavorities() {
