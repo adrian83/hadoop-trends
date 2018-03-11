@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {
+  BrowserRouter as Router,
+  Route,
+  Link
+} from 'react-router-dom';
+
+import Favorites from './Favorites';
+import Hashtags from './Hashtags';
+import Home from './Home';
 
 class App extends Component {
   render() {
@@ -10,9 +19,14 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+          <Router>
+            <div className="container">
+              <Route exact path="/" component={Home} />
+              <Route path="/favorites" component={Favorites} />
+              <Route path="/hashtags" component={Hashtags} />
+            </div>
+          </Router>
+
       </div>
     );
   }
