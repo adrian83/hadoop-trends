@@ -8,14 +8,14 @@
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
-	<name>twitter-trends-java</name>
-	<description>Simple twitter for collecting twitter data</description>
+	<name>twitter-trends</name>
+	<description>Collecting data from twitter data stream.</description>
+
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.0.0.M7</version>
-		<relativePath />
+		<version>2.0.0.RELEASE</version>
 	</parent>
 
 	<properties>
@@ -47,7 +47,7 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-test</artifactId>
@@ -73,12 +73,12 @@
 		</dependency>
 
 
-<dependency>
-    <groupId>org.projectlombok</groupId>
-    <artifactId>lombok</artifactId>
-    </dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
 
-	
+
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>

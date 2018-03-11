@@ -11,6 +11,10 @@ import ab.java.twittertrends.domain.twitter.common.Service;
 import ab.java.twittertrends.domain.twitter.hashtag.Hashtag;
 import reactor.core.publisher.Flux;
 
+import static ab.java.twittertrends.web.twitter.controller.ViewController.HASHTAGS;
+import static ab.java.twittertrends.web.twitter.controller.ViewController.SSE_CONTENT_TYPE;
+import static ab.java.twittertrends.web.twitter.controller.ViewController.SSE_PATH;
+
 @RestController
 public class HashtagController extends SseController<Hashtag> {
 

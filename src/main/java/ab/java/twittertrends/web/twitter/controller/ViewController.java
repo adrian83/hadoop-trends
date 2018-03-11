@@ -14,8 +14,8 @@ public class ViewController {
 	
 	protected static final String SSE_CONTENT_TYPE = "text/event-stream";
 	
-	protected static final String VIEW_PATH = "/view/";
-	protected static final String SSE_PATH = "/sse/";
+	public static final String VIEW_PATH = "/view/";
+	public static final String SSE_PATH = "/sse/";
 
 	@RequestMapping(value = { "/", "/" + INDEX })
 	public String index() {

@@ -3,7 +3,7 @@
 Simple application for Twitter analysis. Application is written in [Java 8](https://www.java.com/) and [Spring 5](https://spring.io/). [MongoDB](https://www.mongodb.com/) is used as a main data storage.
 
 ### PREREQUISITES
-1. JDK 8 installed
+1. JDK 8
 2. Maven
 3. Docker 
 

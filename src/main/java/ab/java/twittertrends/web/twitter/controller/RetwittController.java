@@ -11,6 +11,10 @@ import ab.java.twittertrends.domain.twitter.common.Service;
 import ab.java.twittertrends.domain.twitter.retwitt.Retwitt;
 import reactor.core.publisher.Flux;
 
+import static ab.java.twittertrends.web.twitter.controller.ViewController.RETWEETS;
+import static ab.java.twittertrends.web.twitter.controller.ViewController.SSE_CONTENT_TYPE;
+import static ab.java.twittertrends.web.twitter.controller.ViewController.SSE_PATH;
+
 @RestController
 public class RetwittController extends SseController<Retwitt> {
 

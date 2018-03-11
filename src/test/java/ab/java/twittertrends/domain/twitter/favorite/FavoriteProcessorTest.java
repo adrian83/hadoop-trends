@@ -1,6 +1,5 @@
 package ab.java.twittertrends.domain.twitter.favorite;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -39,10 +38,6 @@ public class FavoriteProcessorTest {
 	@Mock
 	private Repository<Favorite> favoriteRepositoryMock;
 	
-	//@Test
-	public void canaryTest() {
-		assertThat(true).isTrue();
-	}
 	
 	@Test
 	public void shouldStartPersistingFavorites() {
@@ -75,9 +70,12 @@ public class FavoriteProcessorTest {
 	}
 	
 	@Test
-	public void shouldFilterOutInvalidStatuses() {
+	public void shouldFilterOutNotFavoriteStatuses() {
 		// given
-		Flux<Status> statusFlux = Flux.just(invalidStatus());
+		TestStatus status = invalidStatus();
+		//status.setFavoriteCount(0);
+		
+		Flux<Status> statusFlux = Flux.just(status);
 		
 		when(twittsSourceMock.twittsFlux()).thenReturn(statusFlux);
 
@@ -89,7 +87,7 @@ public class FavoriteProcessorTest {
 		verify(favoriteRepositoryMock, never()).save(any(Favorite.class));
 	}
 	
-	private Status validStatus() {
+	private TestStatus validStatus() {
 		return TestStatus.builder()
 				.id(1321l)
 				.retweetedStatus(TestStatus.builder()
@@ -102,9 +100,16 @@ public class FavoriteProcessorTest {
 				.build();
 	}
 	
-	private Status invalidStatus() {
+	private TestStatus invalidStatus() {
 		return TestStatus.builder()
 				.id(1321l)
+				.retweetedStatus(TestStatus.builder()
+						.id(88)
+						.favoriteCount(0)
+						.user(TestUser.builder()
+								.screenName("John007")
+								.build())
+						.build())
 				.build();
 	}
 	
