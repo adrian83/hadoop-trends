@@ -8,7 +8,7 @@ usage() {
     run-docker            Starts Docker on Arch based GNU Linux.
     run-mongo             Starts MongoDB docker image.
     run-infra             Starts Docker and RethinkDB and Redis.
-    start                 Builds and starts app.
+    start-be              Builds and starts backend app.
 
 EOF
 	exit 1
@@ -22,8 +22,8 @@ run-docker() {
 
 run-mongo() {
 	set -e
-		docker run -p 27021:27017 -v $PWD/infra/mongodb:/infra/data/db -d mongo:latest
-		echo "MongoDB is listening on ports: 27021. Data is stored inside 'infra/mongodb' directory"
+		docker run -p 27021:27017 -v $PWD/trends-be/infra/mongodb:/infra/data/db -d mongo:latest
+		echo "MongoDB is listening on ports: 27021. Data is stored inside 'trends-be/infra/mongodb' directory"
 	set +e
 }
 
@@ -34,10 +34,11 @@ run-infra() {
 	set +e
 }
 
-start() {
+start-be() {
 	set -e
+		cd trends-be
 		mvn clean install
-		java -jar target/twitter-trends-java-1.0.0.jar
+		java -jar target/twitter-trends-1.0.0.jar
 	set +e
 }
 
@@ -53,8 +54,8 @@ case "$CMD" in
 	run-infra)
 		run-infra
 	;;
-	start)
-		start
+	start-be)
+		start-be
 	;;
 	*)
 		usage

@@ -1,33 +1,33 @@
 
-bin
-build
-.settings
-infra/rethinkdb/
+/trends-be/bin
+/trends-be/build
+/trends-be/.settings
+/trends-be/infra/rethinkdb/
 
 
-.gradle
-/build/
-!gradle/wrapper/gradle-wrapper.jar
+/trends-be/.gradle
+/trends-be/build/
+!/trends-be/gradle/wrapper/gradle-wrapper.jar
 
 ### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
+/trends-be/.apt_generated
+/trends-be/.classpath
+/trends-be/.factorypath
+/trends-be/.project
+/trends-be/.settings
+/trends-be/.springBeans
 
 ### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+/trends-be/.idea
+/trends-be/*.iws
+/trends-be/*.iml
+/trends-be/*.ipr
 
 ### NetBeans ###
-nbproject/private/
-build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
-/target/
+/trends-be/nbproject/private/
+/trends-be/build/
+/trends-be/nbbuild/
+/trends-be/dist/
+/trends-be/nbdist/
+/trends-be/.nb-gradle/
+/trends-be/target/
