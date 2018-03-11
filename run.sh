@@ -9,6 +9,7 @@ usage() {
     run-mongo             Starts MongoDB docker image.
     run-infra             Starts Docker and RethinkDB and Redis.
     start-be              Builds and starts backend app.
+		start-fe              Builds and starts frontend app (dev mode).
 
 EOF
 	exit 1
@@ -42,6 +43,13 @@ start-be() {
 	set +e
 }
 
+start-fe() {
+	set -e
+		cd trends-fe
+		npm start
+	set +e
+}
+
 CMD="$1"
 shift
 case "$CMD" in
@@ -56,6 +64,9 @@ case "$CMD" in
 	;;
 	start-be)
 		start-be
+	;;
+	start-fe)
+		start-fe
 	;;
 	*)
 		usage
