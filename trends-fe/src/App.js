@@ -4,12 +4,19 @@ import './App.css';
 import {
   BrowserRouter as Router,
   Route,
+  Redirect,
+  Switch,
   Link
 } from 'react-router-dom';
 
+import Home from './Home';
 import Favorites from './Favorites';
 import Hashtags from './Hashtags';
-import Home from './Home';
+import Retwitts from './Retwitts';
+import Replies from './Replies';
+
+
+
 
 class App extends Component {
   render() {
@@ -20,13 +27,15 @@ class App extends Component {
           <h1 className="App-title">Welcome to React</h1>
         </header>
           <Router>
-            <div className="container">
+            <Switch>
               <Route exact path="/" component={Home} />
               <Route path="/favorites" component={Favorites} />
               <Route path="/hashtags" component={Hashtags} />
-            </div>
+              <Route path="/retwitts" component={Retwitts} />
+              <Route path="/replies" component={Replies} />
+              <Redirect to="/" />
+            </Switch>
           </Router>
-
       </div>
     );
   }
