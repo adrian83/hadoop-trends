@@ -6,33 +6,32 @@ class Hashtags extends Component {
     constructor(props) {
       super(props);
 
+      this.state = {hashtags: []};
+      var st = this;
+
 
       this.source = new EventSource("http://localhost:8080/sse/hashtags");
         this.source.onmessage = function(event) {
           console.log("onmessage " + event);
           var data = JSON.parse(event.data);
           console.log("data " + data);
+          st.setState({hashtags: data});
         };
 
-  this.source.onopen = function(event) {
-    console.log("onopen " + event);
-  };
+      this.source.onopen = function(event) {
+        console.log("onopen " + event);
+      };
     }
 
-/*
-  var source = new EventSource(this.url);
-  source.onmessage = function(event) {
-      var data = JSON.parse(event.data);
-      onMsg(data);
-  };
-  source.onopen = function(event) {
-    document.getElementById(i).innerHTML = "<div class=\"alert alert-info\" role=\"alert\">Data should appear soon.</div>";
-  };
-*/
 
   render() {
+
+    var elems = this.state.hashtags.map((elem) => {
+          return React.createElement('div', null, elem.name);
+        })
+
     return (
-      <div>Hashtags</div>
+      <div>{elems}</div>
     );
   }
 }
