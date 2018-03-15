@@ -7,15 +7,14 @@ class Hashtags extends Component {
       super(props);
 
       this.state = {hashtags: []};
-      var st = this;
-
+      var self = this;
 
       this.source = new EventSource("http://localhost:8080/sse/hashtags");
         this.source.onmessage = function(event) {
           console.log("onmessage " + event);
           var data = JSON.parse(event.data);
           console.log("data " + data);
-          st.setState({hashtags: data});
+          self.setState({hashtags: data});
         };
 
       this.source.onopen = function(event) {
@@ -25,13 +24,36 @@ class Hashtags extends Component {
 
 
   render() {
+    var i = 1;
+    var elems2 = this.state.hashtags.map((elem) => {
+      var numb = React.createElement('th', {'scope': 'row'}, i++);
+      var id = React.createElement('th', null, elem.documentId);
+      var name = React.createElement('th', null, elem.name);
+      var count = React.createElement('th', null, elem.count);
 
-    var elems = this.state.hashtags.map((elem) => {
-          return React.createElement('div', null, elem.name);
-        })
+      return React.createElement('tr', null, [numb, id, name, count]);
+    })
+
+    if(i === 1){
+      return (<div>NOTHING</div>);
+    }
 
     return (
-      <div>{elems}</div>
+      <div>
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">ID</th>
+              <th scope="col">Tag</th>
+              <th scope="col">Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {elems2}
+          </tbody>
+        </table>
+      </div>
     );
   }
 }
