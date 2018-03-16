@@ -35,11 +35,17 @@ class Hashtags extends Component {
     })
 
     if(i === 1){
-      return (<div>NOTHING</div>);
+      return (
+        <div class="alert alert-info" role="alert">
+          Data should appear in few seconds. Please wait.
+        </div>);
     }
 
     return (
       <div>
+<h1 class="cover-heading">Hashtags</h1>
+<br/><br/>
+
         <table className="table">
           <thead>
             <tr>
@@ -53,6 +59,7 @@ class Hashtags extends Component {
             {elems2}
           </tbody>
         </table>
+
       </div>
     );
   }
