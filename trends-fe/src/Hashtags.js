@@ -3,25 +3,33 @@ import React, { Component } from 'react';
 
 class Hashtags extends Component {
 
-    constructor(props) {
-      super(props);
+  constructor(props) {
+    super(props);
 
-      this.state = {hashtags: []};
-      var self = this;
+    this.state = {hashtags: []};
+    var self = this;
 
-      this.source = new EventSource("http://localhost:8080/sse/hashtags");
-        this.source.onmessage = function(event) {
-          console.log("onmessage " + event);
-          var data = JSON.parse(event.data);
-          console.log("data " + data);
-          self.setState({hashtags: data});
-        };
+    this.source = new EventSource("http://localhost:8080/sse/hashtags");
 
-      this.source.onopen = function(event) {
-        console.log("onopen " + event);
-      };
+    this.source.onmessage = function(event) {
+      console.log("onmessage " + event);
+      var data = JSON.parse(event.data);
+      console.log("data " + data);
+      self.setState({hashtags: data, error: null});
+    };
+
+    this.source.onopen = function(event) {
+      console.log("onopen " + event);
+      self.setState({error: event});
+    };
+  }
+
+  handleError() {
+    if(this.state.error){
+      return React.createElement('div', {className: "alert alert-danger"}, this.state.error);
     }
-
+    return React.createElement('br', null, null);
+  }
 
   render() {
     var i = 1;
@@ -41,10 +49,13 @@ class Hashtags extends Component {
         </div>);
     }
 
+
     return (
       <div>
-<h1 class="cover-heading">Hashtags</h1>
-<br/><br/>
+        <h1 class="cover-heading">Hashtags</h1>
+        <br/>
+
+        {this.handleError()}
 
         <table className="table">
           <thead>
