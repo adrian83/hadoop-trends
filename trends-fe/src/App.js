@@ -25,10 +25,10 @@ class App extends Component {
           <Router>
             <Switch>
               <Route exact path="/" component={Home} />
-              <Route path="/favorites" component={Favorites} />
-              <Route path="/hashtags" component={Hashtags} />
-              <Route path="/retwitts" component={Retwitts} />
-              <Route path="/replies" component={Replies} />
+              <Route path="/favorites" component={() => <Favorites url="http://localhost:8080/sse/favorites" />} />
+              <Route path="/hashtags" component={() => <Hashtags url="http://localhost:8080/sse/hashtags" />} />
+              <Route path="/retwitts" component={() => <Retwitts url="http://localhost:8080/sse/retwitts" />} />
+              <Route path="/replies" component={() => <Replies url="http://localhost:8080/sse/replies" />} />
               <Redirect to="/" />
             </Switch>
           </Router>

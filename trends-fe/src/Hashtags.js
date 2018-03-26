@@ -13,7 +13,7 @@ class Hashtags extends Component {
 
   componentDidMount() {
     var self = this;
-    this.source = new EventSource("http://localhost:8080/sse/hashtags");
+    this.source = new EventSource(self.props.url);
 
     this.source.onmessage = function(event) {
       var data = JSON.parse(event.data);
@@ -45,24 +45,24 @@ class Hashtags extends Component {
     );
   }
 
-rowParser(i, elem) {
-  return (<tr key={elem.documentId}>
-      <th scope="row">{i}</th>
-      <th>{elem.documentId}</th>
-      <th>{elem.name}</th>
-      <th>{elem.count}</th>
-    </tr>);
-}
+  rowParser(i, elem) {
+    return (<tr key={elem.documentId}>
+        <th scope="row">{i}</th>
+        <th>{elem.documentId}</th>
+        <th>{elem.name}</th>
+        <th>{elem.count}</th>
+      </tr>);
+  }
 
-genHeader() {
-  return (
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">ID</th>
-      <th scope="col">Tag</th>
-      <th scope="col">Count</th>
-    </tr>);
-}
+  genHeader() {
+    return (
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">ID</th>
+        <th scope="col">Tag</th>
+        <th scope="col">Count</th>
+      </tr>);
+  }
 
 }
 
