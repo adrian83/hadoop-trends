@@ -46,11 +46,11 @@ class Favorites extends Component {
   }
 
   rowParser(i, elem) {
+
+    var twittUrl = "https://twitter.com/" + elem.userName + "/status/" + elem.twittId;
     return (<tr key={elem.documentId}>
         <th scope="row">{i}</th>
-        <th>{elem.documentId}</th>
-        <th>{elem.twittId}</th>
-        <th>{elem.userName}</th>
+        <th><a target="_blank" href={twittUrl}>{elem.userName} - {elem.twittId}</a></th>
         <th>{elem.count}</th>
       </tr>);
   }
@@ -59,9 +59,7 @@ class Favorites extends Component {
     return (
       <tr>
         <th scope="col">#</th>
-        <th scope="col">ID</th>
-        <th scope="col">Twitt id</th>
-        <th scope="col">User</th>
+        <th scope="col">Twitt</th>
         <th scope="col">Count</th>
       </tr>);
   }
