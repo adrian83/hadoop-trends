@@ -13,14 +13,14 @@ import lombok.Builder;
 import lombok.Value;
 
 
-@JsonSerialize()
-@JsonDeserialize()
+@JsonSerialize
+@JsonDeserialize
 @Builder
 @Value
 @Document(collection = Favorite.FAVORITES)
 public class Favorite {
 	
-	public final static String FAVORITES = "favorites";
+	public static final String FAVORITES = "favorites";
 	public static final String ID_LABEL = "id";
 	public static final String USER_LABEL = "user_name";
 	public static final String COUNT_LABEL = "count";

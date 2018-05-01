@@ -73,8 +73,6 @@ public class FavoriteProcessorTest {
 	public void shouldFilterOutNotFavoriteStatuses() {
 		// given
 		TestStatus status = invalidStatus();
-		//status.setFavoriteCount(0);
-		
 		Flux<Status> statusFlux = Flux.just(status);
 		
 		when(twittsSourceMock.twittsFlux()).thenReturn(statusFlux);
@@ -88,28 +86,28 @@ public class FavoriteProcessorTest {
 	}
 	
 	private TestStatus validStatus() {
+		TestStatus retweetedStatus = TestStatus.builder()
+				.id(88)
+				.favoriteCount(20)
+				.user(TestUser.builder().screenName("John007").build())
+				.build();
+		
 		return TestStatus.builder()
 				.id(1321l)
-				.retweetedStatus(TestStatus.builder()
-						.id(88)
-						.favoriteCount(20)
-						.user(TestUser.builder()
-								.screenName("John007")
-								.build())
-						.build())
+				.retweetedStatus(retweetedStatus)
 				.build();
 	}
 	
 	private TestStatus invalidStatus() {
+		TestStatus retweetedStatus = TestStatus.builder()
+				.id(88)
+				.favoriteCount(0)
+				.user(TestUser.builder().screenName("John007").build())
+				.build();
+		
 		return TestStatus.builder()
 				.id(1321l)
-				.retweetedStatus(TestStatus.builder()
-						.id(88)
-						.favoriteCount(0)
-						.user(TestUser.builder()
-								.screenName("John007")
-								.build())
-						.build())
+				.retweetedStatus(retweetedStatus)
 				.build();
 	}
 	
