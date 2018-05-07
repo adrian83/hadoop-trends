@@ -53,7 +53,6 @@ public class FavoriteRepository implements Repository<Favorite> {
 	@Override
 	public Mono<DeleteResult> deleteOlderThan(long amount, TimeUnit unit) {
 		LOGGER.info("Removing favorities older than {} {}", amount, unit);
-
 		return reactiveMongoTemplate.remove(
 				Query.query(Criteria.where(Favorite.LAST_UPDATE_LABEL).lte(Time.utcNowMinus(amount, unit))),
 				Favorite.FAVORITES);

@@ -54,8 +54,20 @@ public class FavoriteProcessorTest {
 	@Test
 	public void shouldPersistValidStatus() {
 		// given
+		TestStatus retweetedStatus = TestStatus.builder()
+				.id(88)
+				.favoriteCount(20)
+				.user(TestUser.builder().screenName("John007").build())
+				.build();
+		
+		TestStatus status = TestStatus.builder()
+				.id(1321l)
+				.retweetedStatus(retweetedStatus)
+				.build();
+		
+		Flux<Status> statusFlux = Flux.just(status);
+		
 		UpdateResult updateResult = mock(UpdateResult.class); 
-		Flux<Status> statusFlux = Flux.just(validStatus());
 		
 		when(twittsSourceMock.twittsFlux()).thenReturn(statusFlux);
 		when(favoriteRepositoryMock.save(any(Favorite.class))).thenReturn(Mono.just(updateResult));
@@ -70,9 +82,12 @@ public class FavoriteProcessorTest {
 	}
 	
 	@Test
-	public void shouldFilterOutNotFavoriteStatuses() {
+	public void shouldFilterOutStatusesWithoutRetwitedStatus() {
 		// given
-		TestStatus status = invalidStatus();
+		TestStatus status = TestStatus.builder()
+				.id(1321l)
+				.build();
+
 		Flux<Status> statusFlux = Flux.just(status);
 		
 		when(twittsSourceMock.twittsFlux()).thenReturn(statusFlux);
@@ -85,30 +100,111 @@ public class FavoriteProcessorTest {
 		verify(favoriteRepositoryMock, never()).save(any(Favorite.class));
 	}
 	
-	private TestStatus validStatus() {
-		TestStatus retweetedStatus = TestStatus.builder()
-				.id(88)
-				.favoriteCount(20)
-				.user(TestUser.builder().screenName("John007").build())
-				.build();
-		
-		return TestStatus.builder()
-				.id(1321l)
-				.retweetedStatus(retweetedStatus)
-				.build();
-	}
-	
-	private TestStatus invalidStatus() {
+	@Test
+	public void shouldFilterOutStatusesWithFavoriteCountBelowOne() {
+		// given
 		TestStatus retweetedStatus = TestStatus.builder()
 				.id(88)
 				.favoriteCount(0)
 				.user(TestUser.builder().screenName("John007").build())
 				.build();
 		
-		return TestStatus.builder()
+		TestStatus status = TestStatus.builder()
 				.id(1321l)
 				.retweetedStatus(retweetedStatus)
 				.build();
+		
+
+		Flux<Status> statusFlux = Flux.just(status);
+		
+		when(twittsSourceMock.twittsFlux()).thenReturn(statusFlux);
+
+		// when
+		favoriteProcessor.postCreate();
+		
+		// then
+		verify(twittsSourceMock).twittsFlux();
+		verify(favoriteRepositoryMock, never()).save(any(Favorite.class));
+	}
+	
+	@Test
+	public void shouldFilterOutStatusesWithIdBelowOne() {
+		// given
+		TestStatus retweetedStatus = TestStatus.builder()
+				.id(0)
+				.favoriteCount(10)
+				.user(TestUser.builder().screenName("John007").build())
+				.build();
+		
+		TestStatus status = TestStatus.builder()
+				.id(1321l)
+				.retweetedStatus(retweetedStatus)
+				.build();
+		
+
+		Flux<Status> statusFlux = Flux.just(status);
+		
+		when(twittsSourceMock.twittsFlux()).thenReturn(statusFlux);
+
+		// when
+		favoriteProcessor.postCreate();
+		
+		// then
+		verify(twittsSourceMock).twittsFlux();
+		verify(favoriteRepositoryMock, never()).save(any(Favorite.class));
+	}
+	
+	@Test
+	public void shouldFilterOutStatusesWithoutUser() {
+		// given
+		TestStatus retweetedStatus = TestStatus.builder()
+				.id(10)
+				.favoriteCount(10)
+				.build();
+		
+		TestStatus status = TestStatus.builder()
+				.id(1321l)
+				.retweetedStatus(retweetedStatus)
+				.build();
+		
+
+		Flux<Status> statusFlux = Flux.just(status);
+		
+		when(twittsSourceMock.twittsFlux()).thenReturn(statusFlux);
+
+		// when
+		favoriteProcessor.postCreate();
+		
+		// then
+		verify(twittsSourceMock).twittsFlux();
+		verify(favoriteRepositoryMock, never()).save(any(Favorite.class));
+	}
+	
+	@Test
+	public void shouldFilterOutStatusesWithoutUsersScreenName() {
+		// given
+		TestStatus retweetedStatus = TestStatus.builder()
+				.id(20)
+				.favoriteCount(10)
+				.user(TestUser.builder().build())
+				.build();
+		
+		TestStatus status = TestStatus.builder()
+				.id(1321l)
+				.retweetedStatus(retweetedStatus)
+				.build();
+		
+
+		Flux<Status> statusFlux = Flux.just(status);
+		
+		when(twittsSourceMock.twittsFlux()).thenReturn(statusFlux);
+
+		// when
+		favoriteProcessor.postCreate();
+		
+		// then
+		verify(twittsSourceMock).twittsFlux();
+		verify(favoriteRepositoryMock, never()).save(any(Favorite.class));
 	}
 	
 }
