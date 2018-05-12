@@ -46,23 +46,20 @@ class Retwitts extends Component {
   }
 
   rowParser(i, elem) {
-    return (<tr key={elem.documentId}>
-        <th scope="row">{i}</th>
-        <th>{elem.documentId}</th>
-        <th>{elem.twittId}</th>
-        <th>{elem.count}</th>
-        <th>{elem.userName}</th>
-      </tr>);
+      var twittUrl = "https://twitter.com/" + elem.userName + "/status/" + elem.twittId;
+      return (<tr key={elem.documentId}>
+          <th scope="row">{i}</th>
+          <th><a target="_blank" href={twittUrl}>{elem.twittId} - {elem.userName}</a></th>
+          <th>{elem.count}</th>
+        </tr>);
   }
 
   genHeader() {
     return (
       <tr>
         <th scope="col">#</th>
-        <th scope="col">ID</th>
-        <th scope="col">Twitt id</th>
+        <th scope="col">Twitt</th>
         <th scope="col">Count</th>
-        <th scope="col">User</th>
       </tr>);
   }
 
