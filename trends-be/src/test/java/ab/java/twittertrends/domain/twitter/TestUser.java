@@ -2,15 +2,12 @@ package ab.java.twittertrends.domain.twitter;
 
 import java.util.Date;
 
-import lombok.Builder;
-import lombok.Value;
 import twitter4j.RateLimitStatus;
 import twitter4j.Status;
 import twitter4j.URLEntity;
 import twitter4j.User;
 
-@Builder
-@Value
+
 public class TestUser implements User {
 
 	private static final long serialVersionUID = -1369501263082707953L;
@@ -337,6 +334,12 @@ public class TestUser implements User {
 
 	@Override
 	public String[] getWithheldInCountries() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getScreenName() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -5,11 +5,10 @@ usage() {
 
     Usage: $(basename $0) <command>
 
-    run-docker            Starts Docker on Arch based GNU Linux.
-    run-mongo             Starts MongoDB docker image.
-    run-infra             Starts Docker and RethinkDB and Redis.
+    run-docker            Starts Docker daemon (systemd).
+    run-infra             Starts MongoDB docker image.
     start-be              Builds and starts backend app.
-		start-fe              Builds and starts frontend app (dev mode).
+    start-fe              Builds and starts frontend app (dev mode).
 
 EOF
 	exit 1
@@ -30,7 +29,6 @@ run-mongo() {
 
 run-infra() {
 	set -e
-		run-docker
 		run-mongo
 	set +e
 }

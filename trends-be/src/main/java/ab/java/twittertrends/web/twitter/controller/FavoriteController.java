@@ -1,5 +1,9 @@
 package ab.java.twittertrends.web.twitter.controller;
 
+import static com.github.adrian83.trends.common.web.ViewController.FAVORITES;
+import static com.github.adrian83.trends.common.web.ViewController.SSE_CONTENT_TYPE;
+import static com.github.adrian83.trends.common.web.ViewController.SSE_PATH;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,17 +11,14 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ab.java.twittertrends.domain.twitter.common.Service;
-import ab.java.twittertrends.domain.twitter.favorite.Favorite;
+import com.github.adrian83.trends.common.Service;
+import com.github.adrian83.trends.common.web.SseController;
+
 import reactor.core.publisher.Flux;
 
-import static ab.java.twittertrends.web.twitter.controller.ViewController.FAVORITES;
-import static ab.java.twittertrends.web.twitter.controller.ViewController.SSE_CONTENT_TYPE;
-import static ab.java.twittertrends.web.twitter.controller.ViewController.SSE_PATH;
-
 @RestController
-public class FavoriteController extends SseController<Favorite> {
-
+public class FavoriteController { //extends SseController<Favorite> {
+/*
 	@Autowired 
 	private Service<Favorite> favoriteFetcher;
 	
@@ -25,4 +26,5 @@ public class FavoriteController extends SseController<Favorite> {
 	public Flux<ServerSentEvent<List<Favorite>>> sseFavorites() {
 		return toSse(favoriteFetcher.elements());
 	}
+	*/
 }

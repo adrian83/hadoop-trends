@@ -11,7 +11,7 @@
 		<appender-ref ref="STDOUT" />
 	</logger>
 	
-	<logger name="ab.java.twitter" level="WARN" additivity="false">
+	<logger name="com.github.adrian83" level="INFO" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 

@@ -12,15 +12,11 @@ import twitter4j.Scopes;
 import twitter4j.Status;
 import twitter4j.SymbolEntity;
 import twitter4j.URLEntity;
+import twitter4j.User;
 import twitter4j.UserMentionEntity;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 
-@Builder
-@Setter
-@Getter
+
 public class TestStatus implements Status {
 
 	private static final long serialVersionUID = 8460125005753152565L;
@@ -178,6 +174,36 @@ public class TestStatus implements Status {
 
 	@Override
 	public Status getQuotedStatus() {
+		return null;
+	}
+
+	@Override
+	public long getId() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getText() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getFavoriteCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public User getUser() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Status getRetweetedStatus() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 	
