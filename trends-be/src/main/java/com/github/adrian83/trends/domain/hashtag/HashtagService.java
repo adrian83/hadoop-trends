@@ -42,7 +42,6 @@ public class HashtagService implements Service<HashtagDoc> {
  		LOGGER.info("Hot observable started");
 	}
 	
-	@Override
 	public Flux<List<HashtagDoc>> elements() {
 		return hashtags;
 	}

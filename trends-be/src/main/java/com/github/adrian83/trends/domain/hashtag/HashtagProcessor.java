@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.github.adrian83.trends.common.Time;
 import com.github.adrian83.trends.domain.status.StatusSource;
 
 import twitter4j.Status;
@@ -39,7 +40,7 @@ public class HashtagProcessor {
 		twittsSource.twittsFlux().map(Status::getText).flatMap(hashtagFinder::findHashtags).buffer(DEF_BUFFER_SIZE)
 				.flatMapIterable(hashtags -> hashtags.stream()
 						.collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).entrySet().stream()
-						.map(e -> new HashtagDoc(null, e.getKey(), e.getValue().intValue(), null))
+						.map(e -> new HashtagDoc(null, e.getKey(), e.getValue().intValue(), Time.utcNow()))
 						.collect(Collectors.toList()))
 				.map(hashtagRepository::save)
 				.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved hashtag: {}", ur.getUpsertedId())),
