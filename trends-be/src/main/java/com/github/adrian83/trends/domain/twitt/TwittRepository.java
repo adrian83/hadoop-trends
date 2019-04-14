@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Component;
 
 import com.github.adrian83.trends.common.Repository;
 import com.github.adrian83.trends.common.Time;
@@ -20,6 +21,7 @@ import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Component
 public class TwittRepository implements Repository<TwittDoc> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TwittRepository.class);

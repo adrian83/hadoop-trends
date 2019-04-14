@@ -39,8 +39,26 @@ public class TwittProcessor {
 					t -> LOGGER.error("Exception during processing hashtags {}", t));
 	}
 
+	/*
+	 * 		Status retweetedStatus = status.getRetweetedStatus();
+		if (retweetedStatus != null && 
+				retweetedStatus.getFavoriteCount() > 0 && 
+				retweetedStatus.getId() > 0 && 
+				retweetedStatus.getUser() != null && 
+				retweetedStatus.getUser().getScreenName() != null) {
+			
+			Favorite favorite = Favorite.builder()
+					.twittId(String.valueOf(status.getRetweetedStatus().getId()))
+					.count(status.getRetweetedStatus().getFavoriteCount())
+					.userName(status.getRetweetedStatus().getUser().getScreenName())
+					.updated(Time.utcNow()).build();
+	 */
+	
+	
 	private TwittDoc toTwitt(Status status) {
-		return new TwittDoc(null, status.getId(), status.getUser().getScreenName(), status.getFavoriteCount(), status.getRetweetCount(), Time.utcNow());
+		Status retweetedStatus = status.getRetweetedStatus();
+		long retwittedCount = retweetedStatus != null ? retweetedStatus.getRetweetCount() : 0l;
+		return new TwittDoc(null, status.getId(), status.getUser().getScreenName(), status.getFavoriteCount(), retwittedCount, Time.utcNow());
 	}
 	
 }

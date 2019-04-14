@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.twitt;
+package com.github.adrian83.trends.domain.retwitt;
 
 import java.util.List;
 
@@ -17,17 +17,15 @@ import static com.github.adrian83.trends.common.web.ViewController.SSE_CONTENT_T
 import static com.github.adrian83.trends.common.web.ViewController.SSE_PATH;
 
 @RestController
-public class TwittController extends SseController<TwittDoc> {
+public class RetwittController extends SseController<Retwitt> {
 
 	@Autowired
-	private TwittService twittService;
+	private RetwittService retwittService;
 
 	
-
-
-	@GetMapping(value = SSE_PATH + FAVORITES, produces = SSE_CONTENT_TYPE)
-	public Flux<ServerSentEvent<List<TwittDoc>>> sseFavorites() {
-		return toSse(twittService.favorites());
+	@GetMapping(value = SSE_PATH + RETWEETS, produces = SSE_CONTENT_TYPE)
+	public Flux<ServerSentEvent<List<Retwitt>>> sseRetwitted() {
+		return toSse(retwittService.retwitted());
 	}
-	
+
 }
