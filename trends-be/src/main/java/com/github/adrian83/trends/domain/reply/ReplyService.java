@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.retwitt;
+package com.github.adrian83.trends.domain.reply;
 
 import java.time.Duration;
 import java.util.List;
@@ -21,42 +21,42 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class RetwittService implements Service<Retwitt> {
+public class ReplyService implements Service<Reply> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RetwittService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ReplyService.class);
 
 	@Autowired
-	private RetwittRepository retwittRepository;
+	private ReplyRepository replyRepository;
 	
-	private ConnectableFlux<List<Retwitt>> retwitted;
+	private ConnectableFlux<List<Reply>> replies;
 	
 	
 	@PostConstruct
 	public void postCreate() {
 		LOGGER.info("Created");
 		
-		retwitted = Flux.interval(Duration.ofSeconds(10))
-				.flatMap(i -> retwittRepository.top(10))
-				.map(list -> list.stream().map(this::toRetwitt).collect(Collectors.toList()))
+		replies = Flux.interval(Duration.ofSeconds(10))
+				.flatMap(i -> replyRepository.top(10))
+				.map(list -> list.stream().map(this::toReply).collect(Collectors.toList()))
  				.publish();
-		retwitted.connect();
+		replies.connect();
 		
  		LOGGER.info("Hot observable started");
 	}
 	
-	private Retwitt toRetwitt(RetwittDoc doc) {
-		return new Retwitt(doc.getTwittId().toString(), doc.getUsername(), doc.getCount());
+	private Reply toReply(ReplyDoc doc) {
+		return new Reply(doc.getTwittId().toString(), doc.getUsername(), doc.getCount());
 	}
 
 	
-	public Flux<List<Retwitt>> retwitted() {
-		return retwitted;
+	public Flux<List<Reply>> replies() {
+		return replies;
 	}
 	
 	@Override
 	@Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
 	public void removeUnused() {
-		Mono<DeleteResult> result = retwittRepository.deleteOlderThan(1, TimeUnit.MINUTES);
+		Mono<DeleteResult> result = replyRepository.deleteOlderThan(1, TimeUnit.MINUTES);
 		result.subscribe(
         		dr -> LOGGER.warn("Twitts removed {}", dr.getDeletedCount()), 
         		t -> LOGGER.error("Exception during removing twitts {}", t));

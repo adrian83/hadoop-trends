@@ -11,7 +11,19 @@
 		<appender-ref ref="STDOUT" />
 	</logger>
 	
-	<logger name="com.github.adrian83" level="INFO" additivity="false">
+	<logger name="com.github.adrian83.trends.domain.hashtag" level="WARN" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="com.github.adrian83.trends.domain.retwitt" level="WARN" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="com.github.adrian83.trends.domain.favorite" level="INFO" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="com.github.adrian83.trends.domain.reply" level="INFO" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 

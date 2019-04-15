@@ -1,8 +1,9 @@
-package com.github.adrian83.trends.domain.twitt;
+package com.github.adrian83.trends.domain.favorite;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -20,48 +21,42 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class TwittService implements Service<TwittDoc> {
+public class FavoriteService implements Service<Favorite> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TwittService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FavoriteService.class);
 
 	@Autowired
-	private TwittRepository twittRepository;
+	private FavoriteRepository favoriteRepository;
 	
-	private ConnectableFlux<List<TwittDoc>> favoriteTwitts;
-	private ConnectableFlux<List<TwittDoc>> retwittedTwitts;
-	private ConnectableFlux<List<TwittDoc>> repliedTwitts;
+	private ConnectableFlux<List<Favorite>> favorited;
 	
 	
 	@PostConstruct
 	public void postCreate() {
 		LOGGER.info("Created");
 		
-		favoriteTwitts = Flux.interval(Duration.ofSeconds(10))
-				.flatMap(i -> twittRepository.mostFavorite(10))
+		favorited = Flux.interval(Duration.ofSeconds(10))
+				.flatMap(i -> favoriteRepository.top(10))
+				.map(list -> list.stream().map(this::toFavorite).collect(Collectors.toList()))
  				.publish();
-		favoriteTwitts.connect();
-		
-		retwittedTwitts = Flux.interval(Duration.ofSeconds(10))
-				.flatMap(i -> twittRepository.mostRetwitted(10))
- 				.publish();
-		retwittedTwitts.connect();
+		favorited.connect();
 		
  		LOGGER.info("Hot observable started");
 	}
 	
-
-	public Flux<List<TwittDoc>> favorites() {
-		return favoriteTwitts;
+	private Favorite toFavorite(FavoriteDoc doc) {
+		return new Favorite(doc.getTwittId().toString(), doc.getUsername(), doc.getCount());
 	}
+
 	
-	public Flux<List<TwittDoc>> retwitted() {
-		return retwittedTwitts;
+	public Flux<List<Favorite>> favorited() {
+		return favorited;
 	}
 	
 	@Override
 	@Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
 	public void removeUnused() {
-		Mono<DeleteResult> result = twittRepository.deleteOlderThan(1, TimeUnit.MINUTES);
+		Mono<DeleteResult> result = favoriteRepository.deleteOlderThan(1, TimeUnit.MINUTES);
 		result.subscribe(
         		dr -> LOGGER.warn("Twitts removed {}", dr.getDeletedCount()), 
         		t -> LOGGER.error("Exception during removing twitts {}", t));

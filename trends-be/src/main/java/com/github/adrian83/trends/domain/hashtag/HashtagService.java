@@ -35,7 +35,7 @@ public class HashtagService implements Service<HashtagDoc> {
 		LOGGER.info("Created");
 		
  		hashtags = Flux.interval(Duration.ofSeconds(10))
-				.flatMap(i -> hashtagRepository.mostPopular(10))
+				.flatMap(i -> hashtagRepository.top(10))
  				.publish();
  		
  		hashtags.connect();

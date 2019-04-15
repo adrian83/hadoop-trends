@@ -47,7 +47,7 @@ class Retwitts extends Component {
 
   rowParser(i, elem) {
       var twittUrl = "https://twitter.com/" + elem.username + "/status/" + elem.twittId;
-      return (<tr key={elem.documentId}>
+      return (<tr key={elem.twittId}>
           <th scope="row">{i}</th>
           <th><a target="_blank" href={twittUrl}>{elem.twittId} - {elem.username}</a></th>
           <th>{elem.count}</th>

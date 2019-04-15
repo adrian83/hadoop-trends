@@ -52,7 +52,7 @@ public class HashtagRepository implements Repository<HashtagDoc> {
 				HashtagDoc.COLLECTION);
 	}
 	
-	public Flux<List<HashtagDoc>> mostPopular(int count) {
+	public Flux<List<HashtagDoc>> top(int count) {
 		LOGGER.info("Getting {} hashtags", count);
 		return reactiveMongoTemplate.findAll(HashtagDoc.class, HashtagDoc.COLLECTION)
 				.sort(Comparator.<HashtagDoc>comparingLong(HashtagDoc::getOccurrenceCount).reversed()).buffer(count).take(1)

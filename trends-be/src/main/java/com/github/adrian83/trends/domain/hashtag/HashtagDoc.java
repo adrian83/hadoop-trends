@@ -29,16 +29,11 @@ public class HashtagDoc {
 	@Field(UPDATED)
 	private Long updated;
 
-	public HashtagDoc(String documentId, String name, long occurrenceCount, Long updated) {
+	public HashtagDoc(String name, long occurrenceCount, Long updated) {
 		super();
-		this.documentId = documentId;
 		this.name = name;
 		this.occurrenceCount = occurrenceCount;
 		this.updated = updated;
-	}
-
-	public String getDocumentId() {
-		return documentId;
 	}
 
 	public String getName() {

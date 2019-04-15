@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.twitt;
+package com.github.adrian83.trends.domain.reply;
 
 import java.util.List;
 
@@ -11,23 +11,20 @@ import com.github.adrian83.trends.common.web.SseController;
 
 import reactor.core.publisher.Flux;
 
-import static com.github.adrian83.trends.common.web.ViewController.RETWEETS;
-import static com.github.adrian83.trends.common.web.ViewController.FAVORITES;
+import static com.github.adrian83.trends.common.web.ViewController.REPLIES;
 import static com.github.adrian83.trends.common.web.ViewController.SSE_CONTENT_TYPE;
 import static com.github.adrian83.trends.common.web.ViewController.SSE_PATH;
 
 @RestController
-public class TwittController extends SseController<TwittDoc> {
+public class ReplyController extends SseController<Reply> {
 
 	@Autowired
-	private TwittService twittService;
+	private ReplyService replyService;
 
 	
-
-
-	@GetMapping(value = SSE_PATH + FAVORITES, produces = SSE_CONTENT_TYPE)
-	public Flux<ServerSentEvent<List<TwittDoc>>> sseFavorites() {
-		return toSse(twittService.favorites());
+	@GetMapping(value = SSE_PATH + REPLIES, produces = SSE_CONTENT_TYPE)
+	public Flux<ServerSentEvent<List<Reply>>> sseReplies() {
+		return toSse(replyService.replies());
 	}
-	
+
 }

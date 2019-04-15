@@ -47,7 +47,7 @@ public class RetwittRepository implements Repository<RetwittDoc> {
 				Query.query(Criteria.where(RetwittDoc.UPDATED).lte(Time.utcNowMinus(amount, unit))), RetwittDoc.COLLECTION);
 	}
 	
-	public Flux<List<RetwittDoc>> mostRetwitted(int count) {
+	public Flux<List<RetwittDoc>> top(int count) {
 		LOGGER.info("Getting {} retwitts", count);
 		return reactiveMongoTemplate.findAll(RetwittDoc.class, RetwittDoc.COLLECTION)
 				.sort(Comparator.<RetwittDoc>comparingLong(RetwittDoc::getCount).reversed()).buffer(count).take(1)

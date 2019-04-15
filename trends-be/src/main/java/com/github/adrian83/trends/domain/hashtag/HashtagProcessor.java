@@ -40,7 +40,7 @@ public class HashtagProcessor {
 		twittsSource.twittsFlux().map(Status::getText).flatMap(hashtagFinder::findHashtags).buffer(DEF_BUFFER_SIZE)
 				.flatMapIterable(hashtags -> hashtags.stream()
 						.collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).entrySet().stream()
-						.map(e -> new HashtagDoc(null, e.getKey(), e.getValue().intValue(), Time.utcNow()))
+						.map(e -> new HashtagDoc(e.getKey(), e.getValue().intValue(), Time.utcNow()))
 						.collect(Collectors.toList()))
 				.map(hashtagRepository::save)
 				.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved hashtag: {}", ur.getUpsertedId())),
