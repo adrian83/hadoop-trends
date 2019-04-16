@@ -28,12 +28,13 @@ public class FavoriteDoc {
 	@Field(USERNAME)
 	private String username;
 	@Field(FAVORITE_COUNT)
-	private long count;
+	private Long count;
 	@Field(UPDATED)
 	private Long updated;
 
-	public FavoriteDoc(Long twittId, String username, long count, Long updated) {
+	public FavoriteDoc(String documentId, Long twittId, String username, Long count, Long updated) {
 		super();
+		this.documentId = documentId;
 		this.twittId = twittId;
 		this.username = username;
 		this.count = count;
@@ -48,7 +49,7 @@ public class FavoriteDoc {
 		return username;
 	}
 	
-	public long getCount() {
+	public Long getCount() {
 		return count;
 	}
 

@@ -35,6 +35,7 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
 		return reactiveMongoTemplate.upsert(Query.query(Criteria.where(FavoriteDoc.TWITT_ID).is(twitt.getTwittId())),
 				Update.update(FavoriteDoc.TWITT_ID, twitt.getTwittId())
 					.set(FavoriteDoc.USERNAME, twitt.getUsername())
+					.set(FavoriteDoc.FAVORITE_COUNT, twitt.getCount())
 					.set(FavoriteDoc.UPDATED, twitt.getUpdated()),
 				FavoriteDoc.COLLECTION);
 	}
@@ -49,7 +50,9 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
 	public Flux<List<FavoriteDoc>> top(int count) {
 		LOGGER.info("Getting {} favorities", count);
 		return reactiveMongoTemplate.findAll(FavoriteDoc.class, FavoriteDoc.COLLECTION)
-				.sort(Comparator.<FavoriteDoc>comparingLong(FavoriteDoc::getCount).reversed()).buffer(count).take(1)
+				.sort(Comparator.<FavoriteDoc>comparingLong(FavoriteDoc::getCount).reversed())
+				.buffer(count)
+				.take(1)
 				.onBackpressureDrop();
 	}
 	

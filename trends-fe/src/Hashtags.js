@@ -47,7 +47,7 @@ class Hashtags extends Component {
 
   rowParser(i, elem) {
       var twittUrl = "https://twitter.com/hashtag/" + elem.name;
-      return (<tr key={elem.documentId}>
+      return (<tr key={elem.name}>
           <th scope="row">{i}</th>
           <th><a target="_blank" href={twittUrl}>{elem.name}</a></th>
           <th>{elem.occurrenceCount}</th>

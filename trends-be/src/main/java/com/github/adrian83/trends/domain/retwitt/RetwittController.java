@@ -12,7 +12,6 @@ import com.github.adrian83.trends.common.web.SseController;
 import reactor.core.publisher.Flux;
 
 import static com.github.adrian83.trends.common.web.ViewController.RETWEETS;
-import static com.github.adrian83.trends.common.web.ViewController.FAVORITES;
 import static com.github.adrian83.trends.common.web.ViewController.SSE_CONTENT_TYPE;
 import static com.github.adrian83.trends.common.web.ViewController.SSE_PATH;
 

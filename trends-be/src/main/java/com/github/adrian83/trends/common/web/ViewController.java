@@ -9,7 +9,6 @@ public class ViewController {
 	public static final String INDEX = "index";
 	public static final String HASHTAGS = "hashtags";
 	public static final String RETWEETS = "retwitts";
-	public static final String FAVORITES = "favorites";
 	public static final String REPLIES = "replies";
 	
 	public static final String SSE_CONTENT_TYPE = "text/event-stream";
@@ -30,11 +29,6 @@ public class ViewController {
 	@RequestMapping(value = VIEW_PATH + RETWEETS)
 	public String retwitts() {
 		return RETWEETS;
-	}
-
-	@RequestMapping(value = VIEW_PATH + FAVORITES)
-	public String favorites() {
-		return FAVORITES;
 	}
 
 	@RequestMapping(value = VIEW_PATH + REPLIES)

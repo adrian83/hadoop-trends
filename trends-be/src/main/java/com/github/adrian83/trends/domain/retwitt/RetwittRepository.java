@@ -50,7 +50,9 @@ public class RetwittRepository implements Repository<RetwittDoc> {
 	public Flux<List<RetwittDoc>> top(int count) {
 		LOGGER.info("Getting {} retwitts", count);
 		return reactiveMongoTemplate.findAll(RetwittDoc.class, RetwittDoc.COLLECTION)
-				.sort(Comparator.<RetwittDoc>comparingLong(RetwittDoc::getCount).reversed()).buffer(count).take(1)
+				.sort(Comparator.<RetwittDoc>comparingLong(RetwittDoc::getCount).reversed())
+				.buffer(count)
+				.take(1)
 				.onBackpressureDrop();
 	}
 	

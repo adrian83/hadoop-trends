@@ -31,8 +31,8 @@ public class FavoriteProcessor {
 	private void persistTwitts() {
 		LOGGER.info("Starting persisting twitts");
 		twittsSource.twittsFlux().filter(this::completeFavorite).map(this::toFavorite).map(favoriteRepository::save)
-				.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved hashtag: {}", ur.getUpsertedId())),
-						t -> LOGGER.error("Exception during processing hashtags {}", t));
+				.subscribe(mur -> mur.subscribe(ur -> LOGGER.info("Saved favorite: {}", ur.getUpsertedId())),
+						t -> LOGGER.error("Exception during processing favorites {}", t));
 	}
 	
 	private boolean completeFavorite(Status status) {
@@ -46,8 +46,8 @@ public class FavoriteProcessor {
 
 	private FavoriteDoc toFavorite(Status status) {
 		Status retwittStatus = status.getRetweetedStatus();
-		return new FavoriteDoc(retwittStatus.getId(), retwittStatus.getUser().getScreenName(),
-				retwittStatus.getFavoriteCount(), Time.utcNow());
+		return new FavoriteDoc(null,retwittStatus.getId(), retwittStatus.getUser().getScreenName(),
+				new Integer(retwittStatus.getFavoriteCount()).longValue(), Time.utcNow());
 	}
 
 }
