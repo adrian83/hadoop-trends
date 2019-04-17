@@ -28,6 +28,9 @@ public class FavoriteService implements Service<Favorite> {
 	@Autowired
 	private FavoriteRepository favoriteRepository;
 	
+	@Autowired
+	private FavoriteMapper favoriteMapper;
+	
 	private ConnectableFlux<List<Favorite>> favorited;
 	
 	
@@ -37,17 +40,12 @@ public class FavoriteService implements Service<Favorite> {
 		
 		favorited = Flux.interval(Duration.ofSeconds(10))
 				.flatMap(i -> favoriteRepository.top(10))
-				.map(list -> list.stream().map(this::toFavorite).collect(Collectors.toList()))
+				.map(list -> list.stream().map(favoriteMapper::docToDto).collect(Collectors.toList()))
  				.publish();
 		favorited.connect();
 		
  		LOGGER.info("Hot observable started");
 	}
-	
-	private Favorite toFavorite(FavoriteDoc doc) {
-		return new Favorite(doc.getTwittId().toString(), doc.getUsername(), doc.getCount());
-	}
-
 	
 	public Flux<List<Favorite>> favorited() {
 		return favorited;

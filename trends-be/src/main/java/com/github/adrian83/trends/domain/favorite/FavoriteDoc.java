@@ -32,8 +32,12 @@ public class FavoriteDoc {
 	@Field(UPDATED)
 	private Long updated;
 
-	public FavoriteDoc(String documentId, Long twittId, String username, Long count, Long updated) {
+	public FavoriteDoc() {
 		super();
+	}
+
+	public FavoriteDoc(String documentId, Long twittId, String username, Long count, Long updated) {
+		this();
 		this.documentId = documentId;
 		this.twittId = twittId;
 		this.username = username;
@@ -43,6 +47,10 @@ public class FavoriteDoc {
 
 	public Long getTwittId() {
 		return twittId;
+	}
+
+	public void setTwittId(Long twittId) {
+		this.twittId = twittId;
 	}
 
 	public String getUsername() {

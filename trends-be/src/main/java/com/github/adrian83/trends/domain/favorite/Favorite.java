@@ -6,8 +6,12 @@ public class Favorite {
 	private String username;
 	private long count;
 	
-	public Favorite(String twittId, String username, long count) {
+	public Favorite() {
 		super();
+	}
+
+	public Favorite(String twittId, String username, long count) {
+		this();
 		this.twittId = twittId;
 		this.username = username;
 		this.count = count;
@@ -15,6 +19,10 @@ public class Favorite {
 
 	public String getTwittId() {
 		return twittId;
+	}
+
+	public void setTwittId(String twittId) {
+		this.twittId = twittId;
 	}
 
 	public String getUsername() {

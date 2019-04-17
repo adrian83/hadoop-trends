@@ -47,7 +47,7 @@ public class FavoriteProcessor {
 	private FavoriteDoc toFavorite(Status status) {
 		Status retwittStatus = status.getRetweetedStatus();
 		return new FavoriteDoc(null,retwittStatus.getId(), retwittStatus.getUser().getScreenName(),
-				new Integer(retwittStatus.getFavoriteCount()).longValue(), Time.utcNow());
+				Long.valueOf(retwittStatus.getFavoriteCount()), Time.utcNow());
 	}
 
 }
