@@ -48,8 +48,8 @@ public class RetwittService implements Service<Retwitt> {
 		return new Retwitt(doc.getTwittId().toString(), doc.getUsername(), doc.getCount());
 	}
 
-	
-	public Flux<List<Retwitt>> retwitted() {
+	@Override
+	public Flux<List<Retwitt>> top() {
 		return retwitted;
 	}
 	

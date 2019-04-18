@@ -26,7 +26,7 @@ public class FavoriteController extends SseController<Favorite> {
 	
 	@GetMapping(value = SSE_PATH + FAVORITES, produces = SSE_CONTENT_TYPE)
 	public Flux<ServerSentEvent<List<Favorite>>> sseFavorited() {
-		return toSse(favoriteService.favorited());
+		return toSse(favoriteService.top());
 	}
 	
 	@RequestMapping(value = "/view/" + FAVORITES)

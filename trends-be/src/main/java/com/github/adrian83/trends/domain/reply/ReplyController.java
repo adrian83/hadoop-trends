@@ -24,7 +24,7 @@ public class ReplyController extends SseController<Reply> {
 	
 	@GetMapping(value = SSE_PATH + REPLIES, produces = SSE_CONTENT_TYPE)
 	public Flux<ServerSentEvent<List<Reply>>> sseReplies() {
-		return toSse(replyService.replies());
+		return toSse(replyService.top());
 	}
 
 }

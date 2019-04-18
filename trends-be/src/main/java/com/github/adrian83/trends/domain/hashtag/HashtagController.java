@@ -23,7 +23,7 @@ public class HashtagController extends SseController<HashtagDoc> {
 
 	@GetMapping(value = SSE_PATH + HASHTAGS, produces = SSE_CONTENT_TYPE)
 	public Flux<ServerSentEvent<List<HashtagDoc>>> sseHashtags() {
-		return toSse(hashtagService.elements());
+		return toSse(hashtagService.top());
 	}
 
 }

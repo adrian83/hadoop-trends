@@ -49,7 +49,8 @@ public class ReplyService implements Service<Reply> {
 	}
 
 	
-	public Flux<List<Reply>> replies() {
+	@Override
+	public Flux<List<Reply>> top() {
 		return replies;
 	}
 	

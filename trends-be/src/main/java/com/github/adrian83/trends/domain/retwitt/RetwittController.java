@@ -24,7 +24,7 @@ public class RetwittController extends SseController<Retwitt> {
 	
 	@GetMapping(value = SSE_PATH + RETWEETS, produces = SSE_CONTENT_TYPE)
 	public Flux<ServerSentEvent<List<Retwitt>>> sseRetwitted() {
-		return toSse(retwittService.retwitted());
+		return toSse(retwittService.top());
 	}
 
 }

@@ -16,3 +16,6 @@ Simple application for Twitter analysis. Application is written in [Java 8](http
 1. Spring 5 - Reactive Web Framework
 2. Spring Data - Reactive MongoDB
 3. Server Sides Events
+
+### INFO
+1. Formatted with [google-java-format](https://github.com/google/google-java-format)
