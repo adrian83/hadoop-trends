@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.favorite;
+package com.github.adrian83.trends.domain.favorite.model;
 
 public class Favorite {
 
@@ -29,7 +29,20 @@ public class Favorite {
     return username;
   }
 
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
   public long getCount() {
     return count;
+  }
+
+  public void setCount(long count) {
+    this.count = count;
+  }
+
+  @Override
+  public String toString() {
+    return "Favorite [twittId=" + twittId + ", username=" + username + ", count=" + count + "]";
   }
 }

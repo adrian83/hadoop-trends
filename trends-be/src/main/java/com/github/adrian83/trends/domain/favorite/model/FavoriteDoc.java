@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.favorite;
+package com.github.adrian83.trends.domain.favorite.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -49,6 +49,14 @@ public class FavoriteDoc {
     this.updated = updated;
   }
 
+  public String getDocumentId() {
+    return documentId;
+  }
+
+  public void setDocumentId(String documentId) {
+    this.documentId = documentId;
+  }
+
   public Long getTwittId() {
     return twittId;
   }
@@ -61,11 +69,38 @@ public class FavoriteDoc {
     return username;
   }
 
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
   public Long getCount() {
     return count;
   }
 
+  public void setCount(Long count) {
+    this.count = count;
+  }
+
   public Long getUpdated() {
     return updated;
+  }
+
+  public void setUpdated(Long updated) {
+    this.updated = updated;
+  }
+
+  @Override
+  public String toString() {
+    return "FavoriteDoc [documentId="
+        + documentId
+        + ", twittId="
+        + twittId
+        + ", username="
+        + username
+        + ", count="
+        + count
+        + ", updated="
+        + updated
+        + "]";
   }
 }

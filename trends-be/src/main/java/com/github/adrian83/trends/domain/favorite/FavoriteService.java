@@ -15,6 +15,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import com.github.adrian83.trends.common.Service;
 import com.github.adrian83.trends.common.Time;
+import com.github.adrian83.trends.domain.favorite.model.Favorite;
+import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
 import com.github.adrian83.trends.domain.status.StatusSource;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;

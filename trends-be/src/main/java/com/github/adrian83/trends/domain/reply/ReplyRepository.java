@@ -52,8 +52,12 @@ public class ReplyRepository implements Repository<ReplyDoc> {
 	@Override
 	public Flux<List<ReplyDoc>> top(int count) {
 		LOGGER.info("Getting {} replies", count);
-		return reactiveMongoTemplate.findAll(ReplyDoc.class, ReplyDoc.COLLECTION)
-				.sort(Comparator.<ReplyDoc>comparingLong(ReplyDoc::getCount).reversed()).buffer(count).take(1)
+		return reactiveMongoTemplate
+				.findAll(ReplyDoc.class, ReplyDoc.COLLECTION)
+				.sort(Comparator.<ReplyDoc>comparingLong(ReplyDoc::getCount).reversed())
+				.buffer(count)
+				 //.map(l -> {LOGGER.warn("1 DOCS {}", l); return l;})
+				.take(1)
 				.onBackpressureDrop();
 	}
 	

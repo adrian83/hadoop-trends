@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.adrian83.trends.common.Repository;
 import com.github.adrian83.trends.common.Time;
+import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
