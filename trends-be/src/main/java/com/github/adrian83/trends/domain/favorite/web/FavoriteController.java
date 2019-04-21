@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.favorite;
+package com.github.adrian83.trends.domain.favorite.web;
 
 import java.util.List;
 
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.adrian83.trends.common.web.SseController;
+import com.github.adrian83.trends.domain.favorite.logic.FavoriteService;
 import com.github.adrian83.trends.domain.favorite.model.Favorite;
 
 import reactor.core.publisher.Flux;
@@ -31,7 +32,7 @@ public class FavoriteController extends SseController<Favorite> {
 	
 	@GetMapping(value = SSE_PATH + FAVORITES, produces = SSE_CONTENT_TYPE)
 	public Flux<ServerSentEvent<List<Favorite>>> sseFavorited() {
-		LOGGER.warn("Controller");
+		LOGGER.warn("Getting most favorites twitts");
 		return toSse(favoriteService.top());
 	}
 	

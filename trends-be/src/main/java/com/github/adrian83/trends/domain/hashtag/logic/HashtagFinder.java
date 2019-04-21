@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.hashtag;
+package com.github.adrian83.trends.domain.hashtag.logic;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

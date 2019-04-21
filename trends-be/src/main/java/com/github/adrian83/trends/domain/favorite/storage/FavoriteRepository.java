@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.favorite;
+package com.github.adrian83.trends.domain.favorite.storage;
 
 import java.util.Comparator;
 import java.util.List;
@@ -30,25 +30,20 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
   @Autowired private ReactiveMongoTemplate reactiveMongoTemplate;
 
   @Override
-  public Mono<UpdateResult> save(FavoriteDoc twitt) {
-    LOGGER.info("Saving favorite {}", twitt);
+  public Mono<UpdateResult> save(FavoriteDoc favoriteDoc) {
+    LOGGER.info("Saving favorite {}", favoriteDoc);
     return reactiveMongoTemplate.upsert(
-        Query.query(Criteria.where(FavoriteDoc.TWITT_ID).is(twitt.getTwittId())),
-        Update.update(FavoriteDoc.TWITT_ID, twitt.getTwittId())
-            .set(FavoriteDoc.USERNAME, twitt.getUsername())
-            .set(FavoriteDoc.COUNT, twitt.getCount())
-            .set(FavoriteDoc.UPDATED, twitt.getUpdated()),
-        FavoriteDoc.COLLECTION);
+        saveQuery(favoriteDoc), saveUpdate(favoriteDoc), FavoriteDoc.COLLECTION);
   }
 
   @Override
   public Mono<DeleteResult> deleteOlderThan(long amount, TimeUnit unit) {
     LOGGER.info("Removing favorites older than {} {}", amount, unit);
     return reactiveMongoTemplate.remove(
-        Query.query(Criteria.where(FavoriteDoc.UPDATED).lte(Time.utcNowMinus(amount, unit))),
-        FavoriteDoc.COLLECTION);
+        removeQuery(Time.utcNowMinus(amount, unit)), FavoriteDoc.COLLECTION);
   }
 
+  @Override
   public Flux<List<FavoriteDoc>> top(int count) {
     LOGGER.info("Getting {} favorities", count);
     return reactiveMongoTemplate
@@ -57,5 +52,20 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
         .buffer(count)
         .take(1)
         .onBackpressureDrop();
+  }
+
+  private Query removeQuery(long olderThan) {
+    return Query.query(Criteria.where(FavoriteDoc.UPDATED).lte(olderThan));
+  }
+
+  private Query saveQuery(FavoriteDoc favoriteDoc) {
+    return Query.query(Criteria.where(FavoriteDoc.TWITT_ID).is(favoriteDoc.getTwittId()));
+  }
+
+  private Update saveUpdate(FavoriteDoc favoriteDoc) {
+    return Update.update(FavoriteDoc.TWITT_ID, favoriteDoc.getTwittId())
+        .set(FavoriteDoc.USERNAME, favoriteDoc.getUsername())
+        .set(FavoriteDoc.COUNT, favoriteDoc.getCount())
+        .set(FavoriteDoc.UPDATED, favoriteDoc.getUpdated());
   }
 }

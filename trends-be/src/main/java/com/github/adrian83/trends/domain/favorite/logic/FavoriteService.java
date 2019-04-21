@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.favorite;
+package com.github.adrian83.trends.domain.favorite.logic;
 
 import java.time.Duration;
 import java.util.List;
@@ -17,6 +17,8 @@ import com.github.adrian83.trends.common.Service;
 import com.github.adrian83.trends.common.Time;
 import com.github.adrian83.trends.domain.favorite.model.Favorite;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
+import com.github.adrian83.trends.domain.favorite.model.FavoriteMapper;
+import com.github.adrian83.trends.domain.favorite.storage.FavoriteRepository;
 import com.github.adrian83.trends.domain.status.StatusSource;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -37,28 +39,24 @@ public class FavoriteService implements Service<Favorite> {
 
   private ConnectableFlux<List<Favorite>> favorited;
 
-  private static final Consumer<Mono<UpdateResult>> PERSIST_SUCCESS_CONSUMER =
-      new Consumer<Mono<UpdateResult>>() {
-        @Override
-        public void accept(Mono<UpdateResult> updateResult) {
-          LOGGER.info("Favorite updated: {}", updateResult);
-        }
-      };
-
-  private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
-      new Consumer<Throwable>() {
-        @Override
-        public void accept(Throwable fault) {
-          LOGGER.error("Exception during processing favorites {}", fault);
-        }
-      };
-
   @PostConstruct
   public void postCreate() {
     LOGGER.info("Created");
     persistFavorites();
     readFavorites();
     LOGGER.info("Reading and persisting favorites initiated");
+  }
+
+  @Override
+  public Flux<List<Favorite>> top() {
+    return favorited;
+  }
+
+  @Override
+  @Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
+  public void removeUnused() {
+    Mono<DeleteResult> result = favoriteRepository.deleteOlderThan(1, TimeUnit.MINUTES);
+    result.subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
   }
 
   private void readFavorites() {
@@ -101,17 +99,15 @@ public class FavoriteService implements Service<Favorite> {
     return Mono.just(favorite);
   }
 
-  @Override
-  public Flux<List<Favorite>> top() {
-    return favorited;
-  }
+  private static final Consumer<Mono<UpdateResult>> PERSIST_SUCCESS_CONSUMER =
+      (Mono<UpdateResult> updateResult) -> LOGGER.info("Favorite updated: {}", updateResult);
 
-  @Override
-  @Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
-  public void removeUnused() {
-    Mono<DeleteResult> result = favoriteRepository.deleteOlderThan(1, TimeUnit.MINUTES);
-    result.subscribe(
-        dr -> LOGGER.warn("Twitts removed {}", dr.getDeletedCount()),
-        t -> LOGGER.error("Exception during removing twitts {}", t));
-  }
+  private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
+      (Throwable fault) -> LOGGER.error("Exception during processing favorites {}", fault);
+
+  private static final Consumer<DeleteResult> REMOVE_SUCCESS_CONSUMER =
+      (DeleteResult deleteResult) -> LOGGER.info("Favorites removed: {}", deleteResult);
+
+  private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
+      (Throwable fault) -> LOGGER.error("Exception during removeing favorites {}", fault);
 }

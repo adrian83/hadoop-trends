@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.hashtag;
+package com.github.adrian83.trends.domain.hashtag.storage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.adrian83.trends.common.Repository;
 import com.github.adrian83.trends.common.Time;
+import com.github.adrian83.trends.domain.hashtag.model.HashtagDoc;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
@@ -39,7 +40,7 @@ public class HashtagRepository implements Repository<HashtagDoc> {
 				Query.query(Criteria.where(HashtagDoc.NAME).is(hashtag.getName())),
 				Update.update(HashtagDoc.NAME, hashtag.getName())
 					.set(HashtagDoc.UPDATED, hashtag.getUpdated())
-					.inc(HashtagDoc.OCCURRENCE_COUNT, hashtag.getOccurrenceCount()), 
+					.inc(HashtagDoc.COUNT, hashtag.getCount()), 
 					HashtagDoc.COLLECTION);
 	}
 	
@@ -55,7 +56,7 @@ public class HashtagRepository implements Repository<HashtagDoc> {
 	public Flux<List<HashtagDoc>> top(int count) {
 		LOGGER.info("Getting {} hashtags", count);
 		return reactiveMongoTemplate.findAll(HashtagDoc.class, HashtagDoc.COLLECTION)
-				.sort(Comparator.<HashtagDoc>comparingLong(HashtagDoc::getOccurrenceCount).reversed()).buffer(count).take(1)
+				.sort(Comparator.<HashtagDoc>comparingLong(HashtagDoc::getCount).reversed()).buffer(count).take(1)
 				.onBackpressureDrop();
 	}
 
