@@ -100,7 +100,8 @@ public class HashtagService implements Service<Hashtag> {
   }
 
   private static final Consumer<Mono<UpdateResult>> PERSIST_SUCCESS_CONSUMER =
-      (Mono<UpdateResult> updateResult) -> LOGGER.info("Hashtag updated: {}", updateResult);
+      (Mono<UpdateResult> updateResult) ->
+          updateResult.subscribe(ur -> LOGGER.info("Hashtag updated: {}", ur));
 
   private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during processing hashtags {}", fault);

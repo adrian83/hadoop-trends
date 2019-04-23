@@ -22,7 +22,7 @@ public class FavoriteDoc {
 
   @Id
   @Field(ID)
-  private String documentId;
+  private String id;
 
   @Field(TWITT_ID)
   private Long twittId;
@@ -40,21 +40,17 @@ public class FavoriteDoc {
     super();
   }
 
-  public FavoriteDoc(String documentId, Long twittId, String username, Long count, Long updated) {
+  public FavoriteDoc(Long twittId, String username, Long count, Long updated) {
     this();
-    this.documentId = documentId;
+    this.id = String.valueOf(twittId);
     this.twittId = twittId;
     this.username = username;
     this.count = count;
     this.updated = updated;
   }
 
-  public String getDocumentId() {
-    return documentId;
-  }
-
-  public void setDocumentId(String documentId) {
-    this.documentId = documentId;
+  public String getId() {
+    return id;
   }
 
   public Long getTwittId() {
@@ -91,9 +87,7 @@ public class FavoriteDoc {
 
   @Override
   public String toString() {
-    return "FavoriteDoc [documentId="
-        + documentId
-        + ", twittId="
+    return "FavoriteDoc [twittId="
         + twittId
         + ", username="
         + username

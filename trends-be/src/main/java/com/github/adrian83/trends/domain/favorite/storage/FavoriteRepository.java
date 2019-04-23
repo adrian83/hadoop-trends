@@ -45,7 +45,7 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
 
   @Override
   public Flux<List<FavoriteDoc>> top(int count) {
-    LOGGER.info("Getting {} favorities", count);
+    LOGGER.warn("Getting {} favorities", count);
     return reactiveMongoTemplate
         .findAll(FavoriteDoc.class, FavoriteDoc.COLLECTION)
         .sort(Comparator.<FavoriteDoc>comparingLong(FavoriteDoc::getCount).reversed())

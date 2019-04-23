@@ -31,9 +31,6 @@ public class ViewController {
 		return RETWEETS;
 	}
 
-	@RequestMapping(value = VIEW_PATH + REPLIES)
-	public String replies() {
-		return REPLIES;
-	}
+
 
 }

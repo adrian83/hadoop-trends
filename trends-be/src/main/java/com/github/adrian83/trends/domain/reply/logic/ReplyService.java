@@ -48,8 +48,6 @@ public class ReplyService implements Service<Reply> {
     LOGGER.info("Reading and persisting replies initiated");
   }
 
-
-
   @Override
   public Flux<List<Reply>> top() {
     return replies;
@@ -61,50 +59,51 @@ public class ReplyService implements Service<Reply> {
     Mono<DeleteResult> result = replyRepository.deleteOlderThan(1, TimeUnit.MINUTES);
     result.subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
   }
-  
+
   private void persistReplies() {
-	    twittsSource
-	        .twittsFlux()
-	        .flatMap(this::toReply)
-	        .map(replyRepository::save)
-	        .subscribe(PERSIST_SUCCESS_CONSUMER, PERSIST_ERROR_CONSUMER);
-	  }
+    LOGGER.info("Starting persisting replies");
+    twittsSource
+        .twittsFlux()
+        .flatMap(this::toReply)
+        .map(replyRepository::save)
+        .subscribe(PERSIST_SUCCESS_CONSUMER, PERSIST_ERROR_CONSUMER);
+  }
 
-	  private Mono<ReplyDoc> toReply(Status status) {
+  private Mono<ReplyDoc> toReply(Status status) {
 
-	    if (status.getInReplyToStatusId() < 0 || status.getInReplyToScreenName() == null) {
-	      return Mono.empty();
-	    }
-	    ReplyDoc doc =
-	        new ReplyDoc(
-	            null,
-	            status.getInReplyToStatusId(),
-	            status.getInReplyToScreenName(),
-	            1l,
-	            Time.utcNow());
-	    return Mono.just(doc);
-	  }
+    if (status.getInReplyToStatusId() < 0 || status.getInReplyToScreenName() == null) {
+      return Mono.empty();
+    }
+    ReplyDoc doc =
+        new ReplyDoc(
+            null,
+            status.getInReplyToStatusId(),
+            status.getInReplyToScreenName(),
+            1l,
+            Time.utcNow());
+    return Mono.just(doc);
+  }
 
-	  private void readReplies() {
-	    LOGGER.info("Reading most replied twitts");
-	    replies =
-	        Flux.interval(Duration.ofSeconds(10))
-	            .flatMap(i -> replyRepository.top(10))
-	            .map(list -> list.stream().map(replyMapper::docToDto).collect(Collectors.toList()))
-	            .publish();
-	    replies.connect();
-	  }
-  
+  private void readReplies() {
+    LOGGER.info("Reading most replied twitts");
+    replies =
+        Flux.interval(Duration.ofSeconds(10))
+            .flatMap(i -> replyRepository.top(10))
+            .map(list -> list.stream().map(replyMapper::docToDto).collect(Collectors.toList()))
+            .publish();
+    replies.connect();
+  }
+
   private static final Consumer<Mono<UpdateResult>> PERSIST_SUCCESS_CONSUMER =
-	      (Mono<UpdateResult> updateResult) -> LOGGER.info("Reply updated: {}", updateResult);
+      (Mono<UpdateResult> updateResult) ->
+          updateResult.subscribe(ur -> LOGGER.info("Reply updated: {}", ur));
 
-	  private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
-	      (Throwable fault) -> LOGGER.error("Exception during processing replies {}", fault);
+  private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
+      (Throwable fault) -> LOGGER.error("Exception during processing replies {}", fault);
 
-	  private static final Consumer<DeleteResult> REMOVE_SUCCESS_CONSUMER =
-	      (DeleteResult deleteResult) -> LOGGER.info("Replies removed: {}", deleteResult);
+  private static final Consumer<DeleteResult> REMOVE_SUCCESS_CONSUMER =
+      (DeleteResult deleteResult) -> LOGGER.info("Replies removed: {}", deleteResult);
 
-	  private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
-	      (Throwable fault) -> LOGGER.error("Exception during removing replies {}", fault);
-  
+  private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
+      (Throwable fault) -> LOGGER.error("Exception during removing replies {}", fault);
 }

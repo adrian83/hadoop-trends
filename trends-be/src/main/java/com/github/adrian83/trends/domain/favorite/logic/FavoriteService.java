@@ -55,8 +55,9 @@ public class FavoriteService implements Service<Favorite> {
   @Override
   @Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
   public void removeUnused() {
-    Mono<DeleteResult> result = favoriteRepository.deleteOlderThan(1, TimeUnit.MINUTES);
-    result.subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
+    favoriteRepository
+        .deleteOlderThan(1, TimeUnit.MINUTES)
+        .subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
   }
 
   private void readFavorites() {
@@ -90,7 +91,6 @@ public class FavoriteService implements Service<Favorite> {
 
     FavoriteDoc favorite =
         new FavoriteDoc(
-            null,
             retweetedStatus.getId(),
             retweetedStatus.getUser().getScreenName(),
             Long.valueOf(retweetedStatus.getFavoriteCount()),
@@ -100,7 +100,8 @@ public class FavoriteService implements Service<Favorite> {
   }
 
   private static final Consumer<Mono<UpdateResult>> PERSIST_SUCCESS_CONSUMER =
-      (Mono<UpdateResult> updateResult) -> LOGGER.info("Favorite updated: {}", updateResult);
+      (Mono<UpdateResult> updateResult) ->
+          updateResult.subscribe(ur -> LOGGER.info("Favorite updated: {}", ur));
 
   private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during processing favorites {}", fault);

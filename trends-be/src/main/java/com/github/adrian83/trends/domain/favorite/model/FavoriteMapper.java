@@ -15,7 +15,7 @@ public interface FavoriteMapper {
   FavoriteDoc dtoToDoc(Favorite favorite);
 
   @Mappings({
-    @Mapping(target = "twittId", source = "twittId", resultType = String.class),
+    @Mapping(target = "twittId", source = "twittId" , resultType = String.class),
     @Mapping(target = "username", source = "username"),
     @Mapping(target = "count", source = "count")
   })
