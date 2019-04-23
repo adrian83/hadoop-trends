@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.hashtag.model;
+package com.github.adrian83.trends.domain.retwitt.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,37 +9,42 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize
 @JsonDeserialize
-@Document(collection = HashtagDoc.COLLECTION)
-public class HashtagDoc {
+@Document(collection = RetwittDoc.COLLECTION)
+public class RetwittDoc {
 
-  public static final String COLLECTION = "hashtags";
+  public static final String COLLECTION = "retwitts";
 
   public static final String ID = "id";
+  public static final String TWITT_ID = "twitt_id";
+  public static final String USERNAME = "username";
   public static final String UPDATED = "updated";
-  public static final String NAME = "name";
-  public static final String COUNT = "count";
+  public static final String RETWITT_COUNT = "count";
 
   @Id
   @Field(ID)
   private String id;
 
-  @Field(NAME)
-  private String name;
+  @Field(TWITT_ID)
+  private Long twittId;
 
-  @Field(COUNT)
+  @Field(USERNAME)
+  private String username;
+
+  @Field(RETWITT_COUNT)
   private long count;
 
   @Field(UPDATED)
   private Long updated;
 
-  public HashtagDoc() {
+  public RetwittDoc() {
     super();
   }
 
-  public HashtagDoc(String name, long count, Long updated) {
+  public RetwittDoc(Long twittId, String username, long count, Long updated) {
     this();
-    this.id = name;
-    this.name = name;
+    this.id = String.valueOf(twittId);
+    this.twittId = twittId;
+    this.username = username;
     this.count = count;
     this.updated = updated;
   }
@@ -48,12 +53,20 @@ public class HashtagDoc {
     return id;
   }
 
-  public String getName() {
-    return name;
+  public Long getTwittId() {
+    return twittId;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setTwittId(Long twittId) {
+    this.twittId = twittId;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 
   public long getCount() {
@@ -74,10 +87,12 @@ public class HashtagDoc {
 
   @Override
   public String toString() {
-    return "HashtagDoc [id="
+    return "RetwittDoc [id="
         + id
-        + ", name="
-        + name
+        + ", twittId="
+        + twittId
+        + ", username="
+        + username
         + ", count="
         + count
         + ", updated="

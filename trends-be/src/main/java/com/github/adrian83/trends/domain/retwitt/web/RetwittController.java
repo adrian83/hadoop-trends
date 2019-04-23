@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.retwitt;
+package com.github.adrian83.trends.domain.retwitt.web;
 
 import java.util.List;
 
@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.adrian83.trends.common.web.SseController;
+import com.github.adrian83.trends.domain.retwitt.logic.RetwittService;
+import com.github.adrian83.trends.domain.retwitt.model.Retwitt;
 
 import reactor.core.publisher.Flux;
 

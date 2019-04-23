@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.retwitt;
+package com.github.adrian83.trends.domain.retwitt.storage;
 
 import java.util.Comparator;
 import java.util.List;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.adrian83.trends.common.Repository;
 import com.github.adrian83.trends.common.Time;
+import com.github.adrian83.trends.domain.retwitt.model.RetwittDoc;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
