@@ -49,7 +49,7 @@ class Replies extends Component {
       var twittUrl = "https://twitter.com/" + elem.username + "/status/" + elem.twittId;
       return (<tr key={elem.twittId}>
           <th scope="row">{i}</th>
-          <th><a target="_blank" href={twittUrl}>{elem.twittId} - {elem.username}</a></th>
+          <th><a target="_blank" rel="noopener noreferrer" href={twittUrl}>{elem.twittId} - {elem.username}</a></th>
           <th>{elem.count}</th>
         </tr>);
   }

@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import {
   BrowserRouter as Router,
   Route,
   Redirect,
-  Switch,
-  Link
+  Switch
 } from 'react-router-dom';
 
 import Home from './Home';
@@ -28,8 +26,6 @@ class App extends Component {
       <header className="masthead mb-auto">
         <Menu/>
       </header>
-
-
 
       <main role="main" className="inner cover">
       <div className="App">

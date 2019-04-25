@@ -50,7 +50,7 @@ class Favorites extends Component {
     var twittUrl = "https://twitter.com/" + elem.username + "/status/" + elem.twittId;
     return (<tr key={elem.twittId}>
         <th scope="row">{i}</th>
-        <th><a target="_blank" href={twittUrl}>{elem.username} - {elem.twittId}</a></th>
+        <th><a target="_blank" rel="noopener noreferrer" href={twittUrl}>{elem.username} - {elem.twittId}</a></th>
         <th>{elem.count}</th>
       </tr>);
   }
