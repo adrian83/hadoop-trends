@@ -54,7 +54,9 @@ public class RetwittService implements Service<Retwitt> {
   }
 
   @Override
-  @Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
+  @Scheduled(
+	      fixedDelayString = "${retwitt.cleaning.fixedRateMs}",
+	      initialDelayString = "${retwitt.cleaning.initialDelayMs}")
   public void removeUnused() {
     retwittRepository
         .deleteOlderThan(1, TimeUnit.MINUTES)
@@ -62,39 +64,39 @@ public class RetwittService implements Service<Retwitt> {
   }
 
   private void persistRetwitts() {
-	    LOGGER.info("Starting persisting retwitts");
-	    twittsSource
-	        .twittsFlux()
-	        .flatMap(this::toRetwittDoc)
-	        .map(retwittRepository::save)
-	        .subscribe(PERSIST_SUCCESS_CONSUMER, PERSIST_ERROR_CONSUMER);
-	  }
+    LOGGER.info("Starting persisting retwitts");
+    twittsSource
+        .twittsFlux()
+        .flatMap(this::toRetwittDoc)
+        .map(retwittRepository::save)
+        .subscribe(PERSIST_SUCCESS_CONSUMER, PERSIST_ERROR_CONSUMER);
+  }
 
-	  private Mono<RetwittDoc> toRetwittDoc(Status status) {
-	    Status retwittStatus = status.getRetweetedStatus();
-	    if (retwittStatus == null || retwittStatus.getUser() == null) {
-	      return Mono.empty();
-	    }
+  private Mono<RetwittDoc> toRetwittDoc(Status status) {
+    Status retwittStatus = status.getRetweetedStatus();
+    if (retwittStatus == null || retwittStatus.getUser() == null) {
+      return Mono.empty();
+    }
 
-	    RetwittDoc doc =
-	        new RetwittDoc(
-	            retwittStatus.getId(),
-	            retwittStatus.getUser().getScreenName(),
-	            retwittStatus.getRetweetCount(),
-	            Time.utcNow());
-	    return Mono.just(doc);
-	  }
+    RetwittDoc doc =
+        new RetwittDoc(
+            retwittStatus.getId(),
+            retwittStatus.getUser().getScreenName(),
+            retwittStatus.getRetweetCount(),
+            Time.utcNow());
+    return Mono.just(doc);
+  }
 
-	  private void readRetwitts() {
-	    LOGGER.info("Reading most retwitted twitts");
-	    retwitted =
-	        Flux.interval(Duration.ofSeconds(10))
-	            .flatMap(i -> retwittRepository.top(10))
-	            .map(list -> list.stream().map(retwittMapper::docToDto).collect(Collectors.toList()))
-	            .publish();
-	    retwitted.connect();
-	  }
-  
+  private void readRetwitts() {
+    LOGGER.info("Reading most retwitted twitts");
+    retwitted =
+        Flux.interval(Duration.ofSeconds(10))
+            .flatMap(i -> retwittRepository.top(10))
+            .map(list -> list.stream().map(retwittMapper::docToDto).collect(Collectors.toList()))
+            .publish();
+    retwitted.connect();
+  }
+
   private static final Consumer<Mono<UpdateResult>> PERSIST_SUCCESS_CONSUMER =
       (Mono<UpdateResult> updateResult) ->
           updateResult.subscribe(ur -> LOGGER.info("Retwitt updated: {}", ur));
@@ -103,7 +105,7 @@ public class RetwittService implements Service<Retwitt> {
       (Throwable fault) -> LOGGER.error("Exception during processing retwitts {}", fault);
 
   private static final Consumer<DeleteResult> REMOVE_SUCCESS_CONSUMER =
-      (DeleteResult deleteResult) -> LOGGER.info("Retwitts removed: {}", deleteResult);
+      (DeleteResult deleteResult) -> LOGGER.warn("Retwitts removed: {}", deleteResult);
 
   private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during removing retwitts {}", fault);

@@ -58,7 +58,9 @@ public class HashtagService implements Service<Hashtag> {
   }
 
   @Override
-  @Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
+  @Scheduled(
+	      fixedDelayString = "${hashtag.cleaning.fixedRateMs}",
+	      initialDelayString = "${hashtag.cleaning.initialDelayMs}")
   public void removeUnused() {
     Mono<DeleteResult> result = hashtagRepository.deleteOlderThan(1, TimeUnit.MINUTES);
     result.subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
@@ -107,7 +109,7 @@ public class HashtagService implements Service<Hashtag> {
       (Throwable fault) -> LOGGER.error("Exception during processing hashtags {}", fault);
 
   private static final Consumer<DeleteResult> REMOVE_SUCCESS_CONSUMER =
-      (DeleteResult deleteResult) -> LOGGER.info("Hashtags removed: {}", deleteResult);
+      (DeleteResult deleteResult) -> LOGGER.warn("Hashtags removed: {}", deleteResult);
 
   private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during removeing hashtags {}", fault);

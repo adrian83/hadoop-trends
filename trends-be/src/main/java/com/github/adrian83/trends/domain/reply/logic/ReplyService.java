@@ -54,7 +54,9 @@ public class ReplyService implements Service<Reply> {
   }
 
   @Override
-  @Scheduled(fixedRate = CLEANING_FIXED_RATE_MS, initialDelay = CLEANING_INITIAL_DELAY_MS)
+  @Scheduled(
+	      fixedDelayString = "${reply.cleaning.fixedRateMs}",
+	      initialDelayString = "${reply.cleaning.initialDelayMs}")
   public void removeUnused() {
     Mono<DeleteResult> result = replyRepository.deleteOlderThan(1, TimeUnit.MINUTES);
     result.subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
@@ -102,7 +104,7 @@ public class ReplyService implements Service<Reply> {
       (Throwable fault) -> LOGGER.error("Exception during processing replies {}", fault);
 
   private static final Consumer<DeleteResult> REMOVE_SUCCESS_CONSUMER =
-      (DeleteResult deleteResult) -> LOGGER.info("Replies removed: {}", deleteResult);
+      (DeleteResult deleteResult) -> LOGGER.warn("Replies removed: {}", deleteResult);
 
   private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during removing replies {}", fault);

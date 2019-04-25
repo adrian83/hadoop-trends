@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.github.adrian83.trends.config.TwitterAuth;
 import com.github.adrian83.trends.config.TwitterConfig;
 
 import reactor.core.publisher.Flux;
@@ -35,13 +34,13 @@ public class StatusSource {
 		
 		LOGGER.info("Twitter client conecting");
 
-		TwitterAuth auth = twitterConfig.getAuhentication();
+	
 
-		AccessToken accessToken = new AccessToken(auth.getToken(), auth.getSecret());
+		AccessToken accessToken = new AccessToken(twitterConfig.getToken(), twitterConfig.getSecret());
 
 		twitterStream = new TwitterStreamFactory().getInstance();
 
-		twitterStream.setOAuthConsumer(auth.getCustomerKey(), auth.getCustomerSecret());
+		twitterStream.setOAuthConsumer(twitterConfig.getCustomerKey(), twitterConfig.getCustomerSecret());
 		twitterStream.setOAuthAccessToken(accessToken);
 
 		twitterStream.addListener(new StatusAdapter() {

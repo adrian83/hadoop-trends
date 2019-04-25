@@ -50,7 +50,7 @@ class Hashtags extends Component {
       return (<tr key={elem.name}>
           <th scope="row">{i}</th>
           <th><a target="_blank" href={twittUrl}>{elem.name}</a></th>
-          <th>{elem.occurrenceCount}</th>
+          <th>{elem.count}</th>
         </tr>);
   }
 

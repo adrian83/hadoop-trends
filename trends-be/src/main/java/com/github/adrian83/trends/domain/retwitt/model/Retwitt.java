@@ -6,8 +6,12 @@ public class Retwitt {
   private String username;
   private long count;
 
-  public Retwitt(String twittId, String username, long count) {
+  public Retwitt() {
     super();
+  }
+
+  public Retwitt(String twittId, String username, long count) {
+    this();
     this.twittId = twittId;
     this.username = username;
     this.count = count;
