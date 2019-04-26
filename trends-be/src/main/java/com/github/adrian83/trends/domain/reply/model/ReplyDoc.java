@@ -40,8 +40,9 @@ public class ReplyDoc {
     super();
   }
 
-  public ReplyDoc(String documentId, Long twittId, String username, long count, Long updated) {
+  public ReplyDoc(Long twittId, String username, long count, Long updated) {
     this();
+    this.documentId = String.valueOf(twittId);
     this.twittId = twittId;
     this.username = username;
     this.count = count;
@@ -50,10 +51,6 @@ public class ReplyDoc {
 
   public String getDocumentId() {
     return documentId;
-  }
-
-  public void setDocumentId(String documentId) {
-    this.documentId = documentId;
   }
 
   public Long getTwittId() {

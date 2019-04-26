@@ -7,17 +7,14 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.adrian83.trends.common.web.SseController;
 import com.github.adrian83.trends.domain.retwitt.logic.RetwittService;
 import com.github.adrian83.trends.domain.retwitt.model.Retwitt;
+import com.github.adrian83.trends.web.BaseController;
 
 import reactor.core.publisher.Flux;
 
-import static com.github.adrian83.trends.common.web.ViewController.SSE_CONTENT_TYPE;
-import static com.github.adrian83.trends.common.web.ViewController.SSE_PATH;
-
 @RestController
-public class RetwittController extends SseController<Retwitt> {
+public class RetwittController extends BaseController<Retwitt> {
 
 	public static final String RETWEETS = "retwitts";
 	

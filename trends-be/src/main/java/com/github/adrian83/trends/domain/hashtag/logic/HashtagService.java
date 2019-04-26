@@ -12,15 +12,16 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.github.adrian83.trends.common.Repository;
 import com.github.adrian83.trends.common.Service;
 import com.github.adrian83.trends.common.Time;
 import com.github.adrian83.trends.domain.hashtag.model.Hashtag;
 import com.github.adrian83.trends.domain.hashtag.model.HashtagDoc;
 import com.github.adrian83.trends.domain.hashtag.model.HashtagMapper;
-import com.github.adrian83.trends.domain.hashtag.storage.HashtagRepository;
 import com.github.adrian83.trends.domain.status.StatusSource;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -37,10 +38,19 @@ public class HashtagService implements Service<Hashtag> {
 
   private static final int DEF_BUFFER_SIZE = 100;
 
-  @Autowired private HashtagRepository hashtagRepository;
+  @Autowired private Repository<HashtagDoc> hashtagRepository;
   @Autowired private StatusSource twittsSource;
   @Autowired private HashtagFinder hashtagFinder;
   @Autowired private HashtagMapper hashtagMapper;
+
+  @Value("${hashtag.read.intervalSec}")
+  private int readIntervalSec;
+
+  @Value("${hashtag.read.count}")
+  private int readCount;
+  
+  @Value("${hashtag.cleaning.olderThanSec}")
+  private int olderThanSec;
 
   private ConnectableFlux<List<Hashtag>> hashtags;
 
@@ -59,18 +69,18 @@ public class HashtagService implements Service<Hashtag> {
 
   @Override
   @Scheduled(
-	      fixedDelayString = "${hashtag.cleaning.fixedRateMs}",
-	      initialDelayString = "${hashtag.cleaning.initialDelayMs}")
+      fixedDelayString = "${hashtag.cleaning.fixedRateMs}",
+      initialDelayString = "${hashtag.cleaning.initialDelayMs}")
   public void removeUnused() {
-    Mono<DeleteResult> result = hashtagRepository.deleteOlderThan(1, TimeUnit.MINUTES);
+    Mono<DeleteResult> result = hashtagRepository.deleteOlderThan(olderThanSec, TimeUnit.SECONDS);
     result.subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
   }
 
   private void readHashtags() {
     LOGGER.info("Reading most popular hashtags");
     hashtags =
-        Flux.interval(Duration.ofSeconds(10))
-            .flatMap(i -> hashtagRepository.top(10).map(this::toDtos))
+        Flux.interval(Duration.ofSeconds(readIntervalSec))
+            .flatMap(i -> hashtagRepository.top(readCount).map(this::toDtos))
             .publish();
     hashtags.connect();
   }

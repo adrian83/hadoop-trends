@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@ComponentScan("com.github.adrian83")
+@ComponentScan("com.github.adrian83.trends")
 public class WebConfig implements WebMvcConfigurer {
 	
 	@Override

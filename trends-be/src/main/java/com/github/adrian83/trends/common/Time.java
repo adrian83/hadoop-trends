@@ -4,7 +4,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
-public class Time {
+public final class Time {
 	
 	private Time() {}
 	

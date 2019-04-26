@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +39,15 @@ public class ReplyService implements Service<Reply> {
   @Autowired private StatusSource twittsSource;
   @Autowired private ReplyMapper replyMapper;
 
+  @Value("${reply.read.intervalSec}")
+  private int readIntervalSec;
+
+  @Value("${reply.read.count}")
+  private int readCount;
+
+  @Value("${reply.cleaning.olderThanSec}")
+  private int olderThanSec;
+
   private ConnectableFlux<List<Reply>> replies;
 
   @PostConstruct
@@ -55,10 +65,10 @@ public class ReplyService implements Service<Reply> {
 
   @Override
   @Scheduled(
-	      fixedDelayString = "${reply.cleaning.fixedRateMs}",
-	      initialDelayString = "${reply.cleaning.initialDelayMs}")
+      fixedDelayString = "${reply.cleaning.fixedRateMs}",
+      initialDelayString = "${reply.cleaning.initialDelayMs}")
   public void removeUnused() {
-    Mono<DeleteResult> result = replyRepository.deleteOlderThan(1, TimeUnit.MINUTES);
+    Mono<DeleteResult> result = replyRepository.deleteOlderThan(olderThanSec, TimeUnit.SECONDS);
     result.subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
   }
 
@@ -78,7 +88,6 @@ public class ReplyService implements Service<Reply> {
     }
     ReplyDoc doc =
         new ReplyDoc(
-            null,
             status.getInReplyToStatusId(),
             status.getInReplyToScreenName(),
             1l,
@@ -89,8 +98,8 @@ public class ReplyService implements Service<Reply> {
   private void readReplies() {
     LOGGER.info("Reading most replied twitts");
     replies =
-        Flux.interval(Duration.ofSeconds(10))
-            .flatMap(i -> replyRepository.top(10))
+        Flux.interval(Duration.ofSeconds(readIntervalSec))
+            .flatMap(i -> replyRepository.top(readCount))
             .map(list -> list.stream().map(replyMapper::docToDto).collect(Collectors.toList()))
             .publish();
     replies.connect();

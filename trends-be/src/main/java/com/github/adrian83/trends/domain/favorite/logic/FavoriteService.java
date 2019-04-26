@@ -11,14 +11,15 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import com.github.adrian83.trends.common.Repository;
 import com.github.adrian83.trends.common.Service;
 import com.github.adrian83.trends.common.Time;
 import com.github.adrian83.trends.domain.favorite.model.Favorite;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteMapper;
-import com.github.adrian83.trends.domain.favorite.storage.FavoriteRepository;
 import com.github.adrian83.trends.domain.status.StatusSource;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -33,9 +34,18 @@ public class FavoriteService implements Service<Favorite> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FavoriteService.class);
 
-  @Autowired private FavoriteRepository favoriteRepository;
+  @Autowired private Repository<FavoriteDoc> favoriteRepository;
   @Autowired private FavoriteMapper favoriteMapper;
   @Autowired private StatusSource twittsSource;
+
+  @Value("${favorite.read.intervalSec}")
+  private int readIntervalSec;
+
+  @Value("${favorite.read.count}")
+  private int readCount;
+
+  @Value("${favorite.cleaning.olderThanSec}")
+  private int olderThanSec;
 
   private ConnectableFlux<List<Favorite>> favorited;
 
@@ -58,15 +68,15 @@ public class FavoriteService implements Service<Favorite> {
       initialDelayString = "${favorite.cleaning.initialDelayMs}")
   public void removeUnused() {
     favoriteRepository
-        .deleteOlderThan(1, TimeUnit.MINUTES)
+        .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
         .subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
   }
 
   private void readFavorites() {
     LOGGER.info("Reading most favorited twitts");
     favorited =
-        Flux.interval(Duration.ofSeconds(10))
-            .flatMap(i -> favoriteRepository.top(10))
+        Flux.interval(Duration.ofSeconds(readIntervalSec))
+            .flatMap(i -> favoriteRepository.top(readCount))
             .map(list -> list.stream().map(favoriteMapper::docToDto).collect(Collectors.toList()))
             .publish();
     favorited.connect();

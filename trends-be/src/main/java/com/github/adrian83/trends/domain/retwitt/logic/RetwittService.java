@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +39,15 @@ public class RetwittService implements Service<Retwitt> {
   @Autowired private StatusSource twittsSource;
   @Autowired private RetwittMapper retwittMapper;
 
+  @Value("${retwitt.read.intervalSec}")
+  private int readIntervalSec;
+
+  @Value("${retwitt.read.count}")
+  private int readCount;
+  
+  @Value("${retwitt.cleaning.olderThanSec}")
+  private int olderThanSec;
+
   private ConnectableFlux<List<Retwitt>> retwitted;
 
   @PostConstruct
@@ -55,11 +65,11 @@ public class RetwittService implements Service<Retwitt> {
 
   @Override
   @Scheduled(
-	      fixedDelayString = "${retwitt.cleaning.fixedRateMs}",
-	      initialDelayString = "${retwitt.cleaning.initialDelayMs}")
+      fixedDelayString = "${retwitt.cleaning.fixedRateMs}",
+      initialDelayString = "${retwitt.cleaning.initialDelayMs}")
   public void removeUnused() {
     retwittRepository
-        .deleteOlderThan(1, TimeUnit.MINUTES)
+        .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
         .subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
   }
 
@@ -90,8 +100,8 @@ public class RetwittService implements Service<Retwitt> {
   private void readRetwitts() {
     LOGGER.info("Reading most retwitted twitts");
     retwitted =
-        Flux.interval(Duration.ofSeconds(10))
-            .flatMap(i -> retwittRepository.top(10))
+        Flux.interval(Duration.ofSeconds(readIntervalSec))
+            .flatMap(i -> retwittRepository.top(readCount))
             .map(list -> list.stream().map(retwittMapper::docToDto).collect(Collectors.toList()))
             .publish();
     retwitted.connect();

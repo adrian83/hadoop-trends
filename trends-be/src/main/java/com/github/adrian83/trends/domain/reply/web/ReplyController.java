@@ -10,18 +10,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.adrian83.trends.common.web.SseController;
 import com.github.adrian83.trends.domain.favorite.web.FavoriteController;
 import com.github.adrian83.trends.domain.reply.logic.ReplyService;
 import com.github.adrian83.trends.domain.reply.model.Reply;
+import com.github.adrian83.trends.web.BaseController;
 
 import reactor.core.publisher.Flux;
 
-import static com.github.adrian83.trends.common.web.ViewController.SSE_CONTENT_TYPE;
-import static com.github.adrian83.trends.common.web.ViewController.SSE_PATH;
-
 @RestController
-public class ReplyController extends SseController<Reply> {
+public class ReplyController extends BaseController<Reply> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FavoriteController.class);
 

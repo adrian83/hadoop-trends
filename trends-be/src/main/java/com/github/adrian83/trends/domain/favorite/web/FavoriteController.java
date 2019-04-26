@@ -1,5 +1,6 @@
 package com.github.adrian83.trends.domain.favorite.web;
 
+
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,17 +11,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.adrian83.trends.common.web.SseController;
 import com.github.adrian83.trends.domain.favorite.logic.FavoriteService;
 import com.github.adrian83.trends.domain.favorite.model.Favorite;
+import com.github.adrian83.trends.web.BaseController;
 
 import reactor.core.publisher.Flux;
 
-import static com.github.adrian83.trends.common.web.ViewController.SSE_CONTENT_TYPE;
-import static com.github.adrian83.trends.common.web.ViewController.SSE_PATH;
-
 @RestController
-public class FavoriteController extends SseController<Favorite> {
+public class FavoriteController extends BaseController<Favorite> {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(FavoriteController.class);
 

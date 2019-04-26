@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 
 public interface Repository <T> {
 
-	
 	Mono<UpdateResult> save(T elem);
 	
 	Mono<DeleteResult> deleteOlderThan(long amount, TimeUnit unit);
