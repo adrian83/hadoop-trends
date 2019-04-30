@@ -1,6 +1,9 @@
 package com.github.adrian83.trends.domain.favorite.logic;
 
 import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -13,10 +16,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.adrian83.trends.common.Repository;
 import com.github.adrian83.trends.domain.favorite.logic.FavoriteService;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
+import com.github.adrian83.trends.domain.favorite.model.FavoriteMapper;
 import com.github.adrian83.trends.domain.status.StatusSource;
 import com.github.adrian83.trends.domain.status.TestStatus;
 import com.github.adrian83.trends.domain.status.TestUser;
@@ -32,22 +37,22 @@ public class FavoriteServiceTest {
   @InjectMocks private FavoriteService favoriteService;
 
   @Mock private StatusSource statusSourceMock;
-
   @Mock private Repository<FavoriteDoc> favoriteRepositoryMock;
+  @Mock private FavoriteMapper favoriteMapperMock;
 
-  /*
   @Test
   public void shouldStartPersistingFavorites() {
-  	// given
-  	Mockito.when(statusSourceMock.twittsFlux()).thenReturn(Flux.empty());
+    // given
+    Mockito.when(statusSourceMock.twittsFlux()).thenReturn(Flux.empty());
+    Mockito.when(favoriteRepositoryMock.top(0)).thenReturn(Flux.empty());
 
-  	// when
-  	favoriteProcessor.postCreate();
+    // when
+    favoriteService.postCreate();
 
-  	// then
-  	Mockito.verify(twittsSourceMock).twittsFlux();
+    // then
+    Mockito.verify(statusSourceMock).twittsFlux();
   }
-
+  /*
   @Test
   public void shouldPersistValidStatus() {
   	// given

@@ -8,9 +8,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 @EnableScheduling
-public class Application {
+public class TrendsApplication {
 
-  public static void main(String[] args) {
-    SpringApplication.run(Application.class, args);
-  }
+	public static void main(String[] args) {
+		SpringApplication.run(TrendsApplication.class, args);
+	}
+
 }

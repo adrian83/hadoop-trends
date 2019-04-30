@@ -22,8 +22,8 @@ run-docker() {
 
 run-mongo() {
 	set -e
-		docker run -p 27021:27017 -v $PWD/trends-be/infra/mongodb:/infra/data/db -d mongo:latest
-		echo "MongoDB is listening on ports: 27021. Data is stored inside 'trends-be/infra/mongodb' directory"
+		docker run -p 27017:27017 -v $PWD/trends-be/infra/mongodb:/infra/data/db -d mongo:latest
+		echo "MongoDB is listening on ports: 27017. Data is stored inside 'trends-be/infra/mongodb' directory"
 	set +e
 }
 
@@ -37,7 +37,7 @@ start-be() {
 	set -e
 		cd trends-be
 		mvn clean install
-		java -jar target/twitter-trends-1.0.0.jar
+		java -jar target/trends-1.0.0.jar
 	set +e
 }
 
