@@ -31,3 +31,5 @@
 /trends-be/nbdist/
 /trends-be/.nb-gradle/
 /trends-be/target/
+
+application_ignore.properties
