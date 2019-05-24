@@ -22,119 +22,194 @@ public class TestStatus implements Status {
   private long id;
   private String text;
   private int favoriteCount;
-  private TestUser user;
-  private TestStatus retweetedStatus;
+  private User user;
+  private Status retweetedStatus;
 
+  public TestStatus(long id, String text, int favoriteCount, User user) {
+    super();
+    this.id = id;
+    this.text = text;
+    this.favoriteCount = favoriteCount;
+    this.user = user;
+  }
+  
+  public TestStatus withRetweetedStatus(Status status) {
+	  this.retweetedStatus = status;
+	  return this;
+  }
+
+  @Override
   public long getId() {
     return id;
   }
 
+  @Override
   public String getText() {
     return text;
   }
 
+  @Override
   public int getFavoriteCount() {
     return favoriteCount;
   }
 
+  @Override
   public User getUser() {
     return user;
   }
 
-  public TestStatus getRetweetedStatus() {
+  @Override
+  public Status getRetweetedStatus() {
     return retweetedStatus;
   }
 
-@Override public int compareTo(Status arg0){// TODO Auto-generated method stub
-return 0;}
+  @Override
+  public int compareTo(Status arg0) {
+    return 0;
+  }
 
-@Override public RateLimitStatus getRateLimitStatus(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public RateLimitStatus getRateLimitStatus() {
+    return null;
+  }
 
-@Override public int getAccessLevel(){// TODO Auto-generated method stub
-return 0;}
+  @Override
+  public int getAccessLevel() {
+    return 0;
+  }
 
-@Override public UserMentionEntity[] getUserMentionEntities(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public UserMentionEntity[] getUserMentionEntities() {
+    return null;
+  }
 
-@Override public URLEntity[] getURLEntities(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public URLEntity[] getURLEntities() {
+    return null;
+  }
 
-@Override public HashtagEntity[] getHashtagEntities(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public HashtagEntity[] getHashtagEntities() {
+    return null;
+  }
 
-@Override public MediaEntity[] getMediaEntities(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public MediaEntity[] getMediaEntities() {
+    return null;
+  }
 
-@Override public ExtendedMediaEntity[] getExtendedMediaEntities(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public ExtendedMediaEntity[] getExtendedMediaEntities() {
+    return null;
+  }
 
-@Override public SymbolEntity[] getSymbolEntities(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public SymbolEntity[] getSymbolEntities() {
+    return null;
+  }
 
-@Override public Date getCreatedAt(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public Date getCreatedAt() {
+    return null;
+  }
 
-@Override public String getSource(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public String getSource() {
+    return null;
+  }
 
-@Override public boolean isTruncated(){// TODO Auto-generated method stub
-return false;}
+  @Override
+  public boolean isTruncated() {
+    return false;
+  }
 
-@Override public long getInReplyToStatusId(){// TODO Auto-generated method stub
-return 0;}
+  @Override
+  public long getInReplyToStatusId() {
+    return 0;
+  }
 
-@Override public long getInReplyToUserId(){// TODO Auto-generated method stub
-return 0;}
+  @Override
+  public long getInReplyToUserId() {
+    return 0;
+  }
 
-@Override public String getInReplyToScreenName(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public String getInReplyToScreenName() {
+    return null;
+  }
 
-@Override public GeoLocation getGeoLocation(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public GeoLocation getGeoLocation() {
+    return null;
+  }
 
-@Override public Place getPlace(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public Place getPlace() {
+    return null;
+  }
 
-@Override public boolean isFavorited(){// TODO Auto-generated method stub
-return false;}
+  @Override
+  public boolean isFavorited() {
+    return false;
+  }
 
-@Override public boolean isRetweeted(){// TODO Auto-generated method stub
-return false;}
+  @Override
+  public boolean isRetweeted() {
+    return false;
+  }
 
-@Override public boolean isRetweet(){// TODO Auto-generated method stub
-return false;}
+  @Override
+  public boolean isRetweet() {
+    return false;
+  }
 
-@Override public long[] getContributors(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public long[] getContributors() {
+    return null;
+  }
 
-@Override public int getRetweetCount(){// TODO Auto-generated method stub
-return 0;}
+  @Override
+  public int getRetweetCount() {
+    return 0;
+  }
 
-@Override public boolean isRetweetedByMe(){// TODO Auto-generated method stub
-return false;}
+  @Override
+  public boolean isRetweetedByMe() {
+    return false;
+  }
 
-@Override public long getCurrentUserRetweetId(){// TODO Auto-generated method stub
-return 0;}
+  @Override
+  public long getCurrentUserRetweetId() {
+    return 0;
+  }
 
-@Override public boolean isPossiblySensitive(){// TODO Auto-generated method stub
-return false;}
+  @Override
+  public boolean isPossiblySensitive() {
+    return false;
+  }
 
-@Override public String getLang(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public String getLang() {
+    return null;
+  }
 
-@Override public Scopes getScopes(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public Scopes getScopes() {
+    return null;
+  }
 
-@Override public String[] getWithheldInCountries(){// TODO Auto-generated method stub
-return null;}
+  @Override
+  public String[] getWithheldInCountries() {
+    return null;
+  }
 
-@Override public long getQuotedStatusId(){// TODO Auto-generated method stub
-return 0;}
+  @Override
+  public long getQuotedStatusId() {
+    return 0;
+  }
 
-@Override public Status getQuotedStatus(){// TODO Auto-generated method stub
-return null;}
-  
-  
-  
+  @Override
+  public Status getQuotedStatus() {
+    return null;
+  }
 }

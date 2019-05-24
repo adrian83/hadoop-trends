@@ -1,10 +1,17 @@
 package com.github.adrian83.trends.domain.favorite.logic;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import org.bson.BsonString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.github.adrian83.trends.common.Repository;
@@ -12,8 +19,14 @@ import com.github.adrian83.trends.domain.favorite.logic.FavoriteService;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteMapper;
 import com.github.adrian83.trends.domain.status.StatusSource;
+import com.github.adrian83.trends.domain.status.TestStatus;
+import com.github.adrian83.trends.domain.status.TestUser;
+import com.mongodb.client.result.UpdateResult;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import twitter4j.Status;
+import twitter4j.User;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FavoriteServiceTest {
@@ -27,14 +40,19 @@ public class FavoriteServiceTest {
   @Test
   public void shouldStartPersistingFavorites() {
     // given
-    Mockito.when(statusSourceMock.twittsFlux()).thenReturn(Flux.empty());
-    Mockito.when(favoriteRepositoryMock.top(0)).thenReturn(Flux.empty());
+    Flux<Status> statuses = generate(1);
+    UpdateResult updateResult = UpdateResult.acknowledged(1l, 1l, new BsonString("abc-key"));
+
+    when(statusSourceMock.twittsFlux()).thenReturn(statuses);
+    when(favoriteRepositoryMock.save(any(FavoriteDoc.class))).thenReturn(Mono.just(updateResult));
+    when(favoriteRepositoryMock.top(0)).thenReturn(Flux.empty());
 
     // when
     favoriteService.postCreate();
 
     // then
-    Mockito.verify(statusSourceMock).twittsFlux();
+    verify(statusSourceMock).twittsFlux();
+    verify(favoriteRepositoryMock).save(any(FavoriteDoc.class));
   }
   /*
   @Test
@@ -193,4 +211,22 @@ public class FavoriteServiceTest {
   	verify(favoriteRepositoryMock, never()).save(any(Favorite.class));
   }
   */
+
+  private Status generateStatus(long id, String username, String text, int retwittedCount) {
+    User user = new TestUser(username + "_" + id);
+    return new TestStatus(id, text, retwittedCount, user);
+  }
+
+  private Status generateStatusWithRetwitt(
+      long id, String username, String text, int retwittedCount) {
+    Status retwitt = generateStatus(id + 100, "john", "Some test", retwittedCount + 100);
+    User user = new TestUser(username + "_" + id);
+    return new TestStatus(id, text, retwittedCount, user).withRetweetedStatus(retwitt);
+  }
+
+  private Flux<Status> generate(int length) {
+    Stream<Status> stream =
+        IntStream.range(0, length).mapToObj(i -> generateStatusWithRetwitt(i, "linda", "Text", i));
+    return Flux.fromStream(stream);
+  }
 }

@@ -33,3 +33,5 @@
 /trends-be/target/
 
 application_ignore.properties
+
+/trends
