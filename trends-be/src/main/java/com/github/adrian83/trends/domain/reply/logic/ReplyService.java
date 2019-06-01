@@ -22,8 +22,6 @@ import com.github.adrian83.trends.domain.reply.model.ReplyDoc;
 import com.github.adrian83.trends.domain.reply.model.ReplyMapper;
 import com.github.adrian83.trends.domain.reply.storage.ReplyRepository;
 import com.github.adrian83.trends.domain.status.StatusSource;
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
@@ -68,8 +66,9 @@ public class ReplyService implements Service<Reply> {
       fixedDelayString = "${reply.cleaning.fixedRateMs}",
       initialDelayString = "${reply.cleaning.initialDelayMs}")
   public void removeUnused() {
-    Mono<DeleteResult> result = replyRepository.deleteOlderThan(olderThanSec, TimeUnit.SECONDS);
-    result.subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
+    replyRepository
+        .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
+        .subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
   }
 
   private void persistReplies() {
@@ -88,10 +87,7 @@ public class ReplyService implements Service<Reply> {
     }
     ReplyDoc doc =
         new ReplyDoc(
-            status.getInReplyToStatusId(),
-            status.getInReplyToScreenName(),
-            1l,
-            Time.utcNow());
+            status.getInReplyToStatusId(), status.getInReplyToScreenName(), 1l, Time.utcNow());
     return Mono.just(doc);
   }
 
@@ -105,15 +101,14 @@ public class ReplyService implements Service<Reply> {
     replies.connect();
   }
 
-  private static final Consumer<Mono<UpdateResult>> PERSIST_SUCCESS_CONSUMER =
-      (Mono<UpdateResult> updateResult) ->
-          updateResult.subscribe(ur -> LOGGER.info("Reply updated: {}", ur));
+  private static final Consumer<Mono<String>> PERSIST_SUCCESS_CONSUMER =
+      (Mono<String> idMono) -> idMono.subscribe(id -> LOGGER.info("Reply {} persisted", id));
 
   private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during processing replies {}", fault);
 
-  private static final Consumer<DeleteResult> REMOVE_SUCCESS_CONSUMER =
-      (DeleteResult deleteResult) -> LOGGER.warn("Replies removed: {}", deleteResult);
+  private static final Consumer<Long> REMOVE_SUCCESS_CONSUMER =
+      (Long count) -> LOGGER.warn("Removed {} Replies", count);
 
   private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during removing replies {}", fault);

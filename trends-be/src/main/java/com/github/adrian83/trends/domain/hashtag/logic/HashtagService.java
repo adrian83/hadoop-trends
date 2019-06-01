@@ -23,8 +23,6 @@ import com.github.adrian83.trends.domain.hashtag.model.Hashtag;
 import com.github.adrian83.trends.domain.hashtag.model.HashtagDoc;
 import com.github.adrian83.trends.domain.hashtag.model.HashtagMapper;
 import com.github.adrian83.trends.domain.status.StatusSource;
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
@@ -48,7 +46,7 @@ public class HashtagService implements Service<Hashtag> {
 
   @Value("${hashtag.read.count}")
   private int readCount;
-  
+
   @Value("${hashtag.cleaning.olderThanSec}")
   private int olderThanSec;
 
@@ -72,8 +70,9 @@ public class HashtagService implements Service<Hashtag> {
       fixedDelayString = "${hashtag.cleaning.fixedRateMs}",
       initialDelayString = "${hashtag.cleaning.initialDelayMs}")
   public void removeUnused() {
-    Mono<DeleteResult> result = hashtagRepository.deleteOlderThan(olderThanSec, TimeUnit.SECONDS);
-    result.subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
+    hashtagRepository
+        .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
+        .subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
   }
 
   private void readHashtags() {
@@ -111,15 +110,14 @@ public class HashtagService implements Service<Hashtag> {
     return docs.stream().map(hashtagMapper::docToDto).collect(Collectors.toList());
   }
 
-  private static final Consumer<Mono<UpdateResult>> PERSIST_SUCCESS_CONSUMER =
-      (Mono<UpdateResult> updateResult) ->
-          updateResult.subscribe(ur -> LOGGER.info("Hashtag updated: {}", ur));
+  private static final Consumer<Mono<String>> PERSIST_SUCCESS_CONSUMER =
+      (Mono<String> idMono) -> idMono.subscribe(id -> LOGGER.info("Hashtag {} persisted", id));
 
   private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during processing hashtags {}", fault);
 
-  private static final Consumer<DeleteResult> REMOVE_SUCCESS_CONSUMER =
-      (DeleteResult deleteResult) -> LOGGER.warn("Hashtags removed: {}", deleteResult);
+  private static final Consumer<Long> REMOVE_SUCCESS_CONSUMER =
+      (Long count) -> LOGGER.warn("Removed {} Hashtags", count);
 
   private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during removeing hashtags {}", fault);

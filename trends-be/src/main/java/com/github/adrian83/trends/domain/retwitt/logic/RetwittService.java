@@ -22,9 +22,6 @@ import com.github.adrian83.trends.domain.retwitt.model.RetwittDoc;
 import com.github.adrian83.trends.domain.retwitt.model.RetwittMapper;
 import com.github.adrian83.trends.domain.retwitt.storage.RetwittRepository;
 import com.github.adrian83.trends.domain.status.StatusSource;
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
-
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,7 +41,7 @@ public class RetwittService implements Service<Retwitt> {
 
   @Value("${retwitt.read.count}")
   private int readCount;
-  
+
   @Value("${retwitt.cleaning.olderThanSec}")
   private int olderThanSec;
 
@@ -107,15 +104,14 @@ public class RetwittService implements Service<Retwitt> {
     retwitted.connect();
   }
 
-  private static final Consumer<Mono<UpdateResult>> PERSIST_SUCCESS_CONSUMER =
-      (Mono<UpdateResult> updateResult) ->
-          updateResult.subscribe(ur -> LOGGER.info("Retwitt updated: {}", ur));
+  private static final Consumer<Mono<String>> PERSIST_SUCCESS_CONSUMER =
+      (Mono<String> idMono) -> idMono.subscribe(id -> LOGGER.info("Retwitt {} persisted", id));
 
   private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during processing retwitts {}", fault);
 
-  private static final Consumer<DeleteResult> REMOVE_SUCCESS_CONSUMER =
-      (DeleteResult deleteResult) -> LOGGER.warn("Retwitts removed: {}", deleteResult);
+  private static final Consumer<Long> REMOVE_SUCCESS_CONSUMER =
+      (Long count) -> LOGGER.warn("Removed {} Retwitts", count);
 
   private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during removing retwitts {}", fault);

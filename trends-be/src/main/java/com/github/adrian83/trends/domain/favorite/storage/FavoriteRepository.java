@@ -17,7 +17,6 @@ import com.github.adrian83.trends.common.Repository;
 import com.github.adrian83.trends.common.Time;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
 import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -30,17 +29,19 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
   @Autowired private ReactiveMongoTemplate reactiveMongoTemplate;
 
   @Override
-  public Mono<UpdateResult> save(FavoriteDoc favoriteDoc) {
+  public Mono<String> save(FavoriteDoc favoriteDoc) {
     LOGGER.info("Saving favorite {}", favoriteDoc);
-    return reactiveMongoTemplate.upsert(
-        saveQuery(favoriteDoc), saveUpdate(favoriteDoc), FavoriteDoc.COLLECTION);
+    return reactiveMongoTemplate
+        .upsert(saveQuery(favoriteDoc), saveUpdate(favoriteDoc), FavoriteDoc.COLLECTION)
+        .map((ur) -> ur.getUpsertedId().asString().getValue());
   }
 
   @Override
-  public Mono<DeleteResult> deleteOlderThan(long amount, TimeUnit unit) {
+  public Mono<Long> deleteOlderThan(long amount, TimeUnit unit) {
     LOGGER.info("Removing favorites older than {} {}", amount, unit);
-    return reactiveMongoTemplate.remove(
-        removeQuery(Time.utcNowMinus(amount, unit)), FavoriteDoc.COLLECTION);
+    return reactiveMongoTemplate
+        .remove(removeQuery(Time.utcNowMinus(amount, unit)), FavoriteDoc.COLLECTION)
+        .map(DeleteResult::getDeletedCount);
   }
 
   @Override

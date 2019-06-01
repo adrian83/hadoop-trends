@@ -39,39 +39,39 @@ public class FavoriteRepositoryTest {
   public void shouldSaveFavorite() {
 
     // given
-    FavoriteDoc document = new FavoriteDoc(143241l, "john", 32l, 242414141l);
-    UpdateResult updateResult = UpdateResult.acknowledged(1l, 1l, new BsonString("abc-key"));
+    Long id = 143241l;
+    FavoriteDoc document = new FavoriteDoc(id, "john", 32l, 242414141l);
+    UpdateResult updateResult = UpdateResult.acknowledged(1l, 1l, new BsonString(id.toString()));
 
     when(reactiveMongoTemplateMock.upsert(any(Query.class), any(Update.class), anyString()))
         .thenReturn(Mono.just(updateResult));
 
     // when
-    Mono<UpdateResult> monoResult = favoriteRepository.save(document);
+    Mono<String> monoResult = favoriteRepository.save(document);
 
     // then
-    UpdateResult result = monoResult.block();
+    String docId = monoResult.block();
 
-    assertThat(updateResult.getUpsertedId(), equalTo(result.getUpsertedId()));
-    assertThat(updateResult.getMatchedCount(), equalTo(result.getMatchedCount()));
-    assertThat(updateResult.getModifiedCount(), equalTo(result.getModifiedCount()));
+    assertThat(id.toString(), equalTo(docId));
   }
 
   @Test
   public void shouldDeleteFavorites() {
 
     // given
-    DeleteResult deleteResult = DeleteResult.acknowledged(44l);
+    Long deletedCount = 22l;
+    DeleteResult deleteResult = DeleteResult.acknowledged(deletedCount);
 
     when(reactiveMongoTemplateMock.remove(any(Query.class), anyString()))
         .thenReturn(Mono.just(deleteResult));
 
     // when
-    Mono<DeleteResult> monoResult = favoriteRepository.deleteOlderThan(4, TimeUnit.HOURS);
+    Mono<Long> monoResult = favoriteRepository.deleteOlderThan(4, TimeUnit.HOURS);
 
     // then
-    DeleteResult result = monoResult.block();
+    Long result = monoResult.block();
 
-    assertThat(deleteResult.getDeletedCount(), equalTo(result.getDeletedCount()));
+    assertThat(deletedCount, equalTo(result));
   }
 
   @Test

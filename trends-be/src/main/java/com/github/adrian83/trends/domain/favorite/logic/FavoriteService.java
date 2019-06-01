@@ -21,8 +21,6 @@ import com.github.adrian83.trends.domain.favorite.model.Favorite;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteMapper;
 import com.github.adrian83.trends.domain.status.StatusSource;
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
@@ -111,15 +109,14 @@ public class FavoriteService implements Service<Favorite> {
     return Mono.just(favorite);
   }
 
-  private static final Consumer<Mono<UpdateResult>> PERSIST_SUCCESS_CONSUMER =
-      (Mono<UpdateResult> updateResult) ->
-          updateResult.subscribe(ur -> LOGGER.info("Favorite updated: {}", ur));
+  private static final Consumer<Mono<String>> PERSIST_SUCCESS_CONSUMER =
+      (Mono<String> idMono) -> idMono.subscribe(id -> LOGGER.info("Favorite {} persisted", id));
 
   private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during processing favorites {}", fault);
 
-  private static final Consumer<DeleteResult> REMOVE_SUCCESS_CONSUMER =
-      (DeleteResult deleteResult) -> LOGGER.warn("Favorites removed: {}", deleteResult);
+  private static final Consumer<Long> REMOVE_SUCCESS_CONSUMER =
+      (Long count) -> LOGGER.warn("Removed {} Favorites", count);
 
   private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
       (Throwable fault) -> LOGGER.error("Exception during removeing favorites {}", fault);

@@ -1,13 +1,13 @@
 package com.github.adrian83.trends.domain.favorite.logic;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.bson.BsonString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -21,7 +21,6 @@ import com.github.adrian83.trends.domain.favorite.model.FavoriteMapper;
 import com.github.adrian83.trends.domain.status.StatusSource;
 import com.github.adrian83.trends.domain.status.TestStatus;
 import com.github.adrian83.trends.domain.status.TestUser;
-import com.mongodb.client.result.UpdateResult;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -41,11 +40,11 @@ public class FavoriteServiceTest {
   public void shouldStartPersistingFavorites() {
     // given
     Flux<Status> statuses = generate(1);
-    UpdateResult updateResult = UpdateResult.acknowledged(1l, 1l, new BsonString("abc-key"));
+    String id = "abc-def";
 
     when(statusSourceMock.twittsFlux()).thenReturn(statuses);
-    when(favoriteRepositoryMock.save(any(FavoriteDoc.class))).thenReturn(Mono.just(updateResult));
-    when(favoriteRepositoryMock.top(0)).thenReturn(Flux.empty());
+    when(favoriteRepositoryMock.save(any(FavoriteDoc.class))).thenReturn(Mono.just(id));
+    when(favoriteRepositoryMock.top(anyInt())).thenReturn(Flux.empty());
 
     // when
     favoriteService.postCreate();

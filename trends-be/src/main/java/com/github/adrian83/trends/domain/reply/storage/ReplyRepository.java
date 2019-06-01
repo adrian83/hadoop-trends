@@ -17,7 +17,6 @@ import com.github.adrian83.trends.common.Repository;
 import com.github.adrian83.trends.common.Time;
 import com.github.adrian83.trends.domain.reply.model.ReplyDoc;
 import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -30,17 +29,19 @@ public class ReplyRepository implements Repository<ReplyDoc> {
   @Autowired private ReactiveMongoTemplate reactiveMongoTemplate;
 
   @Override
-  public Mono<UpdateResult> save(ReplyDoc replyDoc) {
+  public Mono<String> save(ReplyDoc replyDoc) {
     LOGGER.info("Saving reply {}", replyDoc);
-    return reactiveMongoTemplate.upsert(
-        saveQuery(replyDoc), saveUpdate(replyDoc), ReplyDoc.COLLECTION);
+    return reactiveMongoTemplate
+        .upsert(saveQuery(replyDoc), saveUpdate(replyDoc), ReplyDoc.COLLECTION)
+        .map((ur) -> ur.getUpsertedId().asString().getValue());
   }
 
   @Override
-  public Mono<DeleteResult> deleteOlderThan(long amount, TimeUnit unit) {
+  public Mono<Long> deleteOlderThan(long amount, TimeUnit unit) {
     LOGGER.info("Removing replies older than {} {}", amount, unit);
-    return reactiveMongoTemplate.remove(
-        removeQuery(Time.utcNowMinus(amount, unit)), ReplyDoc.COLLECTION);
+    return reactiveMongoTemplate
+        .remove(removeQuery(Time.utcNowMinus(amount, unit)), ReplyDoc.COLLECTION)
+        .map(DeleteResult::getDeletedCount);
   }
 
   @Override
