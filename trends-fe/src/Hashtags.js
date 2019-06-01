@@ -46,7 +46,7 @@ class Hashtags extends Component {
   }
 
   rowParser(i, elem) {
-      var twittUrl = "https://twitter.com/hashtag/" + elem.name;
+      var twittUrl = "https://twitter.com/hashtag/" + elem.name.substring(1);
       return (<tr key={elem.name}>
           <th scope="row">{i}</th>
           <th><a target="_blank" rel="noopener noreferrer" href={twittUrl}>{elem.name}</a></th>
