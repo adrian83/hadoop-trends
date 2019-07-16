@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
+import com.mongodb.MongoClientOptions;
+import com.mongodb.ServerAddress;
+import com.mongodb.async.client.MongoClientSettings;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 
@@ -30,7 +33,7 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
   @Bean
   @Override
   public MongoClient reactiveMongoClient() {
-    final String connectionStr = String.format(MONGO_URL_PATTERN, host, port);
+    final String connectionStr = String.format(MONGO_URL_PATTERN, host, port);   
     return MongoClients.create(connectionStr);
   }
 

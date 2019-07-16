@@ -7,27 +7,27 @@
 		</layout>
 	</appender>
 
-	<logger name="org.springframework" level="WARN" additivity="false">
+	<logger name="org.springframework" level="INFO" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 	
-	<logger name="com.github.adrian83.trends.domain.hashtag" level="WARN" additivity="false">
+	<logger name="com.github.adrian83.trends.domain.hashtag" level="INFO" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 	
-	<logger name="com.github.adrian83.trends.domain.reply" level="WARN" additivity="false">
+	<logger name="com.github.adrian83.trends.domain.reply" level="INFO" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 
-	<logger name="com.github.adrian83.trends.domain.retwitt" level="WARN" additivity="false">
+	<logger name="com.github.adrian83.trends.domain.retwitt" level="INFO" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 
-	<logger name="com.github.adrian83.trends.domain.favorite" level="WARN" additivity="false">
+	<logger name="com.github.adrian83.trends.domain.favorite" level="INFO" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 
-	<root level="WARN">
+	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 	</root>
 
