@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.common;
+package com.github.adrian83.trends.domain.common;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;

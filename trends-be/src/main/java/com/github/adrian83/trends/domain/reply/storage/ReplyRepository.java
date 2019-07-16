@@ -13,8 +13,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import com.github.adrian83.trends.common.Repository;
 import com.github.adrian83.trends.common.Time;
+import com.github.adrian83.trends.domain.common.Repository;
 import com.github.adrian83.trends.domain.reply.model.ReplyDoc;
 import com.mongodb.client.result.DeleteResult;
 
