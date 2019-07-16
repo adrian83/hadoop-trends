@@ -1,10 +1,13 @@
 package com.github.adrian83.trends.domain.retwitt.logic;
 
+import static com.github.adrian83.trends.common.Time.utcNow;
+import static java.util.stream.Collectors.toList;
+import static reactor.core.publisher.Mono.empty;
+import static reactor.core.publisher.Mono.just;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -15,8 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.github.adrian83.trends.common.Service;
-import com.github.adrian83.trends.common.Time;
+import com.github.adrian83.trends.domain.common.Service;
 import com.github.adrian83.trends.domain.retwitt.model.Retwitt;
 import com.github.adrian83.trends.domain.retwitt.model.RetwittDoc;
 import com.github.adrian83.trends.domain.retwitt.model.RetwittMapper;
@@ -67,7 +69,9 @@ public class RetwittService implements Service<Retwitt> {
   public void removeUnused() {
     retwittRepository
         .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
-        .subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
+        .subscribe(
+            createRemoveSuccessConsumer(Retwitt.class, LOGGER),
+            createRemoveErrorConsumer(Retwitt.class, LOGGER));
   }
 
   private void persistRetwitts() {
@@ -76,22 +80,24 @@ public class RetwittService implements Service<Retwitt> {
         .twittsFlux()
         .flatMap(this::toRetwittDoc)
         .map(retwittRepository::save)
-        .subscribe(PERSIST_SUCCESS_CONSUMER, PERSIST_ERROR_CONSUMER);
+        .subscribe(
+            createPersistSuccessConsumer(Retwitt.class, LOGGER),
+            createPersistErrorConsumer(Retwitt.class, LOGGER));
   }
 
   private Mono<RetwittDoc> toRetwittDoc(Status status) {
-    Status retwittStatus = status.getRetweetedStatus();
+    var retwittStatus = status.getRetweetedStatus();
     if (retwittStatus == null || retwittStatus.getUser() == null) {
-      return Mono.empty();
+      return empty();
     }
 
-    RetwittDoc doc =
+    var doc =
         new RetwittDoc(
             retwittStatus.getId(),
             retwittStatus.getUser().getScreenName(),
             retwittStatus.getRetweetCount(),
-            Time.utcNow());
-    return Mono.just(doc);
+            utcNow());
+    return just(doc);
   }
 
   private void readRetwitts() {
@@ -99,20 +105,8 @@ public class RetwittService implements Service<Retwitt> {
     retwitted =
         Flux.interval(Duration.ofSeconds(readIntervalSec))
             .flatMap(i -> retwittRepository.top(readCount))
-            .map(list -> list.stream().map(retwittMapper::docToDto).collect(Collectors.toList()))
+            .map(list -> list.stream().map(retwittMapper::docToDto).collect(toList()))
             .publish();
     retwitted.connect();
   }
-
-  private static final Consumer<Mono<String>> PERSIST_SUCCESS_CONSUMER =
-      (Mono<String> idMono) -> idMono.subscribe(id -> LOGGER.info("Retwitt {} persisted", id));
-
-  private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
-      (Throwable fault) -> LOGGER.error("Exception during processing retwitts {}", fault);
-
-  private static final Consumer<Long> REMOVE_SUCCESS_CONSUMER =
-      (Long count) -> LOGGER.warn("Removed {} Retwitts", count);
-
-  private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
-      (Throwable fault) -> LOGGER.error("Exception during removing retwitts {}", fault);
 }

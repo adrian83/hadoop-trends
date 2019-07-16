@@ -1,10 +1,13 @@
 package com.github.adrian83.trends.domain.favorite.logic;
 
+import static com.github.adrian83.trends.common.Time.utcNow;
+import static java.util.stream.Collectors.toList;
+import static reactor.core.publisher.Mono.empty;
+import static reactor.core.publisher.Mono.just;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -14,9 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import com.github.adrian83.trends.common.Repository;
-import com.github.adrian83.trends.common.Service;
-import com.github.adrian83.trends.common.Time;
+import com.github.adrian83.trends.domain.common.Repository;
+import com.github.adrian83.trends.domain.common.Service;
 import com.github.adrian83.trends.domain.favorite.model.Favorite;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteMapper;
@@ -67,7 +69,9 @@ public class FavoriteService implements Service<Favorite> {
   public void removeUnused() {
     favoriteRepository
         .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
-        .subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
+        .subscribe(
+            createRemoveSuccessConsumer(Favorite.class, LOGGER),
+            createRemoveErrorConsumer(Favorite.class, LOGGER));
   }
 
   private void readFavorites() {
@@ -75,7 +79,7 @@ public class FavoriteService implements Service<Favorite> {
     favorited =
         Flux.interval(Duration.ofSeconds(readIntervalSec))
             .flatMap(i -> favoriteRepository.top(readCount))
-            .map(list -> list.stream().map(favoriteMapper::docToDto).collect(Collectors.toList()))
+            .map(list -> list.stream().map(favoriteMapper::docToDto).collect(toList()))
             .publish();
     favorited.connect();
   }
@@ -86,38 +90,28 @@ public class FavoriteService implements Service<Favorite> {
         .twittsFlux()
         .flatMap(this::toFavorite)
         .map(favoriteRepository::save)
-        .subscribe(PERSIST_SUCCESS_CONSUMER, PERSIST_ERROR_CONSUMER);
+        .subscribe(
+            createPersistSuccessConsumer(Favorite.class, LOGGER),
+            createPersistErrorConsumer(Favorite.class, LOGGER));
   }
 
   private Mono<FavoriteDoc> toFavorite(Status status) {
-    Status retweetedStatus = status.getRetweetedStatus();
+    var retweetedStatus = status.getRetweetedStatus();
     if (retweetedStatus == null
         || retweetedStatus.getFavoriteCount() < 0
         || retweetedStatus.getId() < 0
         || retweetedStatus.getUser() == null
         || retweetedStatus.getUser().getScreenName() == null) {
-      return Mono.empty();
+      return empty();
     }
 
-    FavoriteDoc favorite =
+    var favorite =
         new FavoriteDoc(
             retweetedStatus.getId(),
             retweetedStatus.getUser().getScreenName(),
             Long.valueOf(retweetedStatus.getFavoriteCount()),
-            Time.utcNow());
+            utcNow());
 
-    return Mono.just(favorite);
+    return just(favorite);
   }
-
-  private static final Consumer<Mono<String>> PERSIST_SUCCESS_CONSUMER =
-      (Mono<String> idMono) -> idMono.subscribe(id -> LOGGER.info("Favorite {} persisted", id));
-
-  private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
-      (Throwable fault) -> LOGGER.error("Exception during processing favorites {}", fault);
-
-  private static final Consumer<Long> REMOVE_SUCCESS_CONSUMER =
-      (Long count) -> LOGGER.warn("Removed {} Favorites", count);
-
-  private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
-      (Throwable fault) -> LOGGER.error("Exception during removeing favorites {}", fault);
 }

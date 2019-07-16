@@ -1,9 +1,12 @@
 package com.github.adrian83.trends.domain.reply.logic;
 
+import static com.github.adrian83.trends.common.Time.utcNow;
+import static reactor.core.publisher.Mono.empty;
+import static reactor.core.publisher.Mono.just;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -15,8 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.github.adrian83.trends.common.Service;
-import com.github.adrian83.trends.common.Time;
+import com.github.adrian83.trends.domain.common.Service;
 import com.github.adrian83.trends.domain.reply.model.Reply;
 import com.github.adrian83.trends.domain.reply.model.ReplyDoc;
 import com.github.adrian83.trends.domain.reply.model.ReplyMapper;
@@ -68,7 +70,9 @@ public class ReplyService implements Service<Reply> {
   public void removeUnused() {
     replyRepository
         .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
-        .subscribe(REMOVE_SUCCESS_CONSUMER, REMOVE_ERROR_CONSUMER);
+        .subscribe(
+            createRemoveSuccessConsumer(Reply.class, LOGGER),
+            createRemoveErrorConsumer(Reply.class, LOGGER));
   }
 
   private void persistReplies() {
@@ -77,18 +81,19 @@ public class ReplyService implements Service<Reply> {
         .twittsFlux()
         .flatMap(this::toReply)
         .map(replyRepository::save)
-        .subscribe(PERSIST_SUCCESS_CONSUMER, PERSIST_ERROR_CONSUMER);
+        .subscribe(
+            createPersistSuccessConsumer(Reply.class, LOGGER),
+            createPersistErrorConsumer(Reply.class, LOGGER));
   }
 
   private Mono<ReplyDoc> toReply(Status status) {
-
     if (status.getInReplyToStatusId() < 0 || status.getInReplyToScreenName() == null) {
-      return Mono.empty();
+      return empty();
     }
-    ReplyDoc doc =
-        new ReplyDoc(
-            status.getInReplyToStatusId(), status.getInReplyToScreenName(), 1l, Time.utcNow());
-    return Mono.just(doc);
+    
+    var doc =
+        new ReplyDoc(status.getInReplyToStatusId(), status.getInReplyToScreenName(), 1l, utcNow());
+    return just(doc);
   }
 
   private void readReplies() {
@@ -100,16 +105,4 @@ public class ReplyService implements Service<Reply> {
             .publish();
     replies.connect();
   }
-
-  private static final Consumer<Mono<String>> PERSIST_SUCCESS_CONSUMER =
-      (Mono<String> idMono) -> idMono.subscribe(id -> LOGGER.info("Reply {} persisted", id));
-
-  private static final Consumer<Throwable> PERSIST_ERROR_CONSUMER =
-      (Throwable fault) -> LOGGER.error("Exception during processing replies {}", fault);
-
-  private static final Consumer<Long> REMOVE_SUCCESS_CONSUMER =
-      (Long count) -> LOGGER.warn("Removed {} Replies", count);
-
-  private static final Consumer<Throwable> REMOVE_ERROR_CONSUMER =
-      (Throwable fault) -> LOGGER.error("Exception during removing replies {}", fault);
 }

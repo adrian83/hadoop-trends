@@ -7,7 +7,7 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.adrian83.trends.common.Service;
+import com.github.adrian83.trends.domain.common.Service;
 import com.github.adrian83.trends.domain.hashtag.model.Hashtag;
 import com.github.adrian83.trends.web.BaseController;
 
