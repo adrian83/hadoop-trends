@@ -22,7 +22,7 @@ run-docker() {
 
 run-mongo() {
 	set -e
-		docker run -p 27017:27017 -v $PWD/trends-be/infra/mongodb:/infra/data/db -d mongo:latest
+		docker run -p 27017:27017 -v $PWD/trends-be/infra/mongodb:/infra/data/db -d mongo:4.2.0
 		echo "MongoDB is listening on ports: 27017. Data is stored inside 'trends-be/infra/mongodb' directory"
 	set +e
 }
