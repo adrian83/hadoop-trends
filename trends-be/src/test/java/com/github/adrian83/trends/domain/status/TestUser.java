@@ -292,4 +292,29 @@ public class TestUser implements User {
   public String getScreenName() {
     return screenName;
   }
+
+@Override
+public String get400x400ProfileImageURL() {
+	return null;
+}
+
+@Override
+public String get400x400ProfileImageURLHttps() {
+	return null;
+}
+
+@Override
+public String getProfileBanner300x100URL() {
+	return null;
+}
+
+@Override
+public String getProfileBanner600x200URL() {
+	return null;
+}
+
+@Override
+public String getProfileBanner1500x500URL() {
+	return null;
+}
 }

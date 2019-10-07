@@ -2,7 +2,6 @@ package com.github.adrian83.trends.domain.status;
 
 import java.util.Date;
 
-import twitter4j.ExtendedMediaEntity;
 import twitter4j.GeoLocation;
 import twitter4j.HashtagEntity;
 import twitter4j.MediaEntity;
@@ -95,11 +94,6 @@ public class TestStatus implements Status {
 
   @Override
   public MediaEntity[] getMediaEntities() {
-    return null;
-  }
-
-  @Override
-  public ExtendedMediaEntity[] getExtendedMediaEntities() {
     return null;
   }
 
@@ -212,4 +206,19 @@ public class TestStatus implements Status {
   public Status getQuotedStatus() {
     return null;
   }
+
+@Override
+public int getDisplayTextRangeStart() {
+	return 0;
+}
+
+@Override
+public int getDisplayTextRangeEnd() {
+	return 0;
+}
+
+@Override
+public URLEntity getQuotedStatusPermalink() {
+	return null;
+}
 }

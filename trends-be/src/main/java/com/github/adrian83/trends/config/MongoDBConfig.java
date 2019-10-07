@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoCo
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 import com.mongodb.reactivestreams.client.MongoClient;
@@ -39,16 +40,17 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
     return databaseName;
   }
 
-  //  @Bean
-  //  public MongoClient mongoClient() {
-  //    final String connectionStr = String.format(MONGO_URL_PATTERN, host, port);
-  //    return MongoClients.create(connectionStr);
-  //  }
-  //
-  //  @Bean
-  //  public ReactiveMongoTemplate mongoTemplate() {
-  //    return new ReactiveMongoTemplate(mongoClient(), getDatabaseName());
-  //  }
+//    @Bean
+//    public MongoClient mongoClient() {
+//      final String connectionStr = String.format(MONGO_URL_PATTERN, host, port);
+//      return MongoClients.create(connectionStr);
+//    }
+  
+    @Bean
+    public ReactiveMongoTemplate mongoTemplate(MongoClient client) {
+      return new ReactiveMongoTemplate(client, getDatabaseName());
+    }
+    
   //
   //  @Bean
   //  public LoggingEventListener mongoEventListener() {
