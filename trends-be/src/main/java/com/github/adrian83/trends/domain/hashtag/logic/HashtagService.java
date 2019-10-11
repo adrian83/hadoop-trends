@@ -50,18 +50,22 @@ public class HashtagService implements Service<Hashtag> {
   @Value("${hashtag.cleaning.olderThanSec}")
   private int olderThanSec;
 
-  private ConnectableFlux<List<Hashtag>> hashtags;
 
   @PostConstruct
   public void postCreate() {
     LOGGER.info("Created");
     persistHashtags();
-    readHashtags();
-    LOGGER.info("Reading and persisting hashtags initiated");
+    LOGGER.info("Persisting hashtags initiated");
   }
 
   @Override
   public Flux<List<Hashtag>> top() {
+	    LOGGER.info("Reading most popular hashtags");
+	    ConnectableFlux<List<Hashtag>> hashtags =
+	        Flux.interval(Duration.ofSeconds(readIntervalSec))
+	            .flatMap(i -> hashtagRepository.top(readCount).map(this::toDtos))
+	            .publish();
+	    hashtags.connect();
     return hashtags;
   }
 
@@ -75,15 +79,6 @@ public class HashtagService implements Service<Hashtag> {
         .subscribe(
             createRemoveSuccessConsumer(Hashtag.class, LOGGER),
             createRemoveErrorConsumer(Hashtag.class, LOGGER));
-  }
-
-  private void readHashtags() {
-    LOGGER.info("Reading most popular hashtags");
-    hashtags =
-        Flux.interval(Duration.ofSeconds(readIntervalSec))
-            .flatMap(i -> hashtagRepository.top(readCount).map(this::toDtos))
-            .publish();
-    hashtags.connect();
   }
 
   private void persistHashtags() {

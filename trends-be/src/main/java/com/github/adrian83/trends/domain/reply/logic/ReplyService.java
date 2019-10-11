@@ -48,19 +48,23 @@ public class ReplyService implements Service<Reply> {
   @Value("${reply.cleaning.olderThanSec}")
   private int olderThanSec;
 
-  private ConnectableFlux<List<Reply>> replies;
-
   @PostConstruct
   public void postCreate() {
     LOGGER.info("Created");
     persistReplies();
-    readReplies();
-    LOGGER.info("Reading and persisting replies initiated");
+    LOGGER.info("Persisting replies initiated");
   }
 
   @Override
   public Flux<List<Reply>> top() {
-    return replies;
+	    LOGGER.info("Reading most replied twitts");
+	    ConnectableFlux<List<Reply>> replies =
+	        Flux.interval(Duration.ofSeconds(readIntervalSec))
+	            .flatMap(i -> replyRepository.top(readCount))
+	            .map(list -> list.stream().map(replyMapper::docToDto).collect(Collectors.toList()))
+	            .publish();
+	    replies.connect();
+	    return replies;
   }
 
   @Override
@@ -94,15 +98,5 @@ public class ReplyService implements Service<Reply> {
     var doc =
         new ReplyDoc(status.getInReplyToStatusId(), status.getInReplyToScreenName(), 1l, utcNow());
     return just(doc);
-  }
-
-  private void readReplies() {
-    LOGGER.info("Reading most replied twitts");
-    replies =
-        Flux.interval(Duration.ofSeconds(readIntervalSec))
-            .flatMap(i -> replyRepository.top(readCount))
-            .map(list -> list.stream().map(replyMapper::docToDto).collect(Collectors.toList()))
-            .publish();
-    replies.connect();
   }
 }

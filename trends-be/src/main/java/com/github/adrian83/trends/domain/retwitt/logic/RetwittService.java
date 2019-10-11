@@ -47,19 +47,23 @@ public class RetwittService implements Service<Retwitt> {
   @Value("${retwitt.cleaning.olderThanSec}")
   private int olderThanSec;
 
-  private ConnectableFlux<List<Retwitt>> retwitted;
-
   @PostConstruct
   public void postCreate() {
     LOGGER.info("Created");
     persistRetwitts();
-    readRetwitts();
-    LOGGER.info("Reading and persisting retwitts initiated");
+    LOGGER.info("Persisting retwitts initiated");
   }
 
   @Override
   public Flux<List<Retwitt>> top() {
-    return retwitted;
+	    LOGGER.info("Reading most retwitted twitts");
+	    ConnectableFlux<List<Retwitt>> retwitted =
+	        Flux.interval(Duration.ofSeconds(readIntervalSec))
+	            .flatMap(i -> retwittRepository.top(readCount))
+	            .map(list -> list.stream().map(retwittMapper::docToDto).collect(toList()))
+	            .publish();
+	    retwitted.connect();
+	    return retwitted;
   }
 
   @Override
@@ -100,13 +104,4 @@ public class RetwittService implements Service<Retwitt> {
     return just(doc);
   }
 
-  private void readRetwitts() {
-    LOGGER.info("Reading most retwitted twitts");
-    retwitted =
-        Flux.interval(Duration.ofSeconds(readIntervalSec))
-            .flatMap(i -> retwittRepository.top(readCount))
-            .map(list -> list.stream().map(retwittMapper::docToDto).collect(toList()))
-            .publish();
-    retwitted.connect();
-  }
 }

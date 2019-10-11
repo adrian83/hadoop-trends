@@ -43,15 +43,15 @@ public class FavoriteServiceTest {
     String id = "abc-def";
 
     when(statusSourceMock.twittsFlux()).thenReturn(statuses);
-    when(favoriteRepositoryMock.save(any(FavoriteDoc.class))).thenReturn(Mono.just(id));
-    when(favoriteRepositoryMock.top(anyInt())).thenReturn(Flux.empty());
+    //when(favoriteRepositoryMock.save(any(FavoriteDoc.class))).thenReturn(Mono.just(id));
+    //when(favoriteRepositoryMock.top(anyInt())).thenReturn(Flux.empty());
 
     // when
     favoriteService.postCreate();
 
     // then
     verify(statusSourceMock).twittsFlux();
-    verify(favoriteRepositoryMock).save(any(FavoriteDoc.class));
+    //verify(favoriteRepositoryMock).save(any(FavoriteDoc.class));
   }
   /*
   @Test
