@@ -7,6 +7,6 @@ WORKDIR /trends-be
 
 RUN mvn clean install -DskipTests
 
-CMD ["java", "-jar", "./target/trends-1.0.0.jar", "-Dspring.config.location=classpath:compose.properties"]
+EXPOSE 8080
 
-
+CMD ["bash", "start.sh"]

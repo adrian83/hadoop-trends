@@ -4,11 +4,11 @@ ADD . /trends-fe
 WORKDIR /trends-fe
 RUN rm -rf node_modules
 
-RUN echo "REACT_APP_BE_HOST=http://backend:8080" > .env
-RUN cat .env
-
 RUN npm --version
 RUN ls -al
 RUN pwd
+
+RUN npm install react-scripts@latest
+
 CMD ["npm", "start"]
 

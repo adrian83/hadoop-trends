@@ -2,25 +2,19 @@ version: '3.7'
 services:
   mongo:
     image: mongo
-    container_name: trends-mongo
     ports:
     - "27017:27017"
   backend:
     build: ./trends-be
-    container_name: trends-backend
     ports:
     - "8080:8080"
     volumes:
-    - .:/trends-be
+    - .:/trends-backend
     depends_on:
-      - mongo
-    links:
-    - mongo
+    - 'mongo'
   frontend:
     build: ./trends-fe
     ports:
     - "3000:3000"
     volumes:
-    - .:/trends-fe
-    links:
-    - backend
+    - .:/trends-frontend
