@@ -50,7 +50,6 @@ public class FavoriteService implements Service<Favorite> {
 
   @PostConstruct
   public void postCreate() {
-    LOGGER.info("Created");
     persistFavorites();
     LOGGER.info("Persisting favorites initiated");
   }

@@ -1,5 +1,14 @@
 package com.github.adrian83.trends.domain.reply.storage;
 
+import static com.github.adrian83.trends.domain.reply.model.ReplyDoc.COLLECTION;
+import static com.github.adrian83.trends.domain.reply.model.ReplyDoc.REPLY_COUNT;
+import static com.github.adrian83.trends.domain.reply.model.ReplyDoc.TWITT_ID;
+import static com.github.adrian83.trends.domain.reply.model.ReplyDoc.UPDATED;
+import static com.github.adrian83.trends.domain.reply.model.ReplyDoc.USERNAME;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
+import static org.springframework.data.mongodb.core.query.Update.update;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -8,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
@@ -32,7 +40,7 @@ public class ReplyRepository implements Repository<ReplyDoc> {
   public Mono<String> save(ReplyDoc replyDoc) {
     LOGGER.info("Saving reply {}", replyDoc);
     return reactiveMongoTemplate
-        .upsert(saveQuery(replyDoc), saveUpdate(replyDoc), ReplyDoc.COLLECTION)
+        .upsert(saveQuery(replyDoc), saveUpdate(replyDoc), COLLECTION)
         .map((ur) -> ur.getUpsertedId().asString().getValue());
   }
 
@@ -40,7 +48,7 @@ public class ReplyRepository implements Repository<ReplyDoc> {
   public Mono<Long> deleteOlderThan(long amount, TimeUnit unit) {
     LOGGER.info("Removing replies older than {} {}", amount, unit);
     return reactiveMongoTemplate
-        .remove(removeQuery(Time.utcNowMinus(amount, unit)), ReplyDoc.COLLECTION)
+        .remove(removeQuery(Time.utcNowMinus(amount, unit)), COLLECTION)
         .map(DeleteResult::getDeletedCount);
   }
 
@@ -48,7 +56,7 @@ public class ReplyRepository implements Repository<ReplyDoc> {
   public Flux<List<ReplyDoc>> top(int count) {
     LOGGER.info("Getting {} replies", count);
     return reactiveMongoTemplate
-        .findAll(ReplyDoc.class, ReplyDoc.COLLECTION)
+        .findAll(ReplyDoc.class, COLLECTION)
         .sort(Comparator.<ReplyDoc>comparingLong(ReplyDoc::getCount).reversed())
         .buffer(count)
         .take(1)
@@ -56,17 +64,17 @@ public class ReplyRepository implements Repository<ReplyDoc> {
   }
 
   private Query removeQuery(long olderThan) {
-    return Query.query(Criteria.where(ReplyDoc.UPDATED).lte(olderThan));
+    return query(where(UPDATED).lte(olderThan));
   }
 
   private Query saveQuery(ReplyDoc replyDoc) {
-    return Query.query(Criteria.where(ReplyDoc.TWITT_ID).is(replyDoc.getTwittId()));
+    return query(where(TWITT_ID).is(replyDoc.getTwittId()));
   }
 
   private Update saveUpdate(ReplyDoc replyDoc) {
-    return Update.update(ReplyDoc.TWITT_ID, replyDoc.getTwittId())
-        .set(ReplyDoc.USERNAME, replyDoc.getUsername())
-        .inc(ReplyDoc.REPLY_COUNT, replyDoc.getCount())
-        .set(ReplyDoc.UPDATED, replyDoc.getUpdated());
+    return update(TWITT_ID, replyDoc.getTwittId())
+        .set(USERNAME, replyDoc.getUsername())
+        .inc(REPLY_COUNT, replyDoc.getCount())
+        .set(UPDATED, replyDoc.getUpdated());
   }
 }

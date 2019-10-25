@@ -39,55 +39,9 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
   protected String getDatabaseName() {
     return databaseName;
   }
-
-//    @Bean
-//    public MongoClient mongoClient() {
-//      final String connectionStr = String.format(MONGO_URL_PATTERN, host, port);
-//      return MongoClients.create(connectionStr);
-//    }
   
     @Bean
     public ReactiveMongoTemplate mongoTemplate(MongoClient client) {
       return new ReactiveMongoTemplate(client, getDatabaseName());
     }
-    
-  //
-  //  @Bean
-  //  public LoggingEventListener mongoEventListener() {
-  //    return new LoggingEventListener();
-  //  }
-  //
-  //  @Bean
-  //  public ReactiveMongoDatabaseFactory factory() {
-  //    return new ReactiveMongoDatabaseFactory() {
-  //
-  //      MongoClient client = mongoClient();
-  //
-  //      public MongoDatabase getMongoDatabase() throws DataAccessException {
-  //        return client.getDatabase(getDatabaseName());
-  //      }
-  //
-  //      public MongoDatabase getMongoDatabase(String dbName) throws DataAccessException {
-  //        return client.getDatabase(dbName);
-  //      }
-  //
-  //      public PersistenceExceptionTranslator getExceptionTranslator() {
-  //        return new PersistenceExceptionTranslator() {
-  //          public DataAccessException translateExceptionIfPossible(RuntimeException ex) {
-  //            return new DataAccessException("DataAccessException", ex) {
-  //              static final long serialVersionUID = 231231L;
-  //            };
-  //          }
-  //        };
-  //      }
-  //    };
-  //  }
-  //
-  //  public String getDatabaseName() {
-  //    return databaseName;
-  //  }
-  //
-  //  public MongoClient reactiveMongoClient() {
-  //    return mongoClient();
-  //  }
 }

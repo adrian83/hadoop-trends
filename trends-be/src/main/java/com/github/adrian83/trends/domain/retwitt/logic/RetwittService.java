@@ -49,7 +49,6 @@ public class RetwittService implements Service<Retwitt> {
 
   @PostConstruct
   public void postCreate() {
-    LOGGER.info("Created");
     persistRetwitts();
     LOGGER.info("Persisting retwitts initiated");
   }

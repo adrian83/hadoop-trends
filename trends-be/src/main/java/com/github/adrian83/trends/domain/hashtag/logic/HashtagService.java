@@ -53,7 +53,6 @@ public class HashtagService implements Service<Hashtag> {
 
   @PostConstruct
   public void postCreate() {
-    LOGGER.info("Created");
     persistHashtags();
     LOGGER.info("Persisting hashtags initiated");
   }

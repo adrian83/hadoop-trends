@@ -50,7 +50,6 @@ public class ReplyService implements Service<Reply> {
 
   @PostConstruct
   public void postCreate() {
-    LOGGER.info("Created");
     persistReplies();
     LOGGER.info("Persisting replies initiated");
   }

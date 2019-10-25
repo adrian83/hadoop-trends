@@ -1,5 +1,13 @@
 package com.github.adrian83.trends.domain.favorite.storage;
 
+import static com.github.adrian83.trends.domain.favorite.model.FavoriteDoc.COLLECTION;
+import static com.github.adrian83.trends.domain.favorite.model.FavoriteDoc.COUNT;
+import static com.github.adrian83.trends.domain.favorite.model.FavoriteDoc.TWITT_ID;
+import static com.github.adrian83.trends.domain.favorite.model.FavoriteDoc.UPDATED;
+import static com.github.adrian83.trends.domain.favorite.model.FavoriteDoc.USERNAME;
+import static org.springframework.data.mongodb.core.query.Query.query;
+import static org.springframework.data.mongodb.core.query.Update.update;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +40,7 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
   public Mono<String> save(FavoriteDoc favoriteDoc) {
     LOGGER.info("Saving favorite {}", favoriteDoc);
     return reactiveMongoTemplate
-        .upsert(saveQuery(favoriteDoc), saveUpdate(favoriteDoc), FavoriteDoc.COLLECTION)
+        .upsert(saveQuery(favoriteDoc), saveUpdate(favoriteDoc), COLLECTION)
         .map((ur) -> ur.getUpsertedId().asString().getValue());
   }
 
@@ -40,7 +48,7 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
   public Mono<Long> deleteOlderThan(long amount, TimeUnit unit) {
     LOGGER.info("Removing favorites older than {} {}", amount, unit);
     return reactiveMongoTemplate
-        .remove(removeQuery(Time.utcNowMinus(amount, unit)), FavoriteDoc.COLLECTION)
+        .remove(removeQuery(Time.utcNowMinus(amount, unit)), COLLECTION)
         .map(DeleteResult::getDeletedCount);
   }
 
@@ -48,7 +56,7 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
   public Flux<List<FavoriteDoc>> top(int count) {
     LOGGER.warn("Getting {} favorities", count);
     return reactiveMongoTemplate
-        .findAll(FavoriteDoc.class, FavoriteDoc.COLLECTION)
+        .findAll(FavoriteDoc.class, COLLECTION)
         .sort(Comparator.<FavoriteDoc>comparingLong(FavoriteDoc::getCount).reversed())
         .buffer(count)
         .take(1)
@@ -56,17 +64,17 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
   }
 
   private Query removeQuery(long olderThan) {
-    return Query.query(Criteria.where(FavoriteDoc.UPDATED).lte(olderThan));
+    return query(Criteria.where(UPDATED).lte(olderThan));
   }
 
   private Query saveQuery(FavoriteDoc favoriteDoc) {
-    return Query.query(Criteria.where(FavoriteDoc.TWITT_ID).is(favoriteDoc.getTwittId()));
+    return query(Criteria.where(TWITT_ID).is(favoriteDoc.getTwittId()));
   }
 
   private Update saveUpdate(FavoriteDoc favoriteDoc) {
-    return Update.update(FavoriteDoc.TWITT_ID, favoriteDoc.getTwittId())
-        .set(FavoriteDoc.USERNAME, favoriteDoc.getUsername())
-        .set(FavoriteDoc.COUNT, favoriteDoc.getCount())
-        .set(FavoriteDoc.UPDATED, favoriteDoc.getUpdated());
+    return update(TWITT_ID, favoriteDoc.getTwittId())
+        .set(USERNAME, favoriteDoc.getUsername())
+        .set(COUNT, favoriteDoc.getCount())
+        .set(UPDATED, favoriteDoc.getUpdated());
   }
 }
