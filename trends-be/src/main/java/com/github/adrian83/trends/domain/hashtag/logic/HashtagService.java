@@ -18,6 +18,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.github.adrian83.trends.domain.common.DocPersistingErrorHandler;
+import com.github.adrian83.trends.domain.common.DocPersistingSuccessHandler;
+import com.github.adrian83.trends.domain.common.DocRemovingErrorHandler;
+import com.github.adrian83.trends.domain.common.DocRemovingSuccessHandler;
 import com.github.adrian83.trends.domain.common.Repository;
 import com.github.adrian83.trends.domain.common.Service;
 import com.github.adrian83.trends.domain.hashtag.model.Hashtag;
@@ -50,7 +54,6 @@ public class HashtagService implements Service<Hashtag> {
   @Value("${hashtag.cleaning.olderThanSec}")
   private int olderThanSec;
 
-
   @PostConstruct
   public void postCreate() {
     persistHashtags();
@@ -59,12 +62,13 @@ public class HashtagService implements Service<Hashtag> {
 
   @Override
   public Flux<List<Hashtag>> top() {
-	    LOGGER.info("Reading most popular hashtags");
-	    ConnectableFlux<List<Hashtag>> hashtags =
-	        Flux.interval(Duration.ofSeconds(readIntervalSec))
-	            .flatMap(i -> hashtagRepository.top(readCount).map(this::toDtos))
-	            .publish();
-	    hashtags.connect();
+    LOGGER.info("Reading most popular hashtags");
+    ConnectableFlux<List<Hashtag>> hashtags =
+        Flux.interval(Duration.ofSeconds(readIntervalSec))
+            .flatMap(i -> hashtagRepository.top(readCount))
+            .map(docs -> docs.stream().map(hashtagMapper::docToDto).collect(toList()))
+            .publish();
+    hashtags.connect();
     return hashtags;
   }
 
@@ -76,8 +80,8 @@ public class HashtagService implements Service<Hashtag> {
     hashtagRepository
         .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
         .subscribe(
-            createRemoveSuccessConsumer(Hashtag.class, LOGGER),
-            createRemoveErrorConsumer(Hashtag.class, LOGGER));
+            new DocRemovingSuccessHandler<Hashtag>(Hashtag.class),
+            new DocRemovingErrorHandler<Hashtag>(Hashtag.class));
   }
 
   private void persistHashtags() {
@@ -90,8 +94,8 @@ public class HashtagService implements Service<Hashtag> {
         .flatMapIterable(this::toDocuments)
         .map(hashtagRepository::save)
         .subscribe(
-            createPersistSuccessConsumer(Hashtag.class, LOGGER),
-            createPersistErrorConsumer(Hashtag.class, LOGGER));
+            new DocPersistingSuccessHandler<Hashtag>(Hashtag.class),
+            new DocPersistingErrorHandler<Hashtag>(Hashtag.class));
   }
 
   private List<HashtagDoc> toDocuments(List<String> hashtags) {
@@ -102,9 +106,5 @@ public class HashtagService implements Service<Hashtag> {
         .stream()
         .map(e -> new HashtagDoc(e.getKey(), e.getValue().intValue(), utcNow()))
         .collect(toList());
-  }
-
-  private List<Hashtag> toDtos(List<HashtagDoc> docs) {
-    return docs.stream().map(hashtagMapper::docToDto).collect(toList());
   }
 }

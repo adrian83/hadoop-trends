@@ -2,7 +2,6 @@ package com.github.adrian83.trends.domain.favorite.logic;
 
 import static com.github.adrian83.trends.common.Time.utcNow;
 import static java.util.stream.Collectors.toList;
-import static reactor.core.publisher.Mono.empty;
 import static reactor.core.publisher.Mono.just;
 
 import java.time.Duration;
@@ -17,6 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import com.github.adrian83.trends.domain.common.DocPersistingErrorHandler;
+import com.github.adrian83.trends.domain.common.DocPersistingSuccessHandler;
+import com.github.adrian83.trends.domain.common.DocRemovingErrorHandler;
+import com.github.adrian83.trends.domain.common.DocRemovingSuccessHandler;
 import com.github.adrian83.trends.domain.common.Repository;
 import com.github.adrian83.trends.domain.common.Service;
 import com.github.adrian83.trends.domain.favorite.model.Favorite;
@@ -47,7 +50,6 @@ public class FavoriteService implements Service<Favorite> {
   @Value("${favorite.cleaning.olderThanSec}")
   private int olderThanSec;
 
-
   @PostConstruct
   public void postCreate() {
     persistFavorites();
@@ -56,14 +58,14 @@ public class FavoriteService implements Service<Favorite> {
 
   @Override
   public Flux<List<Favorite>> top() {
-	    LOGGER.info("Reading most favorited twitts");
-	    ConnectableFlux<List<Favorite>> favorited =
-	        Flux.interval(Duration.ofSeconds(readIntervalSec))
-	            .flatMap(i -> favoriteRepository.top(readCount))
-	            .map(list -> list.stream().map(favoriteMapper::docToDto).collect(toList()))
-	            .publish();
-	    favorited.connect();
-	   return favorited;
+    LOGGER.info("Reading most favorited twitts");
+    ConnectableFlux<List<Favorite>> favorited =
+        Flux.interval(Duration.ofSeconds(readIntervalSec))
+            .flatMap(i -> favoriteRepository.top(readCount))
+            .map(list -> list.stream().filter(d -> d != null).map(favoriteMapper::docToDto).filter(d -> d != null).collect(toList()))
+            .publish();
+    favorited.connect();
+    return favorited;
   }
 
   @Override
@@ -74,8 +76,8 @@ public class FavoriteService implements Service<Favorite> {
     favoriteRepository
         .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
         .subscribe(
-            createRemoveSuccessConsumer(Favorite.class, LOGGER),
-            createRemoveErrorConsumer(Favorite.class, LOGGER));
+            new DocRemovingSuccessHandler<Favorite>(Favorite.class),
+            new DocRemovingErrorHandler<Favorite>(Favorite.class));
   }
 
   private void persistFavorites() {
@@ -85,27 +87,24 @@ public class FavoriteService implements Service<Favorite> {
         .flatMap(this::toFavorite)
         .map(favoriteRepository::save)
         .subscribe(
-            createPersistSuccessConsumer(Favorite.class, LOGGER),
-            createPersistErrorConsumer(Favorite.class, LOGGER));
+            new DocPersistingSuccessHandler<Favorite>(Favorite.class),
+            new DocPersistingErrorHandler<Favorite>(Favorite.class));
   }
 
   private Mono<FavoriteDoc> toFavorite(Status status) {
-    var retweetedStatus = status.getRetweetedStatus();
-    if (retweetedStatus == null
-        || retweetedStatus.getFavoriteCount() < 0
-        || retweetedStatus.getId() < 0
-        || retweetedStatus.getUser() == null
-        || retweetedStatus.getUser().getScreenName() == null) {
-      return empty();
-    }
-
-    var favorite =
-        new FavoriteDoc(
-            retweetedStatus.getId(),
-            retweetedStatus.getUser().getScreenName(),
-            Long.valueOf(retweetedStatus.getFavoriteCount()),
-            utcNow());
-
-    return just(favorite);
+    return just(status)
+        .filter(s -> s != null)
+        .map(Status::getRetweetedStatus)
+        .filter(s -> s.getFavoriteCount() >= 0)
+        .filter(s -> s.getId() >= 0)
+        .filter(s -> s.getUser() != null)
+        .filter(s -> s.getUser().getScreenName() != null)
+        .map(
+            s ->
+                new FavoriteDoc(
+                    s.getId(),
+                    s.getUser().getScreenName(),
+                    Long.valueOf(s.getFavoriteCount()),
+                    utcNow()));
   }
 }

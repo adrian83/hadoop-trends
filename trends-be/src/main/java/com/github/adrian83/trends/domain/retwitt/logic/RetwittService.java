@@ -1,12 +1,12 @@
 package com.github.adrian83.trends.domain.retwitt.logic;
 
 import static com.github.adrian83.trends.common.Time.utcNow;
+import static java.time.Duration.ofSeconds;
 import static java.util.stream.Collectors.toList;
-import static reactor.core.publisher.Mono.empty;
 import static reactor.core.publisher.Mono.just;
 
-import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -18,6 +18,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.github.adrian83.trends.domain.common.DocPersistingErrorHandler;
+import com.github.adrian83.trends.domain.common.DocPersistingSuccessHandler;
+import com.github.adrian83.trends.domain.common.DocRemovingErrorHandler;
+import com.github.adrian83.trends.domain.common.DocRemovingSuccessHandler;
 import com.github.adrian83.trends.domain.common.Service;
 import com.github.adrian83.trends.domain.retwitt.model.Retwitt;
 import com.github.adrian83.trends.domain.retwitt.model.RetwittDoc;
@@ -55,14 +59,14 @@ public class RetwittService implements Service<Retwitt> {
 
   @Override
   public Flux<List<Retwitt>> top() {
-	    LOGGER.info("Reading most retwitted twitts");
-	    ConnectableFlux<List<Retwitt>> retwitted =
-	        Flux.interval(Duration.ofSeconds(readIntervalSec))
-	            .flatMap(i -> retwittRepository.top(readCount))
-	            .map(list -> list.stream().map(retwittMapper::docToDto).collect(toList()))
-	            .publish();
-	    retwitted.connect();
-	    return retwitted;
+    LOGGER.info("Reading most retwitted twitts");
+    ConnectableFlux<List<Retwitt>> retwitted =
+        Flux.interval(ofSeconds(readIntervalSec))
+            .flatMap(i -> retwittRepository.top(readCount))
+            .map(this::toDtos)
+            .publish();
+    retwitted.connect();
+    return retwitted;
   }
 
   @Override
@@ -73,8 +77,8 @@ public class RetwittService implements Service<Retwitt> {
     retwittRepository
         .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
         .subscribe(
-            createRemoveSuccessConsumer(Retwitt.class, LOGGER),
-            createRemoveErrorConsumer(Retwitt.class, LOGGER));
+            new DocRemovingSuccessHandler<Retwitt>(Retwitt.class),
+            new DocRemovingErrorHandler<Retwitt>(Retwitt.class));
   }
 
   private void persistRetwitts() {
@@ -84,23 +88,24 @@ public class RetwittService implements Service<Retwitt> {
         .flatMap(this::toRetwittDoc)
         .map(retwittRepository::save)
         .subscribe(
-            createPersistSuccessConsumer(Retwitt.class, LOGGER),
-            createPersistErrorConsumer(Retwitt.class, LOGGER));
+            new DocPersistingSuccessHandler<Retwitt>(Retwitt.class),
+            new DocPersistingErrorHandler<Retwitt>(Retwitt.class));
   }
 
   private Mono<RetwittDoc> toRetwittDoc(Status status) {
-    var retwittStatus = status.getRetweetedStatus();
-    if (retwittStatus == null || retwittStatus.getUser() == null) {
-      return empty();
-    }
-
-    var doc =
-        new RetwittDoc(
-            retwittStatus.getId(),
-            retwittStatus.getUser().getScreenName(),
-            retwittStatus.getRetweetCount(),
-            utcNow());
-    return just(doc);
+    return just(status)
+        .map(Status::getRetweetedStatus)
+        .filter(Objects::nonNull)
+        .filter(s -> s.getUser() != null)
+        .map(this::toDoc);
   }
 
+  private List<Retwitt> toDtos(List<RetwittDoc> docs) {
+    return docs.stream().map(retwittMapper::docToDto).collect(toList());
+  }
+
+  private RetwittDoc toDoc(Status status) {
+    return new RetwittDoc(
+        status.getId(), status.getUser().getScreenName(), status.getRetweetCount(), utcNow());
+  }
 }
