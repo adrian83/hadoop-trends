@@ -1,93 +1,67 @@
 package com.github.adrian83.trends.domain.status;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import java.util.Optional;
 
 import org.reactivestreams.Publisher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.reactivestreams.Subscriber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.github.adrian83.trends.config.TwitterConfig;
 
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 import twitter4j.Status;
 import twitter4j.StatusAdapter;
 import twitter4j.TwitterStream;
-import twitter4j.TwitterStreamFactory;
-import twitter4j.auth.AccessToken;
 
 @Service
 public class StatusSource {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(StatusSource.class);
-
-  private TwitterStream twitterStream;
-
-  @Autowired private TwitterConfig twitterConfig;
-
-  @PostConstruct
-  public void connect() {
-
-    LOGGER.info("Twitter client conecting");
-
-    AccessToken accessToken = new AccessToken(twitterConfig.getToken(), twitterConfig.getSecret());
-
-    twitterStream = new TwitterStreamFactory().getInstance();
-
-    twitterStream.setOAuthConsumer(
-        twitterConfig.getCustomerKey(), twitterConfig.getCustomerSecret());
-    twitterStream.setOAuthAccessToken(accessToken);
-
-    twitterStream.addListener(
-        new StatusAdapter() {
-          @Override
-          public void onStatus(Status status) {}
-
-          @Override
-          public void onException(Exception ex) {}
-        });
-
-    twitterStream.sample();
-
-    LOGGER.info("Twitter client connected");
-  }
-
-  @PreDestroy
-  public void disconnect() {
-
-    twitterStream.clearListeners();
-    twitterStream.cleanUp();
-
-    LOGGER.info("Twitter client disconnected");
-  }
+  @Autowired private TwitterStream twitterStream;
 
   public Flux<Status> twittsFlux() {
+    return Flux.from(new StatusPublisher(twitterStream)).subscribeOn(Schedulers.parallel());
+  }
 
-    return Flux.from(
-            new Publisher<Status>() {
+  private class StatusPublisher implements Publisher<Status> {
 
-              @Override
-              public void subscribe(org.reactivestreams.Subscriber<? super Status> subscriber) {
+    private TwitterStream twitterStream;
 
-                twitterStream.addListener(
-                    new StatusAdapter() {
-                      @Override
-                      public void onStatus(Status status) {
-                        LOGGER.debug(status.toString());
-                        subscriber.onNext(status);
-                      }
+    public StatusPublisher(TwitterStream twitterStream) {
+      super();
+      this.twitterStream = twitterStream;
+    }
 
-                      @Override
-                      public void onException(Exception ex) {
-                        ex.printStackTrace();
-                        subscriber.onError(ex);
-                      }
-                    });
-              }
-            })
-        .subscribeOn(Schedulers.parallel());
+    @Override
+    public void subscribe(Subscriber<? super Status> subscriber) {
+      this.twitterStream.addListener(new TrendsStatusAdapter(subscriber));
+    }
+  }
+
+  private class TrendsStatusAdapter extends StatusAdapter {
+
+    private Subscriber<? super Status> subscriber;
+
+    public TrendsStatusAdapter(Subscriber<? super Status> subscriber) {
+      super();
+      this.subscriber = subscriber;
+    }
+
+    @Override
+    public void onStatus(Status status) {
+      Optional.ofNullable(status)
+          .filter(s -> this.subscriber != null)
+          .ifPresent(s -> this.subscriber.onNext(s));
+    }
+
+    @Override
+    public void onException(Exception ex) {
+      Optional.ofNullable(ex)
+          .filter(e -> this.subscriber != null)
+          .ifPresent(
+              e -> {
+                e.printStackTrace();
+                this.subscriber.onError(e);
+              });
+    }
   }
 }

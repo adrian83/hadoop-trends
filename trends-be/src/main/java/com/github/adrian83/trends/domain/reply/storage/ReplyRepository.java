@@ -1,15 +1,16 @@
 package com.github.adrian83.trends.domain.reply.storage;
 
+import static com.github.adrian83.trends.common.Time.utcNowMinus;
 import static com.github.adrian83.trends.domain.reply.model.ReplyDoc.COLLECTION;
 import static com.github.adrian83.trends.domain.reply.model.ReplyDoc.REPLY_COUNT;
 import static com.github.adrian83.trends.domain.reply.model.ReplyDoc.TWITT_ID;
 import static com.github.adrian83.trends.domain.reply.model.ReplyDoc.UPDATED;
 import static com.github.adrian83.trends.domain.reply.model.ReplyDoc.USERNAME;
+import static java.util.Comparator.comparingLong;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +22,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import com.github.adrian83.trends.common.Time;
 import com.github.adrian83.trends.domain.common.Repository;
 import com.github.adrian83.trends.domain.reply.model.ReplyDoc;
 import com.mongodb.client.result.DeleteResult;
@@ -48,7 +48,7 @@ public class ReplyRepository implements Repository<ReplyDoc> {
   public Mono<Long> deleteOlderThan(long amount, TimeUnit unit) {
     LOGGER.info("Removing replies older than {} {}", amount, unit);
     return reactiveMongoTemplate
-        .remove(removeQuery(Time.utcNowMinus(amount, unit)), COLLECTION)
+        .remove(removeQuery(utcNowMinus(amount, unit)), COLLECTION)
         .map(DeleteResult::getDeletedCount);
   }
 
@@ -57,7 +57,7 @@ public class ReplyRepository implements Repository<ReplyDoc> {
     LOGGER.info("Getting {} replies", count);
     return reactiveMongoTemplate
         .findAll(ReplyDoc.class, COLLECTION)
-        .sort(Comparator.<ReplyDoc>comparingLong(ReplyDoc::getCount).reversed())
+        .sort(comparingLong(ReplyDoc::getCount).reversed())
         .buffer(count)
         .take(1)
         .onBackpressureDrop();

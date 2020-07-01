@@ -1,12 +1,12 @@
 package com.github.adrian83.trends.domain.reply.logic;
 
 import static com.github.adrian83.trends.common.Time.utcNow;
-import static reactor.core.publisher.Mono.empty;
-import static reactor.core.publisher.Mono.just;
+import static java.time.Duration.ofSeconds;
+import static java.util.Objects.nonNull;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
-import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -18,6 +18,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.github.adrian83.trends.domain.common.DocPersistingErrorHandler;
+import com.github.adrian83.trends.domain.common.DocPersistingSuccessHandler;
+import com.github.adrian83.trends.domain.common.DocRemovingErrorHandler;
+import com.github.adrian83.trends.domain.common.DocRemovingSuccessHandler;
 import com.github.adrian83.trends.domain.common.Service;
 import com.github.adrian83.trends.domain.reply.model.Reply;
 import com.github.adrian83.trends.domain.reply.model.ReplyDoc;
@@ -35,6 +39,15 @@ public class ReplyService implements Service<Reply> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ReplyService.class);
 
+  private static final Consumer<Throwable> DOC_REMOVING_ERROR_HANDLER =
+      new DocRemovingErrorHandler<>(Reply.class);
+  private static final Consumer<Long> DOC_REMOVING_SUCCESS_HANDLER =
+      new DocRemovingSuccessHandler<>(Reply.class);
+  private static final Consumer<Throwable> DOC_PERSISTING_ERROR_HANDLER =
+      new DocPersistingErrorHandler<>(Reply.class);
+  private static final Consumer<Mono<String>> DOC_PERSISTING_SUCCESS_HANDLER =
+      new DocPersistingSuccessHandler<>(Reply.class);
+
   @Autowired private ReplyRepository replyRepository;
   @Autowired private StatusSource twittsSource;
   @Autowired private ReplyMapper replyMapper;
@@ -46,7 +59,7 @@ public class ReplyService implements Service<Reply> {
   private int readCount;
 
   @Value("${reply.cleaning.olderThanSec}")
-  private int olderThanSec;
+  private int cleaningIntervalSec;
 
   @PostConstruct
   public void postCreate() {
@@ -56,14 +69,14 @@ public class ReplyService implements Service<Reply> {
 
   @Override
   public Flux<List<Reply>> top() {
-	    LOGGER.info("Reading most replied twitts");
-	    ConnectableFlux<List<Reply>> replies =
-	        Flux.interval(Duration.ofSeconds(readIntervalSec))
-	            .flatMap(i -> replyRepository.top(readCount))
-	            .map(list -> list.stream().map(replyMapper::docToDto).collect(Collectors.toList()))
-	            .publish();
-	    replies.connect();
-	    return replies;
+    LOGGER.info("Reading most replied twitts");
+    ConnectableFlux<List<Reply>> replies =
+        Flux.interval(ofSeconds(readIntervalSec))
+            .flatMap(i -> replyRepository.top(readCount))
+            .map(this::toDtos)
+            .publish();
+    replies.connect();
+    return replies;
   }
 
   @Override
@@ -72,10 +85,8 @@ public class ReplyService implements Service<Reply> {
       initialDelayString = "${reply.cleaning.initialDelayMs}")
   public void removeUnused() {
     replyRepository
-        .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
-        .subscribe(
-            createRemoveSuccessConsumer(Reply.class, LOGGER),
-            createRemoveErrorConsumer(Reply.class, LOGGER));
+        .deleteOlderThan(cleaningIntervalSec, SECONDS)
+        .subscribe(DOC_REMOVING_SUCCESS_HANDLER, DOC_REMOVING_ERROR_HANDLER);
   }
 
   private void persistReplies() {
@@ -84,18 +95,17 @@ public class ReplyService implements Service<Reply> {
         .twittsFlux()
         .flatMap(this::toReply)
         .map(replyRepository::save)
-        .subscribe(
-            createPersistSuccessConsumer(Reply.class, LOGGER),
-            createPersistErrorConsumer(Reply.class, LOGGER));
+        .subscribe(DOC_PERSISTING_SUCCESS_HANDLER, DOC_PERSISTING_ERROR_HANDLER);
   }
 
   private Mono<ReplyDoc> toReply(Status status) {
-    if (status.getInReplyToStatusId() < 0 || status.getInReplyToScreenName() == null) {
-      return empty();
-    }
-    
-    var doc =
-        new ReplyDoc(status.getInReplyToStatusId(), status.getInReplyToScreenName(), 1l, utcNow());
-    return just(doc);
+    return Mono.justOrEmpty(status)
+        .filter(s -> s.getInReplyToStatusId() >= 0)
+        .filter(s -> nonNull(s.getInReplyToScreenName()))
+        .map(s -> new ReplyDoc(s.getInReplyToStatusId(), s.getInReplyToScreenName(), 1l, utcNow()));
+  }
+
+  private List<Reply> toDtos(List<ReplyDoc> docs) {
+    return docs.stream().map(replyMapper::docToDto).collect(Collectors.toList());
   }
 }

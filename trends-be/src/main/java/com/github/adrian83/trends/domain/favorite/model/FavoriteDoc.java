@@ -1,5 +1,7 @@
 package com.github.adrian83.trends.domain.favorite.model;
 
+import static java.lang.String.valueOf;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -42,7 +44,7 @@ public class FavoriteDoc {
 
   public FavoriteDoc(Long twittId, String username, Long count, Long updated) {
     this();
-    this.id = String.valueOf(twittId);
+    this.id = valueOf(twittId);
     this.twittId = twittId;
     this.username = username;
     this.count = count;

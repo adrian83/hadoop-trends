@@ -19,17 +19,17 @@ public interface Service<T> {
         idMono.subscribe(id -> logger.info("{} with id: {} persisted", clazz.getSimpleName(), id));
   }
 
-  default Consumer<Throwable> createPersistErrorConsumer(Class<T> clazz, Logger logger) {
-    return (Throwable fault) ->
-        logger.error("Exception during processing {} {}", clazz.getSimpleName(), fault);
-  }
+//  default Consumer<Throwable> createPersistErrorConsumer(Class<T> clazz, Logger logger) {
+//    return (Throwable fault) ->
+//        logger.error("Exception during processing {} {}", clazz.getSimpleName(), fault == null ? "null" : fault.getMessage());
+//  }
 
-  default Consumer<Long> createRemoveSuccessConsumer(Class<T> clazz, Logger logger) {
-    return (Long count) -> logger.warn("Removed {} instances of {}", count, clazz.getSimpleName());
-  }
+//  default Consumer<Long> createRemoveSuccessConsumer(Class<T> clazz, Logger logger) {
+//    return (Long count) -> logger.warn("Removed {} instances of {}", count, clazz.getSimpleName());
+//  }
 
-  default Consumer<Throwable> createRemoveErrorConsumer(Class<T> clazz, Logger logger) {
-    return (Throwable fault) ->
-        logger.error("Exception while removing instances of {}: {}", clazz.getSimpleName(), fault);
-  }
+//  default Consumer<Throwable> createRemoveErrorConsumer(Class<T> clazz, Logger logger) {
+//    return (Throwable fault) ->
+//        logger.error("Exception while removing instances of {}: {}", clazz.getSimpleName(), fault == null ? "null" : fault.getMessage());
+//  }
 }
