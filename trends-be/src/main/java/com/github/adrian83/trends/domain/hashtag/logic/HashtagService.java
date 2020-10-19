@@ -1,13 +1,15 @@
 package com.github.adrian83.trends.domain.hashtag.logic;
 
 import static com.github.adrian83.trends.common.Time.utcNow;
+import static java.time.Duration.ofSeconds;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
-import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 
@@ -18,6 +20,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.github.adrian83.trends.domain.common.DocPersistingErrorHandler;
+import com.github.adrian83.trends.domain.common.DocPersistingSuccessHandler;
+import com.github.adrian83.trends.domain.common.DocRemovingErrorHandler;
+import com.github.adrian83.trends.domain.common.DocRemovingSuccessHandler;
 import com.github.adrian83.trends.domain.common.Repository;
 import com.github.adrian83.trends.domain.common.Service;
 import com.github.adrian83.trends.domain.hashtag.model.Hashtag;
@@ -27,12 +33,22 @@ import com.github.adrian83.trends.domain.status.StatusSource;
 
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import twitter4j.Status;
 
 @Component
 public class HashtagService implements Service<Hashtag> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HashtagService.class);
+
+  private static final Consumer<Throwable> DOC_REMOVING_ERROR_HANDLER =
+      new DocRemovingErrorHandler<>(Hashtag.class);
+  private static final Consumer<Long> DOC_REMOVING_SUCCESS_HANDLER =
+      new DocRemovingSuccessHandler<>(Hashtag.class);
+  private static final Consumer<Throwable> DOC_PERSISTING_ERROR_HANDLER =
+      new DocPersistingErrorHandler<>(Hashtag.class);
+  private static final Consumer<Mono<String>> DOC_PERSISTING_SUCCESS_HANDLER =
+      new DocPersistingSuccessHandler<>(Hashtag.class);
 
   private static final int DEF_BUFFER_SIZE = 100;
 
@@ -48,8 +64,7 @@ public class HashtagService implements Service<Hashtag> {
   private int readCount;
 
   @Value("${hashtag.cleaning.olderThanSec}")
-  private int olderThanSec;
-
+  private int cleaningIntervalSec;
 
   @PostConstruct
   public void postCreate() {
@@ -59,12 +74,13 @@ public class HashtagService implements Service<Hashtag> {
 
   @Override
   public Flux<List<Hashtag>> top() {
-	    LOGGER.info("Reading most popular hashtags");
-	    ConnectableFlux<List<Hashtag>> hashtags =
-	        Flux.interval(Duration.ofSeconds(readIntervalSec))
-	            .flatMap(i -> hashtagRepository.top(readCount).map(this::toDtos))
-	            .publish();
-	    hashtags.connect();
+    LOGGER.info("Reading most popular hashtags");
+    ConnectableFlux<List<Hashtag>> hashtags =
+        Flux.interval(ofSeconds(readIntervalSec))
+            .flatMap(i -> hashtagRepository.top(readCount))
+            .map(this::toDtos)
+            .publish();
+    hashtags.connect();
     return hashtags;
   }
 
@@ -74,10 +90,8 @@ public class HashtagService implements Service<Hashtag> {
       initialDelayString = "${hashtag.cleaning.initialDelayMs}")
   public void removeUnused() {
     hashtagRepository
-        .deleteOlderThan(olderThanSec, TimeUnit.SECONDS)
-        .subscribe(
-            createRemoveSuccessConsumer(Hashtag.class, LOGGER),
-            createRemoveErrorConsumer(Hashtag.class, LOGGER));
+        .deleteOlderThan(cleaningIntervalSec, SECONDS)
+        .subscribe(DOC_REMOVING_SUCCESS_HANDLER, DOC_REMOVING_ERROR_HANDLER);
   }
 
   private void persistHashtags() {
@@ -87,17 +101,15 @@ public class HashtagService implements Service<Hashtag> {
         .map(Status::getText)
         .flatMap(hashtagFinder::findHashtags)
         .buffer(DEF_BUFFER_SIZE)
-        .flatMapIterable(this::toDocuments)
+        .flatMapIterable(this::toHashtagDoc)
         .map(hashtagRepository::save)
-        .subscribe(
-            createPersistSuccessConsumer(Hashtag.class, LOGGER),
-            createPersistErrorConsumer(Hashtag.class, LOGGER));
+        .subscribe(DOC_PERSISTING_SUCCESS_HANDLER, DOC_PERSISTING_ERROR_HANDLER);
   }
 
-  private List<HashtagDoc> toDocuments(List<String> hashtags) {
+  private List<HashtagDoc> toHashtagDoc(List<String> hashtags) {
     return hashtags
         .stream()
-        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+        .collect(groupingBy(identity(), counting()))
         .entrySet()
         .stream()
         .map(e -> new HashtagDoc(e.getKey(), e.getValue().intValue(), utcNow()))

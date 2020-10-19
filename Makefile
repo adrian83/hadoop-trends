@@ -1,4 +1,3 @@
-
 docker:
 	sudo systemctl start docker
 
@@ -9,7 +8,7 @@ compose-up:
 	sudo docker-compose up
 
 deps:
-	echo "starting mongodb image (version 4.2.0)"
+	echo "starting mongo image (version 4.2.0)"
 	docker run -p 27017:27017 -d mongo:4.2.0
 
 fe-get:
