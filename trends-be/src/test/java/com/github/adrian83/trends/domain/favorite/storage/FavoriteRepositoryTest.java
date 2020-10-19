@@ -1,8 +1,8 @@
 package com.github.adrian83.trends.domain.favorite.storage;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -71,7 +71,7 @@ public class FavoriteRepositoryTest {
     // then
     Long result = monoResult.block();
 
-    assertThat(deletedCount, equalTo(result));
+    assertThat(result, equalTo(deletedCount));
   }
 
   @Test

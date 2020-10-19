@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import org.bson.BsonValue;
+import org.bson.BsonString;
 
 import com.mongodb.client.result.UpdateResult;
 
@@ -22,7 +22,11 @@ public interface Repository<T> {
   default String upsertedId(UpdateResult updateResult) {
     return Optional.ofNullable(updateResult)
         .map(UpdateResult::getUpsertedId)
-        .map(BsonValue::toString)
+        .map(bv -> bv instanceof BsonString ? bv.asString().getValue() : bv.toString())
         .orElse("unknown");
   }
+  
+  
+  
+  
 }

@@ -27,7 +27,7 @@ be-test:
 
 be-build: 
 	echo "building backend"
-	cd trends-be && mvn clean build
+	cd trends-be && mvn clean package
 
 be-run: 
 	echo "running backend"
