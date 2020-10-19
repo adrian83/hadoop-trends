@@ -1,5 +1,6 @@
 package com.github.adrian83.trends.domain.retwitt.storage;
 
+import static com.github.adrian83.trends.domain.retwitt.model.RetwittDoc.ID;
 import static com.github.adrian83.trends.domain.retwitt.model.RetwittDoc.COLLECTION;
 import static com.github.adrian83.trends.domain.retwitt.model.RetwittDoc.RETWITT_COUNT;
 import static com.github.adrian83.trends.domain.retwitt.model.RetwittDoc.TWITT_ID;
@@ -39,22 +40,20 @@ public class RetwittRepository implements Repository<RetwittDoc> {
     LOGGER.info("Saving twitt {}", twitt);
     return reactiveMongoTemplate
         .upsert(
-            query(where(TWITT_ID).is(twitt.getTwittId())),
+            query(where(ID).is(twitt.getTwittId())),
             update(TWITT_ID, twitt.getTwittId())
                 .set(USERNAME, twitt.getUsername())
                 .set(RETWITT_COUNT, twitt.getCount())
                 .set(UPDATED, twitt.getUpdated()),
             COLLECTION)
-        .map((ur) -> ur.getUpsertedId().asString().getValue());
+        .map(this::upsertedId);
   }
 
   @Override
   public Mono<Long> deleteOlderThan(long amount, TimeUnit unit) {
     LOGGER.info("Removing twitts older than {} {}", amount, unit);
     return reactiveMongoTemplate
-        .remove(
-            query(where(UPDATED).lte(Time.utcNowMinus(amount, unit))),
-            COLLECTION)
+        .remove(query(where(UPDATED).lte(Time.utcNowMinus(amount, unit))), COLLECTION)
         .map(DeleteResult::getDeletedCount);
   }
 

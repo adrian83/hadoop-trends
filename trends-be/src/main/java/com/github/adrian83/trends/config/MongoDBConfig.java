@@ -1,5 +1,7 @@
 package com.github.adrian83.trends.config;
 
+import static java.lang.String.format;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
@@ -20,7 +22,7 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
   private static final String MONGO_URL_PATTERN = "mongodb://%s:%s";
 
   @Value("${mongo.host}")
-  private String host;
+  private String host; 
 
   @Value("${mongo.port}")
   private int port;
@@ -28,10 +30,11 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
   @Value("${mongo.dbName}")
   private String databaseName;
 
+  
   @Bean
   @Override
   public MongoClient reactiveMongoClient() {
-    final String connectionStr = String.format(MONGO_URL_PATTERN, host, port);   
+    final String connectionStr = format(MONGO_URL_PATTERN, host, port);
     return MongoClients.create(connectionStr);
   }
 
@@ -39,9 +42,10 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
   protected String getDatabaseName() {
     return databaseName;
   }
-  
-    @Bean
-    public ReactiveMongoTemplate mongoTemplate(MongoClient client) {
-      return new ReactiveMongoTemplate(client, getDatabaseName());
-    }
+
+  @Bean
+  public ReactiveMongoTemplate reactiveMongoTemplate() {
+      return new ReactiveMongoTemplate(reactiveMongoClient(), getDatabaseName());
+  }
+
 }

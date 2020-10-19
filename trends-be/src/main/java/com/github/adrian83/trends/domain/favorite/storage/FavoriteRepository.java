@@ -41,7 +41,7 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
     LOGGER.info("Saving favorite {}", favoriteDoc);
     return reactiveMongoTemplate
         .upsert(saveQuery(favoriteDoc), saveUpdate(favoriteDoc), COLLECTION)
-        .map((ur) -> ur.getUpsertedId().asString().getValue());
+        .map(this::upsertedId);
   }
 
   @Override

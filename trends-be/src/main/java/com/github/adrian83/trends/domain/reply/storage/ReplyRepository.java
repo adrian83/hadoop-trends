@@ -41,7 +41,7 @@ public class ReplyRepository implements Repository<ReplyDoc> {
     LOGGER.info("Saving reply {}", replyDoc);
     return reactiveMongoTemplate
         .upsert(saveQuery(replyDoc), saveUpdate(replyDoc), COLLECTION)
-        .map((ur) -> ur.getUpsertedId().asString().getValue());
+        .map(this::upsertedId); 
   }
 
   @Override
@@ -68,7 +68,7 @@ public class ReplyRepository implements Repository<ReplyDoc> {
   }
 
   private Query saveQuery(ReplyDoc replyDoc) {
-    return query(where(TWITT_ID).is(replyDoc.getTwittId()));
+    return query(where(ReplyDoc.ID).is(replyDoc.getId()));
   }
 
   private Update saveUpdate(ReplyDoc replyDoc) {

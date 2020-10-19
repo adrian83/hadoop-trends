@@ -1,5 +1,7 @@
 package com.github.adrian83.trends.domain.favorite.logic;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,9 +17,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.github.adrian83.trends.domain.common.Repository;
-import com.github.adrian83.trends.domain.favorite.logic.FavoriteService;
 import com.github.adrian83.trends.domain.favorite.model.Favorite;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteMapper;
@@ -57,16 +59,24 @@ public class FavoriteServiceTest {
 	}
 
 	@Test
-	public void shouldReturnMostFavoritedTwitts() {
+	public void shouldReturnMostFavoritedTwitts() throws InterruptedException {
 		// given
-List<FavoriteDoc> favorites1 = generateFavorites(6);
-List<FavoriteDoc> favorites2 = generateFavorites(4);
+		ReflectionTestUtils.setField(favoriteService, "readCount", 10);
+		ReflectionTestUtils.setField(favoriteService, "readIntervalSec", 1);
 
-Mockito.doReturn(Flux.fromIterable(favorites1), Flux.fromIterable(favorites2)).when(favoriteRepositoryMock.top(10));
+		List<FavoriteDoc> favorites1 = generateFavorites(1);
 		
+		Favorite f = new Favorite();
+
+		Mockito.when(favoriteRepositoryMock.top(Mockito.anyInt())).thenReturn(Flux.just(favorites1));
+		Mockito.when(favoriteMapperMock.docToDto(Mockito.any(FavoriteDoc.class))).thenReturn(f);
+
+		Thread.sleep(1500);
 		
 		// when
-		Flux<List<Favorite>> twitts = favoriteService.top();
+		favoriteService.top().subscribe((favorities) -> {
+			assertThat(favorities.size(), equalTo(1));
+		});
 
 	}
 

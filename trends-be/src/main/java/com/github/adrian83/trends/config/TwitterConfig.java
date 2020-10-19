@@ -1,7 +1,14 @@
 package com.github.adrian83.trends.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import twitter4j.Status;
+import twitter4j.StatusAdapter;
+import twitter4j.TwitterStream;
+import twitter4j.TwitterStreamFactory;
+import twitter4j.auth.AccessToken;
 
 @Configuration
 public class TwitterConfig {
@@ -18,19 +25,25 @@ public class TwitterConfig {
   @Value("${twitter.secret}")
   private String secret;
 
-  public String getCustomerKey() {
-    return customerKey;
-  }
+  @Bean
+  public TwitterStream createTwitterStream() {
 
-  public String getCustomerSecret() {
-    return customerSecret;
-  }
+    var twitterStream = new TwitterStreamFactory().getInstance();
 
-  public String getToken() {
-    return token;
-  }
+    twitterStream.setOAuthConsumer(customerKey, customerSecret);
+    twitterStream.setOAuthAccessToken(new AccessToken(token, secret));
 
-  public String getSecret() {
-    return secret;
+    twitterStream.addListener(
+        new StatusAdapter() {
+          @Override
+          public void onStatus(Status status) {}
+
+          @Override
+          public void onException(Exception ex) {}
+        });
+
+    twitterStream.sample();
+
+    return twitterStream;
   }
 }

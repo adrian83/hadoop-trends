@@ -1,4 +1,4 @@
-FROM maven:3-jdk-12
+FROM maven:3-jdk-14
 
 ADD . /trends-be
 WORKDIR /trends-be

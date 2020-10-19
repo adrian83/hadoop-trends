@@ -22,7 +22,7 @@ public class ReplyDoc {
 
   @Id
   @Field(ID)
-  private String documentId;
+  private String id;
 
   @Field(TWITT_ID)
   private Long twittId;
@@ -42,15 +42,15 @@ public class ReplyDoc {
 
   public ReplyDoc(Long twittId, String username, long count, Long updated) {
     this();
-    this.documentId = String.valueOf(twittId);
+    this.id = String.valueOf(twittId);
     this.twittId = twittId;
     this.username = username;
     this.count = count;
     this.updated = updated;
   }
 
-  public String getDocumentId() {
-    return documentId;
+  public String getId() {
+    return id;
   }
 
   public Long getTwittId() {
@@ -87,8 +87,8 @@ public class ReplyDoc {
 
   @Override
   public String toString() {
-    return "ReplyDoc [documentId="
-        + documentId
+    return "ReplyDoc [id="
+        + id
         + ", twittId="
         + twittId
         + ", username="

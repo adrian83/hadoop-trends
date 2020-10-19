@@ -47,7 +47,6 @@ public class FavoriteService implements Service<Favorite> {
   @Value("${favorite.cleaning.olderThanSec}")
   private int olderThanSec;
 
-
   @PostConstruct
   public void postCreate() {
     persistFavorites();
@@ -56,14 +55,14 @@ public class FavoriteService implements Service<Favorite> {
 
   @Override
   public Flux<List<Favorite>> top() {
-	    LOGGER.info("Reading most favorited twitts");
-	    ConnectableFlux<List<Favorite>> favorited =
-	        Flux.interval(Duration.ofSeconds(readIntervalSec))
-	            .flatMap(i -> favoriteRepository.top(readCount))
-	            .map(list -> list.stream().map(favoriteMapper::docToDto).collect(toList()))
-	            .publish();
-	    favorited.connect();
-	   return favorited;
+    LOGGER.info("Reading most favorited twitts");
+    ConnectableFlux<List<Favorite>> favorited =
+        Flux.interval(Duration.ofSeconds(readIntervalSec))
+            .flatMap(i -> favoriteRepository.top(readCount))
+            .map(this::toFavorities)
+            .publish();
+    favorited.connect();
+    return favorited;
   }
 
   @Override
@@ -87,6 +86,10 @@ public class FavoriteService implements Service<Favorite> {
         .subscribe(
             createPersistSuccessConsumer(Favorite.class, LOGGER),
             createPersistErrorConsumer(Favorite.class, LOGGER));
+  }
+
+  private List<Favorite> toFavorities(List<FavoriteDoc> docs) {
+    return docs.stream().map(favoriteMapper::docToDto).collect(toList());
   }
 
   private Mono<FavoriteDoc> toFavorite(Status status) {

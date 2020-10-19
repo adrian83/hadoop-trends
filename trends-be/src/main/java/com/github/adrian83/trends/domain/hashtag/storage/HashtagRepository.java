@@ -44,7 +44,7 @@ public class HashtagRepository implements Repository<HashtagDoc> {
                 .set(UPDATED, hashtag.getUpdated())
                 .inc(COUNT, hashtag.getCount()),
             COLLECTION)
-        .map((ur) -> ur.getUpsertedId().asString().getValue());
+        .map(this::upsertedId); 
   }
 
   @Override
