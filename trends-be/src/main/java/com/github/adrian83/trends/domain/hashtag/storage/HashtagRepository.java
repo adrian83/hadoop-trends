@@ -18,11 +18,11 @@ import static com.github.adrian83.trends.domain.hashtag.model.HashtagDoc.COLLECT
 import static com.github.adrian83.trends.domain.hashtag.model.HashtagDoc.COUNT;
 import static com.github.adrian83.trends.domain.hashtag.model.HashtagDoc.NAME;
 import static com.github.adrian83.trends.domain.hashtag.model.HashtagDoc.UPDATED;
-import static java.util.Comparator.comparingLong;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +36,7 @@ public class HashtagRepository implements Repository<HashtagDoc> {
   @Override
   public Mono<String> save(HashtagDoc hashtag) {
     LOGGER.info("Saving / updating {}", hashtag);
+
     return reactiveMongoTemplate
         .upsert(
             query(where(NAME).is(hashtag.getName())),
@@ -43,16 +44,14 @@ public class HashtagRepository implements Repository<HashtagDoc> {
                 .set(UPDATED, hashtag.getUpdated())
                 .inc(COUNT, hashtag.getCount()),
             COLLECTION)
-        .map(this::upsertedId); 
+        .map(this::upsertedId);
   }
 
   @Override
   public Mono<Long> deleteOlderThan(long amount, TimeUnit unit) {
     LOGGER.info("Removing hashtags older than {} {}", amount, unit);
     return reactiveMongoTemplate
-        .remove(
-            query(where(UPDATED).lte(Time.utcNowMinus(amount, unit))),
-            COLLECTION)
+        .remove(query(where(UPDATED).lte(Time.utcNowMinus(amount, unit))), COLLECTION)
         .map(DeleteResult::getDeletedCount);
   }
 
@@ -60,7 +59,7 @@ public class HashtagRepository implements Repository<HashtagDoc> {
     LOGGER.info("Getting {} hashtags", count);
     return reactiveMongoTemplate
         .findAll(HashtagDoc.class, COLLECTION)
-        .sort(comparingLong(HashtagDoc::getCount).reversed())
+        .sort(Comparator.<HashtagDoc>comparingLong(HashtagDoc::getCount).reversed())
         .buffer(count)
         .take(1)
         .onBackpressureDrop();

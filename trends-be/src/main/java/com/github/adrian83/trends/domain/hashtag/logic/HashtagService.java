@@ -11,13 +11,10 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.github.adrian83.trends.domain.common.DocPersistingErrorHandler;
@@ -26,10 +23,11 @@ import com.github.adrian83.trends.domain.common.DocRemovingErrorHandler;
 import com.github.adrian83.trends.domain.common.DocRemovingSuccessHandler;
 import com.github.adrian83.trends.domain.common.Repository;
 import com.github.adrian83.trends.domain.common.Service;
+import com.github.adrian83.trends.domain.common.StatusCleaner;
+import com.github.adrian83.trends.domain.common.StatusProcessor;
 import com.github.adrian83.trends.domain.hashtag.model.Hashtag;
 import com.github.adrian83.trends.domain.hashtag.model.HashtagDoc;
 import com.github.adrian83.trends.domain.hashtag.model.HashtagMapper;
-import com.github.adrian83.trends.domain.status.StatusSource;
 
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
@@ -37,7 +35,7 @@ import reactor.core.publisher.Mono;
 import twitter4j.Status;
 
 @Component
-public class HashtagService implements Service<Hashtag> {
+public class HashtagService implements Service<Hashtag>, StatusProcessor, StatusCleaner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HashtagService.class);
 
@@ -53,7 +51,6 @@ public class HashtagService implements Service<Hashtag> {
   private static final int DEF_BUFFER_SIZE = 100;
 
   @Autowired private Repository<HashtagDoc> hashtagRepository;
-  @Autowired private StatusSource twittsSource;
   @Autowired private HashtagFinder hashtagFinder;
   @Autowired private HashtagMapper hashtagMapper;
 
@@ -63,13 +60,23 @@ public class HashtagService implements Service<Hashtag> {
   @Value("${hashtag.read.count}")
   private int readCount;
 
-  @Value("${hashtag.cleaning.olderThanSec}")
-  private int cleaningIntervalSec;
-
-  @PostConstruct
-  public void postCreate() {
-    persistHashtags();
+  @Override
+  public void processStatusses(Flux<Status> statusses) {
     LOGGER.info("Persisting hashtags initiated");
+    statusses
+        .map(Status::getText)
+        .flatMap(hashtagFinder::findHashtags)
+        .buffer(DEF_BUFFER_SIZE)
+        .flatMapIterable(this::toHashtagDoc)
+        .map(hashtagRepository::save)
+        .subscribe(DOC_PERSISTING_SUCCESS_HANDLER, DOC_PERSISTING_ERROR_HANDLER);
+  }
+
+  @Override
+  public void removeOlderThanSec(int seconds) {
+    hashtagRepository
+        .deleteOlderThan(seconds, SECONDS)
+        .subscribe(DOC_REMOVING_SUCCESS_HANDLER, DOC_REMOVING_ERROR_HANDLER);
   }
 
   @Override
@@ -82,28 +89,6 @@ public class HashtagService implements Service<Hashtag> {
             .publish();
     hashtags.connect();
     return hashtags;
-  }
-
-  @Override
-  @Scheduled(
-      fixedDelayString = "${hashtag.cleaning.fixedRateMs}",
-      initialDelayString = "${hashtag.cleaning.initialDelayMs}")
-  public void removeUnused() {
-    hashtagRepository
-        .deleteOlderThan(cleaningIntervalSec, SECONDS)
-        .subscribe(DOC_REMOVING_SUCCESS_HANDLER, DOC_REMOVING_ERROR_HANDLER);
-  }
-
-  private void persistHashtags() {
-    LOGGER.info("Starting persisting hashtags");
-    twittsSource
-        .twittsFlux()
-        .map(Status::getText)
-        .flatMap(hashtagFinder::findHashtags)
-        .buffer(DEF_BUFFER_SIZE)
-        .flatMapIterable(this::toHashtagDoc)
-        .map(hashtagRepository::save)
-        .subscribe(DOC_PERSISTING_SUCCESS_HANDLER, DOC_PERSISTING_ERROR_HANDLER);
   }
 
   private List<HashtagDoc> toHashtagDoc(List<String> hashtags) {

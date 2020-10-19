@@ -36,19 +36,19 @@ public class FavoriteServiceTest {
   @Mock private Repository<FavoriteDoc> favoriteRepositoryMock;
   @Mock private FavoriteMapper favoriteMapperMock;
 
-  @Test
-  public void shouldStartPersistingFavorites() {
-    // given
-    Flux<Status> statuses = generate(1);
-
-    when(statusSourceMock.twittsFlux()).thenReturn(statuses);
-
-    // when
-    favoriteService.postCreate();
-
-    // then
-    verify(statusSourceMock).twittsFlux();
-  }
+//  @Test
+//  public void shouldStartPersistingFavorites() {
+//    // given
+//    Flux<Status> statuses = generate(1);
+//
+//    when(statusSourceMock.twittsFlux()).thenReturn(statuses);
+//
+//    // when
+//    favoriteService.postCreate();
+//
+//    // then
+//    verify(statusSourceMock).twittsFlux();
+//  }
 
   //@Test
   public void shouldReturnMostFavoritedTwitts() {

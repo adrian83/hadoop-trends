@@ -1,14 +1,21 @@
 package com.github.adrian83.trends.domain.status;
 
-
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
+import java.util.List;
 import java.util.Optional;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import com.github.adrian83.trends.domain.common.StatusCleaner;
+import com.github.adrian83.trends.domain.common.StatusProcessor;
 
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -19,10 +26,14 @@ import twitter4j.TwitterStream;
 @Service
 public class StatusSource {
 
-
   private static final Logger LOGGER = LoggerFactory.getLogger(StatusSource.class);
 
   @Autowired private TwitterStream twitterStream;
+  @Autowired private List<StatusProcessor> processors;
+  @Autowired private List<StatusCleaner> cleaners;
+
+  @Value("${cleaning.olderThanSec}")
+  private int cleaningIntervalSec;
 
   @PreDestroy
   public void disconnect() {
@@ -33,10 +44,20 @@ public class StatusSource {
     LOGGER.info("Twitter client disconnected");
   }
 
+  @PostConstruct
+  public void init() {
+    processors.forEach(p -> p.processStatusses(twittsFlux()));
+  }
+
+  @Scheduled(
+      fixedDelayString = "${cleaning.fixedRateMs}",
+      initialDelayString = "${cleaning.initialDelayMs}")
+  public void clean() {
+    cleaners.forEach(c -> c.removeOlderThanSec(cleaningIntervalSec));
+  }
 
   public Flux<Status> twittsFlux() {
     return Flux.from(new StatusPublisher(twitterStream)).subscribeOn(Schedulers.parallel());
-
   }
 
   private class StatusPublisher implements Publisher<Status> {

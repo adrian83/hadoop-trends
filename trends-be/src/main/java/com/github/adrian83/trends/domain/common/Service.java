@@ -10,8 +10,6 @@ import reactor.core.publisher.Mono;
 
 public interface Service<T> {
 
-  void removeUnused();
-
   Flux<List<T>> top();
 
   default Consumer<Mono<String>> createPersistSuccessConsumer(Class<T> clazz, Logger logger) {

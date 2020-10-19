@@ -10,13 +10,10 @@ import static reactor.core.publisher.Mono.justOrEmpty;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.github.adrian83.trends.domain.common.DocPersistingErrorHandler;
@@ -24,18 +21,19 @@ import com.github.adrian83.trends.domain.common.DocPersistingSuccessHandler;
 import com.github.adrian83.trends.domain.common.DocRemovingErrorHandler;
 import com.github.adrian83.trends.domain.common.DocRemovingSuccessHandler;
 import com.github.adrian83.trends.domain.common.Service;
+import com.github.adrian83.trends.domain.common.StatusCleaner;
+import com.github.adrian83.trends.domain.common.StatusProcessor;
 import com.github.adrian83.trends.domain.retwitt.model.Retwitt;
 import com.github.adrian83.trends.domain.retwitt.model.RetwittDoc;
 import com.github.adrian83.trends.domain.retwitt.model.RetwittMapper;
 import com.github.adrian83.trends.domain.retwitt.storage.RetwittRepository;
-import com.github.adrian83.trends.domain.status.StatusSource;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import twitter4j.Status;
 
 @Component
-public class RetwittService implements Service<Retwitt> {
+public class RetwittService implements Service<Retwitt>, StatusProcessor, StatusCleaner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RetwittService.class);
 
@@ -49,7 +47,6 @@ public class RetwittService implements Service<Retwitt> {
       new DocPersistingSuccessHandler<>(Retwitt.class);
 
   @Autowired private RetwittRepository retwittRepository;
-  @Autowired private StatusSource twittsSource;
   @Autowired private RetwittMapper retwittMapper;
 
   @Value("${retwitt.read.intervalSec}")
@@ -58,13 +55,20 @@ public class RetwittService implements Service<Retwitt> {
   @Value("${retwitt.read.count}")
   private int readCount;
 
-  @Value("${retwitt.cleaning.olderThanSec}")
-  private int cleaningIntervalSec;
-
-  @PostConstruct
-  public void postCreate() {
-    persistRetwitts();
+  @Override
+  public void processStatusses(Flux<Status> statusses) {
     LOGGER.info("Persisting retwitts initiated");
+    statusses
+        .flatMap(this::toRetwittDoc)
+        .map(retwittRepository::save)
+        .subscribe(DOC_PERSISTING_SUCCESS_HANDLER, DOC_PERSISTING_ERROR_HANDLER);
+  }
+
+  @Override
+  public void removeOlderThanSec(int seconds) {
+    retwittRepository
+        .deleteOlderThan(seconds, SECONDS)
+        .subscribe(DOC_REMOVING_SUCCESS_HANDLER, DOC_REMOVING_ERROR_HANDLER);
   }
 
   @Override
@@ -77,25 +81,6 @@ public class RetwittService implements Service<Retwitt> {
             .publish();
     retwitted.connect();
     return retwitted;
-  }
-
-  @Override
-  @Scheduled(
-      fixedDelayString = "${retwitt.cleaning.fixedRateMs}",
-      initialDelayString = "${retwitt.cleaning.initialDelayMs}")
-  public void removeUnused() {
-    retwittRepository
-        .deleteOlderThan(cleaningIntervalSec, SECONDS)
-        .subscribe(DOC_REMOVING_SUCCESS_HANDLER, DOC_REMOVING_ERROR_HANDLER);
-  }
-
-  private void persistRetwitts() {
-    LOGGER.info("Starting persisting retwitts");
-    twittsSource
-        .twittsFlux()
-        .flatMap(this::toRetwittDoc)
-        .map(retwittRepository::save)
-        .subscribe(DOC_PERSISTING_SUCCESS_HANDLER, DOC_PERSISTING_ERROR_HANDLER);
   }
 
   private Mono<RetwittDoc> toRetwittDoc(Status status) {
