@@ -14,6 +14,7 @@ services:
     - 'mongo'
   frontend:
     build: ./trends-fe
+    stdin_open: true
     ports:
     - "3000:3000"
     volumes:
