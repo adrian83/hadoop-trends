@@ -8,21 +8,19 @@ import static java.util.stream.Collectors.toList;
 import static reactor.core.publisher.Mono.justOrEmpty;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import com.github.adrian83.trends.domain.common.DocPersistingErrorHandler;
-import com.github.adrian83.trends.domain.common.DocPersistingSuccessHandler;
-import com.github.adrian83.trends.domain.common.DocRemovingErrorHandler;
-import com.github.adrian83.trends.domain.common.DocRemovingSuccessHandler;
-import com.github.adrian83.trends.domain.common.Service;
 import com.github.adrian83.trends.domain.common.StatusCleaner;
+import com.github.adrian83.trends.domain.common.StatusFetcher;
 import com.github.adrian83.trends.domain.common.StatusProcessor;
+import com.github.adrian83.trends.domain.common.logging.DocPersistingErrorHandler;
+import com.github.adrian83.trends.domain.common.logging.DocPersistingSuccessHandler;
+import com.github.adrian83.trends.domain.common.logging.DocRemovingErrorHandler;
+import com.github.adrian83.trends.domain.common.logging.DocRemovingSuccessHandler;
 import com.github.adrian83.trends.domain.retwitt.model.Retwitt;
 import com.github.adrian83.trends.domain.retwitt.model.RetwittDoc;
 import com.github.adrian83.trends.domain.retwitt.model.RetwittMapper;
@@ -32,28 +30,20 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import twitter4j.Status;
 
-@Component
-public class RetwittService implements Service<Retwitt>, StatusProcessor, StatusCleaner {
+@Service
+public class RetwittService implements StatusProcessor, StatusCleaner, StatusFetcher<Retwitt> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RetwittService.class);
 
-  private static final Consumer<Throwable> DOC_REMOVING_ERROR_HANDLER =
-      new DocRemovingErrorHandler<>(Retwitt.class);
-  private static final Consumer<Long> DOC_REMOVING_SUCCESS_HANDLER =
-      new DocRemovingSuccessHandler<>(Retwitt.class);
-  private static final Consumer<Throwable> DOC_PERSISTING_ERROR_HANDLER =
-      new DocPersistingErrorHandler<>(Retwitt.class);
-  private static final Consumer<Mono<String>> DOC_PERSISTING_SUCCESS_HANDLER =
-      new DocPersistingSuccessHandler<>(Retwitt.class);
+  private RetwittRepository retwittRepository;
+  private RetwittMapper retwittMapper;
 
-  @Autowired private RetwittRepository retwittRepository;
-  @Autowired private RetwittMapper retwittMapper;
-
-  @Value("${retwitt.read.intervalSec}")
-  private int readIntervalSec;
-
-  @Value("${retwitt.read.count}")
-  private int readCount;
+  @Autowired
+  public RetwittService(RetwittRepository retwittRepository, RetwittMapper retwittMapper) {
+    super();
+    this.retwittRepository = retwittRepository;
+    this.retwittMapper = retwittMapper;
+  }
 
   @Override
   public void processStatusses(Flux<Status> statusses) {
@@ -61,22 +51,26 @@ public class RetwittService implements Service<Retwitt>, StatusProcessor, Status
     statusses
         .flatMap(this::toRetwittDoc)
         .map(retwittRepository::save)
-        .subscribe(DOC_PERSISTING_SUCCESS_HANDLER, DOC_PERSISTING_ERROR_HANDLER);
+        .subscribe(
+            new DocPersistingSuccessHandler<>(Retwitt.class),
+            new DocPersistingErrorHandler<>(Retwitt.class));
   }
 
   @Override
   public void removeOlderThanSec(int seconds) {
     retwittRepository
         .deleteOlderThan(seconds, SECONDS)
-        .subscribe(DOC_REMOVING_SUCCESS_HANDLER, DOC_REMOVING_ERROR_HANDLER);
+        .subscribe(
+            new DocRemovingSuccessHandler<>(Retwitt.class),
+            new DocRemovingErrorHandler<>(Retwitt.class));
   }
 
   @Override
-  public Flux<List<Retwitt>> top() {
+  public Flux<List<Retwitt>> fetch(int size, int seconds) {
     LOGGER.info("Reading most retwitted twitts");
     ConnectableFlux<List<Retwitt>> retwitted =
-        Flux.interval(ofSeconds(readIntervalSec))
-            .flatMap(i -> retwittRepository.top(readCount))
+        Flux.interval(ofSeconds(seconds))
+            .flatMap(i -> retwittRepository.top(size))
             .map(this::toDtos)
             .publish();
     retwitted.connect();

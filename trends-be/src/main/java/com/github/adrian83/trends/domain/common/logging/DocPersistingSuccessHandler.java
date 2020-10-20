@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.common;
+package com.github.adrian83.trends.domain.common.logging;
 
 import java.util.function.Consumer;
 

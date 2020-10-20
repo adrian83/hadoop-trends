@@ -50,19 +50,19 @@ public class FavoriteServiceTest {
 //    verify(statusSourceMock).twittsFlux();
 //  }
 
-  //@Test
-  public void shouldReturnMostFavoritedTwitts() {
-    // given
-    List<FavoriteDoc> favorites1 = generateFavorites(6);
-    List<FavoriteDoc> favorites2 = generateFavorites(4);
-
-    Mockito.doReturn(Flux.fromIterable(favorites1), Flux.fromIterable(favorites2))
-        .when(favoriteRepositoryMock.top(10));
-
-    // when
-    // Flux<List<Favorite>> twitts =
-    favoriteService.top();
-  }
+//  //@Test
+//  public void shouldReturnMostFavoritedTwitts() {
+//    // given
+//    List<FavoriteDoc> favorites1 = generateFavorites(6);
+//    List<FavoriteDoc> favorites2 = generateFavorites(4);
+//
+//    Mockito.doReturn(Flux.fromIterable(favorites1), Flux.fromIterable(favorites2))
+//        .when(favoriteRepositoryMock.top(10));
+//
+//    // when
+//    // Flux<List<Favorite>> twitts =
+//    favoriteService.top();
+//  }
 
   List<FavoriteDoc> generateFavorites(int count) {
     return LongStream.range(0, count)

@@ -9,56 +9,49 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.github.adrian83.trends.domain.common.DocPersistingErrorHandler;
-import com.github.adrian83.trends.domain.common.DocPersistingSuccessHandler;
-import com.github.adrian83.trends.domain.common.DocRemovingErrorHandler;
-import com.github.adrian83.trends.domain.common.DocRemovingSuccessHandler;
 import com.github.adrian83.trends.domain.common.Repository;
-import com.github.adrian83.trends.domain.common.Service;
 import com.github.adrian83.trends.domain.common.StatusCleaner;
+import com.github.adrian83.trends.domain.common.StatusFetcher;
 import com.github.adrian83.trends.domain.common.StatusProcessor;
+import com.github.adrian83.trends.domain.common.logging.DocPersistingErrorHandler;
+import com.github.adrian83.trends.domain.common.logging.DocPersistingSuccessHandler;
+import com.github.adrian83.trends.domain.common.logging.DocRemovingErrorHandler;
+import com.github.adrian83.trends.domain.common.logging.DocRemovingSuccessHandler;
 import com.github.adrian83.trends.domain.hashtag.model.Hashtag;
 import com.github.adrian83.trends.domain.hashtag.model.HashtagDoc;
 import com.github.adrian83.trends.domain.hashtag.model.HashtagMapper;
 
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import twitter4j.Status;
 
 @Component
-public class HashtagService implements Service<Hashtag>, StatusProcessor, StatusCleaner {
+public class HashtagService implements StatusProcessor, StatusCleaner, StatusFetcher<Hashtag> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HashtagService.class);
 
-  private static final Consumer<Throwable> DOC_REMOVING_ERROR_HANDLER =
-      new DocRemovingErrorHandler<>(Hashtag.class);
-  private static final Consumer<Long> DOC_REMOVING_SUCCESS_HANDLER =
-      new DocRemovingSuccessHandler<>(Hashtag.class);
-  private static final Consumer<Throwable> DOC_PERSISTING_ERROR_HANDLER =
-      new DocPersistingErrorHandler<>(Hashtag.class);
-  private static final Consumer<Mono<String>> DOC_PERSISTING_SUCCESS_HANDLER =
-      new DocPersistingSuccessHandler<>(Hashtag.class);
-
   private static final int DEF_BUFFER_SIZE = 100;
 
-  @Autowired private Repository<HashtagDoc> hashtagRepository;
-  @Autowired private HashtagFinder hashtagFinder;
-  @Autowired private HashtagMapper hashtagMapper;
+  private Repository<HashtagDoc> hashtagRepository;
+  private HashtagFinder hashtagFinder;
+  private HashtagMapper hashtagMapper;
 
-  @Value("${hashtag.read.intervalSec}")
-  private int readIntervalSec;
-
-  @Value("${hashtag.read.count}")
-  private int readCount;
+  @Autowired
+  public HashtagService(
+      Repository<HashtagDoc> hashtagRepository,
+      HashtagFinder hashtagFinder,
+      HashtagMapper hashtagMapper) {
+    super();
+    this.hashtagRepository = hashtagRepository;
+    this.hashtagFinder = hashtagFinder;
+    this.hashtagMapper = hashtagMapper;
+  }
 
   @Override
   public void processStatusses(Flux<Status> statusses) {
@@ -69,22 +62,26 @@ public class HashtagService implements Service<Hashtag>, StatusProcessor, Status
         .buffer(DEF_BUFFER_SIZE)
         .flatMapIterable(this::toHashtagDoc)
         .map(hashtagRepository::save)
-        .subscribe(DOC_PERSISTING_SUCCESS_HANDLER, DOC_PERSISTING_ERROR_HANDLER);
+        .subscribe(
+            new DocPersistingSuccessHandler<>(Hashtag.class),
+            new DocPersistingErrorHandler<>(Hashtag.class));
   }
 
   @Override
   public void removeOlderThanSec(int seconds) {
     hashtagRepository
         .deleteOlderThan(seconds, SECONDS)
-        .subscribe(DOC_REMOVING_SUCCESS_HANDLER, DOC_REMOVING_ERROR_HANDLER);
+        .subscribe(
+            new DocRemovingSuccessHandler<>(Hashtag.class),
+            new DocRemovingErrorHandler<>(Hashtag.class));
   }
 
   @Override
-  public Flux<List<Hashtag>> top() {
+  public Flux<List<Hashtag>> fetch(int size, int seconds) {
     LOGGER.info("Reading most popular hashtags");
     ConnectableFlux<List<Hashtag>> hashtags =
-        Flux.interval(ofSeconds(readIntervalSec))
-            .flatMap(i -> hashtagRepository.top(readCount))
+        Flux.interval(ofSeconds(seconds))
+            .flatMap(i -> hashtagRepository.top(size))
             .map(this::toDtos)
             .publish();
     hashtags.connect();
