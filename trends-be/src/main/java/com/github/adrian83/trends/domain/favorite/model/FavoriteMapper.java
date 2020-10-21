@@ -8,14 +8,14 @@ import org.mapstruct.Mappings;
 public interface FavoriteMapper {
 
   @Mappings({
-    @Mapping(target = "twittId", source = "twittId", resultType = Long.class),
+    @Mapping(target = "id", source = "twittId"),
     @Mapping(target = "username", source = "username"),
     @Mapping(target = "count", source = "count")
   })
   FavoriteDoc dtoToDoc(Favorite favorite);
 
   @Mappings({
-    @Mapping(target = "twittId", source = "twittId", resultType = String.class),
+    @Mapping(target = "twittId", source = "id"),
     @Mapping(target = "username", source = "username"),
     @Mapping(target = "count", source = "count")
   })

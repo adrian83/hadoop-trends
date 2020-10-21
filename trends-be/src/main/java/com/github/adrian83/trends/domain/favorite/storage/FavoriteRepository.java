@@ -1,9 +1,9 @@
 package com.github.adrian83.trends.domain.favorite.storage;
 
 import static com.github.adrian83.trends.common.Time.utcNowMinus;
+import static com.github.adrian83.trends.domain.favorite.model.FavoriteDoc.ID;
 import static com.github.adrian83.trends.domain.favorite.model.FavoriteDoc.COLLECTION;
 import static com.github.adrian83.trends.domain.favorite.model.FavoriteDoc.COUNT;
-import static com.github.adrian83.trends.domain.favorite.model.FavoriteDoc.TWITT_ID;
 import static com.github.adrian83.trends.domain.favorite.model.FavoriteDoc.UPDATED;
 import static com.github.adrian83.trends.domain.favorite.model.FavoriteDoc.USERNAME;
 import static java.util.Comparator.comparingLong;
@@ -68,11 +68,11 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
   }
 
   private Query saveQuery(FavoriteDoc favoriteDoc) {
-    return query(where(TWITT_ID).is(favoriteDoc.getTwittId()));
+    return query(where(ID).is(favoriteDoc.getId()));
   }
 
   private Update saveUpdate(FavoriteDoc favoriteDoc) {
-    return update(TWITT_ID, favoriteDoc.getTwittId())
+    return update(ID, favoriteDoc.getId())
         .set(USERNAME, favoriteDoc.getUsername())
         .set(COUNT, favoriteDoc.getCount())
         .set(UPDATED, favoriteDoc.getUpdated());

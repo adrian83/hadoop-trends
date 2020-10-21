@@ -17,7 +17,6 @@ public class FavoriteDoc {
   public static final String COLLECTION = "favorites";
 
   public static final String ID = "id";
-  public static final String TWITT_ID = "twitt_id";
   public static final String USERNAME = "username";
   public static final String UPDATED = "updated";
   public static final String COUNT = "count";
@@ -25,9 +24,6 @@ public class FavoriteDoc {
   @Id
   @Field(ID)
   private String id;
-
-  @Field(TWITT_ID)
-  private Long twittId;
 
   @Field(USERNAME)
   private String username;
@@ -45,7 +41,6 @@ public class FavoriteDoc {
   public FavoriteDoc(Long twittId, String username, Long count, Long updated) {
     this();
     this.id = valueOf(twittId);
-    this.twittId = twittId;
     this.username = username;
     this.count = count;
     this.updated = updated;
@@ -55,12 +50,8 @@ public class FavoriteDoc {
     return id;
   }
 
-  public Long getTwittId() {
-    return twittId;
-  }
-
-  public void setTwittId(Long twittId) {
-    this.twittId = twittId;
+  public void setId(String id) {
+    this.id = id;
   }
 
   public String getUsername() {
@@ -89,14 +80,6 @@ public class FavoriteDoc {
 
   @Override
   public String toString() {
-    return "FavoriteDoc [twittId="
-        + twittId
-        + ", username="
-        + username
-        + ", count="
-        + count
-        + ", updated="
-        + updated
-        + "]";
+    return "FavoriteDoc [username=" + username + ", count=" + count + ", updated=" + updated + "]";
   }
 }

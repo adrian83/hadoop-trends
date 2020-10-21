@@ -31,6 +31,6 @@ be-build:
 
 be-run: 
 	echo "running backend"
-	cd trends-be && java -jar trends-1.0.0.jar
+	java -jar trends-be/target/trends-1.0.0.jar
 
 be-all: be-test be-build be-run

@@ -36,6 +36,9 @@ public class FavoriteServiceTest {
   @Mock private Repository<FavoriteDoc> favoriteRepositoryMock;
   @Mock private FavoriteMapper favoriteMapperMock;
 
+  @Test
+  public void canaryTest() {}
+  
 //  @Test
 //  public void shouldStartPersistingFavorites() {
 //    // given

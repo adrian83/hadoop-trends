@@ -103,7 +103,7 @@ public class FavoriteRepositoryTest {
   private void assertFavoriteDoc(FavoriteDoc expected, FavoriteDoc actual) {
     assertThat(expected.getCount(), equalTo(actual.getCount()));
     assertThat(expected.getId(), equalTo(actual.getId()));
-    assertThat(expected.getTwittId(), equalTo(actual.getTwittId()));
+    assertThat(expected.getId(), equalTo(actual.getId()));
     assertThat(expected.getUpdated(), equalTo(actual.getUpdated()));
     assertThat(expected.getUsername(), equalTo(actual.getUsername()));
   }
