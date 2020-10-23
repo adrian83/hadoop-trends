@@ -2,6 +2,7 @@ package com.github.adrian83.trends.domain.status;
 
 import java.util.Date;
 
+import lombok.Builder;
 import twitter4j.GeoLocation;
 import twitter4j.HashtagEntity;
 import twitter4j.MediaEntity;
@@ -14,6 +15,8 @@ import twitter4j.URLEntity;
 import twitter4j.User;
 import twitter4j.UserMentionEntity;
 
+
+@Builder
 public class TestStatus implements Status {
 
   private static final long serialVersionUID = 8460125005753152565L;
@@ -24,17 +27,9 @@ public class TestStatus implements Status {
   private User user;
   private Status retweetedStatus;
 
-  public TestStatus(long id, String text, int favoriteCount, User user) {
-    super();
-    this.id = id;
-    this.text = text;
-    this.favoriteCount = favoriteCount;
-    this.user = user;
-  }
-  
   public TestStatus withRetweetedStatus(Status status) {
-	  this.retweetedStatus = status;
-	  return this;
+    this.retweetedStatus = status;
+    return this;
   }
 
   @Override
@@ -207,18 +202,18 @@ public class TestStatus implements Status {
     return null;
   }
 
-@Override
-public int getDisplayTextRangeStart() {
-	return 0;
-}
+  @Override
+  public int getDisplayTextRangeStart() {
+    return 0;
+  }
 
-@Override
-public int getDisplayTextRangeEnd() {
-	return 0;
-}
+  @Override
+  public int getDisplayTextRangeEnd() {
+    return 0;
+  }
 
-@Override
-public URLEntity getQuotedStatusPermalink() {
-	return null;
-}
+  @Override
+  public URLEntity getQuotedStatusPermalink() {
+    return null;
+  }
 }

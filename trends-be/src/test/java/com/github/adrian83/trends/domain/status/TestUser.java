@@ -2,21 +2,18 @@ package com.github.adrian83.trends.domain.status;
 
 import java.util.Date;
 
+import lombok.Builder;
 import twitter4j.RateLimitStatus;
 import twitter4j.Status;
 import twitter4j.URLEntity;
 import twitter4j.User;
 
+@Builder
 public class TestUser implements User {
 
   private static final long serialVersionUID = -1369501263082707953L;
 
   private String screenName;
-
-  public TestUser(String screenName) {
-    super();
-    this.screenName = screenName;
-  }
 
   @Override
   public int compareTo(User arg0) {
@@ -293,28 +290,28 @@ public class TestUser implements User {
     return screenName;
   }
 
-@Override
-public String get400x400ProfileImageURL() {
-	return null;
-}
+  @Override
+  public String get400x400ProfileImageURL() {
+    return null;
+  }
 
-@Override
-public String get400x400ProfileImageURLHttps() {
-	return null;
-}
+  @Override
+  public String get400x400ProfileImageURLHttps() {
+    return null;
+  }
 
-@Override
-public String getProfileBanner300x100URL() {
-	return null;
-}
+  @Override
+  public String getProfileBanner300x100URL() {
+    return null;
+  }
 
-@Override
-public String getProfileBanner600x200URL() {
-	return null;
-}
+  @Override
+  public String getProfileBanner600x200URL() {
+    return null;
+  }
 
-@Override
-public String getProfileBanner1500x500URL() {
-	return null;
-}
+  @Override
+  public String getProfileBanner1500x500URL() {
+    return null;
+  }
 }

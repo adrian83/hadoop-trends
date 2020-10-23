@@ -2,28 +2,24 @@ package com.github.adrian83.trends.domain.favorite.logic;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.github.adrian83.trends.domain.common.Repository;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteMapper;
-import com.github.adrian83.trends.domain.status.StatusSource;
 import com.github.adrian83.trends.domain.status.TestStatus;
 import com.github.adrian83.trends.domain.status.TestUser;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import twitter4j.Status;
 import twitter4j.User;
 
@@ -32,62 +28,90 @@ public class FavoriteServiceTest {
 
   @InjectMocks private FavoriteService favoriteService;
 
-  @Mock private StatusSource statusSourceMock;
   @Mock private Repository<FavoriteDoc> favoriteRepositoryMock;
   @Mock private FavoriteMapper favoriteMapperMock;
 
   @Test
   public void canaryTest() {}
-  
-//  @Test
-//  public void shouldStartPersistingFavorites() {
-//    // given
-//    Flux<Status> statuses = generate(1);
-//
-//    when(statusSourceMock.twittsFlux()).thenReturn(statuses);
-//
-//    // when
-//    favoriteService.postCreate();
-//
-//    // then
-//    verify(statusSourceMock).twittsFlux();
-//  }
 
-//  //@Test
-//  public void shouldReturnMostFavoritedTwitts() {
-//    // given
-//    List<FavoriteDoc> favorites1 = generateFavorites(6);
-//    List<FavoriteDoc> favorites2 = generateFavorites(4);
-//
-//    Mockito.doReturn(Flux.fromIterable(favorites1), Flux.fromIterable(favorites2))
-//        .when(favoriteRepositoryMock.top(10));
-//
-//    // when
-//    // Flux<List<Favorite>> twitts =
-//    favoriteService.top();
-//  }
+  @Test
+  public void shouldSaveFavorites() {
+    // given
+    User retweetedStatusUser = TestUser.builder().screenName("Mary").build();
+    var retweetedStatus =
+        TestStatus.builder()
+            .favoriteCount(24)
+            .id(123)
+            .text("this is test")
+            .user(retweetedStatusUser)
+            .build();
 
-  List<FavoriteDoc> generateFavorites(int count) {
-    return LongStream.range(0, count)
-        .mapToObj(i -> new FavoriteDoc(i, "John-" + i, i, i))
-        .collect(Collectors.toList());
+    var validStatusUser = TestUser.builder().screenName("John").build();
+    var validStatus =
+        TestStatus.builder()
+            .favoriteCount(24)
+            .id(123)
+            .text("this is test")
+            .user(validStatusUser)
+            .retweetedStatus(retweetedStatus)
+            .build();
+
+    Flux<Status> statusses = Flux.just(validStatus);
+
+    when(favoriteRepositoryMock.save(any(FavoriteDoc.class))).thenReturn(Mono.just("abc-def-ghi"));
+
+    // when
+    favoriteService.processStatusses(statusses);
+
+    // then
+    verify(favoriteRepositoryMock, times(1)).save(any(FavoriteDoc.class));
   }
 
-  private Status generateStatus(long id, String username, String text, int retwittedCount) {
-    User user = new TestUser(username + "_" + id);
-    return new TestStatus(id, text, retwittedCount, user);
+  @Test
+  public void shouldFilterOutInvalidFavoritesBeforeSaving() {
+    // given
+    var userWithoutScreenName = TestUser.builder().build();
+    var user = TestUser.builder().screenName("John").build();
+
+    var statusWithInvalidFavoriteCount =
+        TestStatus.builder().favoriteCount(-24).id(123).text("this is test").user(user).build();
+
+    var statusWithInvalidId =
+        TestStatus.builder().favoriteCount(24).id(-123).text("this is test").user(user).build();
+
+    var statusWithoutUser =
+        TestStatus.builder().favoriteCount(24).id(123).text("this is test").user(null).build();
+
+    var statusWithInvalidUser =
+        TestStatus.builder()
+            .favoriteCount(24)
+            .id(123)
+            .text("this is test")
+            .user(userWithoutScreenName)
+            .build();
+
+    Flux<Status> statusses =
+        Flux.just(
+            statusWithRetweetedStatus(statusWithInvalidFavoriteCount),
+            statusWithRetweetedStatus(statusWithInvalidId),
+            statusWithRetweetedStatus(statusWithoutUser),
+            statusWithRetweetedStatus(statusWithInvalidUser));
+
+    // when
+    favoriteService.processStatusses(statusses);
+
+    // then
+    verify(favoriteRepositoryMock, never()).save(any(FavoriteDoc.class));
   }
 
-  private Status generateStatusWithRetwitt(
-      long id, String username, String text, int retwittedCount) {
-    Status retwitt = generateStatus(id + 100, "john", "Some test", retwittedCount + 100);
-    User user = new TestUser(username + "_" + id);
-    return new TestStatus(id, text, retwittedCount, user).withRetweetedStatus(retwitt);
-  }
-
-  private Flux<Status> generate(int length) {
-    Stream<Status> stream =
-        IntStream.range(0, length).mapToObj(i -> generateStatusWithRetwitt(i, "linda", "Text", i));
-    return Flux.fromStream(stream);
+  private Status statusWithRetweetedStatus(Status retweeted) {
+    var validStatusUser = TestUser.builder().screenName("John").build();
+    return TestStatus.builder()
+        .favoriteCount(24)
+        .id(123)
+        .text("this is test")
+        .user(validStatusUser)
+        .retweetedStatus(retweeted)
+        .build();
   }
 }
