@@ -1,5 +1,8 @@
 package com.github.adrian83.trends.domain.favorite.model;
 
+import lombok.Builder;
+
+@Builder
 public class Favorite {
 
   private String twittId;

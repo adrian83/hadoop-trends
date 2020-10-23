@@ -91,8 +91,11 @@ public class FavoriteService implements StatusProcessor, StatusCleaner, StatusFe
   }
 
   private FavoriteDoc toDoc(Status s) {
-    return new FavoriteDoc(
-        s.getId(), s.getUser().getScreenName(), valueOf(s.getFavoriteCount()), utcNow());
+    return FavoriteDoc.builder()
+    		.id(Long.toString(s.getId()))
+    		.username(s.getUser().getScreenName())
+    		.count(valueOf(s.getFavoriteCount())).updated(utcNow())
+    		.build();
   }
 
   private List<Favorite> toDtos(List<FavoriteDoc> docs) {

@@ -1,7 +1,5 @@
 package com.github.adrian83.trends.domain.favorite.model;
 
-import static java.lang.String.valueOf;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -9,9 +7,12 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import lombok.Builder;
+
 @JsonSerialize
 @JsonDeserialize
 @Document(collection = FavoriteDoc.COLLECTION)
+@Builder
 public class FavoriteDoc {
 
   public static final String COLLECTION = "favorites";
@@ -20,7 +21,7 @@ public class FavoriteDoc {
   public static final String USERNAME = "username";
   public static final String UPDATED = "updated";
   public static final String COUNT = "count";
-
+ 
   @Id
   @Field(ID)
   private String id;
@@ -34,17 +35,6 @@ public class FavoriteDoc {
   @Field(UPDATED)
   private Long updated;
 
-  public FavoriteDoc() {
-    super();
-  }
-
-  public FavoriteDoc(Long twittId, String username, Long count, Long updated) {
-    this();
-    this.id = valueOf(twittId);
-    this.username = username;
-    this.count = count;
-    this.updated = updated;
-  }
 
   public String getId() {
     return id;

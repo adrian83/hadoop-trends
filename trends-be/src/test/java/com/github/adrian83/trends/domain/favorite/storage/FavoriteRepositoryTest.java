@@ -40,7 +40,14 @@ public class FavoriteRepositoryTest {
 
     // given
     Long id = 143241l;
-    FavoriteDoc document = new FavoriteDoc(id, "john", 32l, 242414141l);
+    FavoriteDoc document =
+        FavoriteDoc.builder()
+            .id(id.toString())
+            .username("John")
+            .count(22)
+            .updated(12341234123l)
+            .build();
+
     UpdateResult updateResult = UpdateResult.acknowledged(1l, 1l, new BsonString(id.toString()));
 
     when(reactiveMongoTemplateMock.upsert(any(Query.class), any(Update.class), anyString()))
@@ -78,10 +85,37 @@ public class FavoriteRepositoryTest {
   public void shouldGetMostFavoritedTwitts() {
 
     // given
-    FavoriteDoc doc1 = new FavoriteDoc(143241l, "john", 32l, 242414141l);
-    FavoriteDoc doc2 = new FavoriteDoc(353434l, "olivia", 12l, 242414141l);
-    FavoriteDoc doc3 = new FavoriteDoc(756756l, "eric", 112l, 242414141l);
-    FavoriteDoc doc4 = new FavoriteDoc(134511l, "helena", 1l, 242414141l);
+    FavoriteDoc doc1 =
+        FavoriteDoc.builder()
+            .id("1343241")
+            .username("John")
+            .count(112)
+            .updated(12341234123l)
+            .build();
+
+    FavoriteDoc doc2 =
+        FavoriteDoc.builder()
+            .id("345334")
+            .username("Steve")
+            .count(222)
+            .updated(12345234123l)
+            .build();
+
+    FavoriteDoc doc3 =
+        FavoriteDoc.builder()
+            .id("3455334")
+            .username("Eric")
+            .count(121)
+            .updated(12345934123l)
+            .build();
+
+    FavoriteDoc doc4 =
+        FavoriteDoc.builder()
+            .id("3415334")
+            .username("Sara")
+            .count(128)
+            .updated(12345914123l)
+            .build();
 
     Flux<FavoriteDoc> docsFlux = Flux.just(doc1, doc2, doc3, doc4);
 
@@ -95,9 +129,9 @@ public class FavoriteRepositoryTest {
     List<FavoriteDoc> result = fluxResult.blockFirst();
 
     assertThat(result, hasSize(3));
-    assertFavoriteDoc(doc3, result.get(0));
-    assertFavoriteDoc(doc1, result.get(1));
-    assertFavoriteDoc(doc2, result.get(2));
+    assertFavoriteDoc(doc2, result.get(0));
+    assertFavoriteDoc(doc4, result.get(1));
+    assertFavoriteDoc(doc3, result.get(2));
   }
 
   private void assertFavoriteDoc(FavoriteDoc expected, FavoriteDoc actual) {

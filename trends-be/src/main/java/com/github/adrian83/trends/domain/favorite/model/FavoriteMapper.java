@@ -3,21 +3,25 @@ package com.github.adrian83.trends.domain.favorite.model;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface FavoriteMapper {
+@Component
+public class FavoriteMapper {
 
-  @Mappings({
-    @Mapping(target = "id", source = "twittId"),
-    @Mapping(target = "username", source = "username"),
-    @Mapping(target = "count", source = "count")
-  })
-  FavoriteDoc dtoToDoc(Favorite favorite);
+  public FavoriteDoc dtoToDoc(Favorite favorite) {
+    return FavoriteDoc.builder()
+        .id(favorite.getTwittId())
+        .username(favorite.getUsername())
+        .count(favorite.getCount())
+        .updated(null)
+        .build();
+  }
 
-  @Mappings({
-    @Mapping(target = "twittId", source = "id"),
-    @Mapping(target = "username", source = "username"),
-    @Mapping(target = "count", source = "count")
-  })
-  Favorite docToDto(FavoriteDoc favoriteDoc);
+  public Favorite docToDto(FavoriteDoc favoriteDoc) {
+    return Favorite.builder()
+        .twittId(favoriteDoc.getId())
+        .username(favoriteDoc.getUsername())
+        .count(favoriteDoc.getCount())
+        .build();
+  }
 }
