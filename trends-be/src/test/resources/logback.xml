@@ -19,7 +19,7 @@
 		<appender-ref ref="STDOUT" />
 	</logger>
 
-	<logger name="com.github.adrian83.trends.domain.retwitt" level="WARN" additivity="false">
+	<logger name="com.github.adrian83.trends.domain.retweet" level="WARN" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 

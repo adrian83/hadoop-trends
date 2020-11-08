@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.retwitt.logic;
+package com.github.adrian83.trends.domain.retweet.logic;
 
 import static com.github.adrian83.trends.common.Time.utcNow;
 import static java.time.Duration.ofSeconds;
@@ -21,63 +21,63 @@ import com.github.adrian83.trends.domain.common.logging.DocPersistingErrorHandle
 import com.github.adrian83.trends.domain.common.logging.DocPersistingSuccessHandler;
 import com.github.adrian83.trends.domain.common.logging.DocRemovingErrorHandler;
 import com.github.adrian83.trends.domain.common.logging.DocRemovingSuccessHandler;
-import com.github.adrian83.trends.domain.retwitt.model.Retwitt;
-import com.github.adrian83.trends.domain.retwitt.model.RetwittDoc;
-import com.github.adrian83.trends.domain.retwitt.model.RetwittMapper;
-import com.github.adrian83.trends.domain.retwitt.storage.RetwittRepository;
+import com.github.adrian83.trends.domain.retweet.model.Retweet;
+import com.github.adrian83.trends.domain.retweet.model.RetweetDoc;
+import com.github.adrian83.trends.domain.retweet.model.RetweetMapper;
+import com.github.adrian83.trends.domain.retweet.storage.RetweetRepository;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import twitter4j.Status;
 
 @Service
-public class RetwittService implements StatusProcessor, StatusCleaner, StatusFetcher<Retwitt> {
+public class RetweetService implements StatusProcessor, StatusCleaner, StatusFetcher<Retweet> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RetwittService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RetweetService.class);
 
-  private RetwittRepository retwittRepository;
-  private RetwittMapper retwittMapper;
+  private RetweetRepository retweetRepository;
+  private RetweetMapper retweetMapper;
 
   @Autowired
-  public RetwittService(RetwittRepository retwittRepository, RetwittMapper retwittMapper) {
+  public RetweetService(RetweetRepository retweetRepository, RetweetMapper retweetMapper) {
     super();
-    this.retwittRepository = retwittRepository;
-    this.retwittMapper = retwittMapper;
+    this.retweetRepository = retweetRepository;
+    this.retweetMapper = retweetMapper;
   }
 
   @Override
   public void processStatusses(Flux<Status> statusses) {
-    LOGGER.info("Persisting retwitts initiated");
+    LOGGER.info("Persisting retweets initiated");
     statusses
-        .flatMap(this::toRetwittDoc)
-        .map(retwittRepository::save)
+        .flatMap(this::toRetweetDoc)
+        .map(retweetRepository::save)
         .subscribe(
-            new DocPersistingSuccessHandler<>(Retwitt.class),
-            new DocPersistingErrorHandler<>(Retwitt.class));
+            new DocPersistingSuccessHandler<>(Retweet.class),
+            new DocPersistingErrorHandler<>(Retweet.class));
   }
 
   @Override
   public void removeOlderThanSec(int seconds) {
-    retwittRepository
+    retweetRepository
         .deleteOlderThan(seconds, SECONDS)
         .subscribe(
-            new DocRemovingSuccessHandler<>(Retwitt.class),
-            new DocRemovingErrorHandler<>(Retwitt.class));
+            new DocRemovingSuccessHandler<>(Retweet.class),
+            new DocRemovingErrorHandler<>(Retweet.class));
   }
 
   @Override
-  public Flux<List<Retwitt>> fetch(int size, int seconds) {
-    LOGGER.info("Reading most retwitted twitts");
-    ConnectableFlux<List<Retwitt>> retwitted =
+  public Flux<List<Retweet>> fetch(int size, int seconds) {
+    LOGGER.info("Reading most retweeted twitts");
+    ConnectableFlux<List<Retweet>> retweeted =
         Flux.interval(ofSeconds(seconds))
-            .flatMap(i -> retwittRepository.top(size))
+            .flatMap(i -> retweetRepository.top(size))
             .map(this::toDtos)
             .publish();
-    retwitted.connect();
-    return retwitted;
+    retweeted.connect();
+    return retweeted;
   }
 
-  private Mono<RetwittDoc> toRetwittDoc(Status status) {
+  private Mono<RetweetDoc> toRetweetDoc(Status status) {
     return justOrEmpty(status)
         .filter(s -> nonNull(s.getRetweetedStatus()))
         .map(Status::getRetweetedStatus)
@@ -86,11 +86,11 @@ public class RetwittService implements StatusProcessor, StatusCleaner, StatusFet
         .map(this::toDoc);
   }
 
-  private RetwittDoc toDoc(Status s) {
-    return new RetwittDoc(s.getId(), s.getUser().getScreenName(), s.getRetweetCount(), utcNow());
+  private RetweetDoc toDoc(Status s) {
+    return new RetweetDoc(s.getId(), s.getUser().getScreenName(), s.getRetweetCount(), utcNow());
   }
 
-  private List<Retwitt> toDtos(List<RetwittDoc> docs) {
-    return docs.stream().map(retwittMapper::docToDto).collect(toList());
+  private List<Retweet> toDtos(List<RetweetDoc> docs) {
+    return docs.stream().map(retweetMapper::docToDto).collect(toList());
   }
 }

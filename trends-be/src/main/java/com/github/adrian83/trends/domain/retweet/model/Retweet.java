@@ -1,16 +1,16 @@
-package com.github.adrian83.trends.domain.retwitt.model;
+package com.github.adrian83.trends.domain.retweet.model;
 
-public class Retwitt {
+public class Retweet {
 
   private String twittId;
   private String username;
   private long count;
 
-  public Retwitt() {
+  public Retweet() {
     super();
   }
 
-  public Retwitt(String twittId, String username, long count) {
+  public Retweet(String twittId, String username, long count) {
     this();
     this.twittId = twittId;
     this.username = username;
@@ -43,6 +43,6 @@ public class Retwitt {
 
   @Override
   public String toString() {
-    return "Retwitt [twittId=" + twittId + ", username=" + username + ", count=" + count + "]";
+    return "Retweet [twittId=" + twittId + ", username=" + username + ", count=" + count + "]";
   }
 }

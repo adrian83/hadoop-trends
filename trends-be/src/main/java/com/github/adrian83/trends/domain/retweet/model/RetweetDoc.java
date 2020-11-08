@@ -1,4 +1,4 @@
-package com.github.adrian83.trends.domain.retwitt.model;
+package com.github.adrian83.trends.domain.retweet.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,16 +9,16 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize
 @JsonDeserialize
-@Document(collection = RetwittDoc.COLLECTION)
-public class RetwittDoc {
+@Document(collection = RetweetDoc.COLLECTION)
+public class RetweetDoc {
 
-  public static final String COLLECTION = "retwitts";
+  public static final String COLLECTION = "retweets";
 
   public static final String ID = "id";
   public static final String TWITT_ID = "twitt_id";
   public static final String USERNAME = "username";
   public static final String UPDATED = "updated";
-  public static final String RETWITT_COUNT = "count";
+  public static final String RETWEET_COUNT = "count";
 
   @Id
   @Field(ID)
@@ -30,17 +30,17 @@ public class RetwittDoc {
   @Field(USERNAME)
   private String username;
 
-  @Field(RETWITT_COUNT)
+  @Field(RETWEET_COUNT)
   private long count;
 
   @Field(UPDATED)
   private Long updated;
 
-  public RetwittDoc() {
+  public RetweetDoc() {
     super();
   }
 
-  public RetwittDoc(Long twittId, String username, long count, Long updated) {
+  public RetweetDoc(Long twittId, String username, long count, Long updated) {
     this();
     this.id = String.valueOf(twittId);
     this.twittId = twittId;
@@ -87,7 +87,7 @@ public class RetwittDoc {
 
   @Override
   public String toString() {
-    return "RetwittDoc [id="
+    return "RetweetDoc [id="
         + id
         + ", twittId="
         + twittId

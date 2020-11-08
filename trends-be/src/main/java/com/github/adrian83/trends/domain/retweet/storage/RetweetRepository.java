@@ -1,12 +1,12 @@
-package com.github.adrian83.trends.domain.retwitt.storage;
+package com.github.adrian83.trends.domain.retweet.storage;
 
-import static com.github.adrian83.trends.domain.retwitt.model.RetwittDoc.ID;
+import static com.github.adrian83.trends.domain.retweet.model.RetweetDoc.ID;
 import static com.github.adrian83.trends.common.Time.utcNowMinus;
-import static com.github.adrian83.trends.domain.retwitt.model.RetwittDoc.COLLECTION;
-import static com.github.adrian83.trends.domain.retwitt.model.RetwittDoc.RETWITT_COUNT;
-import static com.github.adrian83.trends.domain.retwitt.model.RetwittDoc.TWITT_ID;
-import static com.github.adrian83.trends.domain.retwitt.model.RetwittDoc.UPDATED;
-import static com.github.adrian83.trends.domain.retwitt.model.RetwittDoc.USERNAME;
+import static com.github.adrian83.trends.domain.retweet.model.RetweetDoc.COLLECTION;
+import static com.github.adrian83.trends.domain.retweet.model.RetweetDoc.RETWEET_COUNT;
+import static com.github.adrian83.trends.domain.retweet.model.RetweetDoc.TWITT_ID;
+import static com.github.adrian83.trends.domain.retweet.model.RetweetDoc.UPDATED;
+import static com.github.adrian83.trends.domain.retweet.model.RetweetDoc.USERNAME;
 import static java.util.Comparator.comparingLong;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -22,28 +22,28 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Component;
 
 import com.github.adrian83.trends.domain.common.Repository;
-import com.github.adrian83.trends.domain.retwitt.model.RetwittDoc;
+import com.github.adrian83.trends.domain.retweet.model.RetweetDoc;
 import com.mongodb.client.result.DeleteResult;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class RetwittRepository implements Repository<RetwittDoc> {
+public class RetweetRepository implements Repository<RetweetDoc> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RetwittRepository.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RetweetRepository.class);
 
   @Autowired private ReactiveMongoTemplate reactiveMongoTemplate;
 
   @Override
-  public Mono<String> save(RetwittDoc twitt) {
+  public Mono<String> save(RetweetDoc twitt) {
     LOGGER.info("Saving twitt {}", twitt);
     return reactiveMongoTemplate
         .upsert(
             query(where(ID).is(twitt.getTwittId())),
             update(TWITT_ID, twitt.getTwittId())
                 .set(USERNAME, twitt.getUsername())
-                .set(RETWITT_COUNT, twitt.getCount())
+                .set(RETWEET_COUNT, twitt.getCount())
                 .set(UPDATED, twitt.getUpdated()),
             COLLECTION)
         .map(this::upsertedId);
@@ -59,11 +59,11 @@ public class RetwittRepository implements Repository<RetwittDoc> {
         .map(DeleteResult::getDeletedCount);
   }
 
-  public Flux<List<RetwittDoc>> top(int count) {
-    LOGGER.info("Getting {} retwitts", count);
+  public Flux<List<RetweetDoc>> top(int count) {
+    LOGGER.info("Getting {} retweets", count);
     return reactiveMongoTemplate
-        .findAll(RetwittDoc.class, COLLECTION)
-        .sort(comparingLong(RetwittDoc::getCount).reversed())
+        .findAll(RetweetDoc.class, COLLECTION)
+        .sort(comparingLong(RetweetDoc::getCount).reversed())
         .buffer(count)
         .take(1)
         .onBackpressureDrop();
