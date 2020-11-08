@@ -3,12 +3,12 @@ import React, { Component } from 'react';
 import Error from './Error.js';
 import Table from './Table.js';
 
-class Retwitts extends Component {
+class Retweets extends Component {
 
   constructor(props) {
     super(props);
 
-    this.state = {retwitts: []};
+    this.state = {retweets: []};
   }
 
   componentDidMount() {
@@ -17,7 +17,7 @@ class Retwitts extends Component {
 
     this.source.onmessage = function(event) {
       var data = JSON.parse(event.data);
-      self.setState({retwitts: data, error: null});
+      self.setState({retweets: data, error: null});
     };
 
     this.source.onopen = function(event) {
@@ -28,7 +28,7 @@ class Retwitts extends Component {
 
   render() {
 
-    if(this.state.retwitts === null || this.state.retwitts.length === 0){
+    if(this.state.retweets === null || this.state.retweets.length === 0){
       return (
         <div className="alert alert-info" role="alert">
           Data should appear in few seconds. Please wait.
@@ -37,10 +37,10 @@ class Retwitts extends Component {
 
     return (
       <div>
-        <h1 className="cover-heading">Retwitts</h1>
+        <h1 className="cover-heading">Retweets</h1>
         <br/>
         <Error error={this.state.error} />
-        <Table header={this.genHeader} parser={this.rowParser} rows={this.state.retwitts} />
+        <Table header={this.genHeader} parser={this.rowParser} rows={this.state.retweets} />
       </div>
     );
   }
@@ -65,4 +65,4 @@ class Retwitts extends Component {
 
 }
 
-export default Retwitts;
+export default Retweets;

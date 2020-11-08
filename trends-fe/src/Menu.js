@@ -17,7 +17,7 @@ class Menu extends Component {
           this.menuElem('Favorites', '/favorites', location.pathname),
           this.menuElem('Hashtags', '/hashtags', location.pathname),
           this.menuElem('Replies', '/replies', location.pathname),
-          this.menuElem('Retwitts', '/retwitts', location.pathname)
+          this.menuElem('Retweets', '/retweets', location.pathname)
         ]
 
         return (

@@ -10,7 +10,7 @@ import {
 import Home from './Home';
 import Favorites from './Favorites';
 import Hashtags from './Hashtags';
-import Retwitts from './Retwitts';
+import Retweets from './Retweets';
 import Replies from './Replies';
 import Menu from './Menu';
 
@@ -22,7 +22,7 @@ class App extends Component {
 
     var hashtagsUrl = process.env.REACT_APP_BE_HOST + "/sse/hashtags"
     var favoritesUrl = process.env.REACT_APP_BE_HOST + "/sse/favorites"
-    var retwittsUrl = process.env.REACT_APP_BE_HOST + "/sse/retwitts"
+    var retweetsUrl = process.env.REACT_APP_BE_HOST + "/sse/retweets"
     var repliesUrl = process.env.REACT_APP_BE_HOST + "/sse/replies"
 
     return (
@@ -40,7 +40,7 @@ class App extends Component {
                 <Route exact path="/" component={Home} />
                 <Route path="/favorites" component={() => <Favorites url={favoritesUrl} />} />
                 <Route path="/hashtags" component={() => <Hashtags url={hashtagsUrl} />} />
-                <Route path="/retwitts" component={() => <Retwitts url={retwittsUrl} />} />
+                <Route path="/retweets" component={() => <Retweets url={retweetsUrl} />} />
                 <Route path="/replies" component={() => <Replies url={repliesUrl} />} />
                 <Redirect to="/" />
               </Switch>
