@@ -13,25 +13,25 @@ import twitter4j.auth.AccessToken;
 @Configuration
 public class TwitterConfig {
 
-  @Value("${twitter.consumerKey}")
-  private String customerKey;
+  @Value("${twitter.apiKey}")
+  private String apiKey;
 
-  @Value("${twitter.consumerSecret}")
-  private String customerSecret;
+  @Value("${twitter.apiSecretKey}")
+  private String apiSecretKey;
 
-  @Value("${twitter.token}")
-  private String token;
+  @Value("${twitter.accessToken}")
+  private String accessToken;
 
-  @Value("${twitter.secret}")
-  private String secret;
+  @Value("${twitter.accessTokenSecret}")
+  private String accessTokenSecret;
 
   @Bean
   public TwitterStream createTwitterStream() {
 
     var twitterStream = new TwitterStreamFactory().getInstance();
 
-    twitterStream.setOAuthConsumer(customerKey, customerSecret);
-    twitterStream.setOAuthAccessToken(new AccessToken(token, secret));
+    twitterStream.setOAuthConsumer(apiKey, apiSecretKey);
+    twitterStream.setOAuthAccessToken(new AccessToken(accessToken, accessTokenSecret));
 
     twitterStream.addListener(
         new StatusAdapter() {
