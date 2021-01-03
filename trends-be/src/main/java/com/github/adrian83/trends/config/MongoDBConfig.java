@@ -22,7 +22,7 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
   private static final String MONGO_URL_PATTERN = "mongodb://%s:%s";
 
   @Value("${mongo.host}")
-  private String host; 
+  private String host;
 
   @Value("${mongo.port}")
   private int port;
@@ -30,7 +30,6 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
   @Value("${mongo.dbName}")
   private String databaseName;
 
-  
   @Bean
   @Override
   public MongoClient reactiveMongoClient() {
@@ -45,7 +44,6 @@ public class MongoDBConfig extends AbstractReactiveMongoConfiguration {
 
   @Bean
   public ReactiveMongoTemplate reactiveMongoTemplate() {
-      return new ReactiveMongoTemplate(reactiveMongoClient(), getDatabaseName());
+    return new ReactiveMongoTemplate(reactiveMongoClient(), getDatabaseName());
   }
-
 }

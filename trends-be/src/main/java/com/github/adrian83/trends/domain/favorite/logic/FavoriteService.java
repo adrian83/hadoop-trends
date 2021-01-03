@@ -10,8 +10,6 @@ import static reactor.core.publisher.Mono.justOrEmpty;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,15 +25,15 @@ import com.github.adrian83.trends.domain.favorite.model.Favorite;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteDoc;
 import com.github.adrian83.trends.domain.favorite.model.FavoriteMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import twitter4j.Status;
 
+@Slf4j
 @Service
 public class FavoriteService implements StatusProcessor, StatusCleaner, StatusFetcher<Favorite> {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(FavoriteService.class);
 
   private Repository<FavoriteDoc> favoriteRepository;
   private FavoriteMapper favoriteMapper;
@@ -49,7 +47,7 @@ public class FavoriteService implements StatusProcessor, StatusCleaner, StatusFe
 
   @Override
   public void processStatusses(Flux<Status> statusses) {
-    LOGGER.info("Persisting favorites initiated");
+    log.info("Persisting favorites initiated");
     statusses
         .flatMap(this::toFavorite)
         .map(favoriteRepository::save)
@@ -69,7 +67,7 @@ public class FavoriteService implements StatusProcessor, StatusCleaner, StatusFe
 
   @Override
   public Flux<List<Favorite>> fetch(int size, int seconds) {
-    LOGGER.info("Reading most favorited twitts");
+    log.info("Reading most favorited tweets");
     ConnectableFlux<List<Favorite>> favorited =
         Flux.interval(ofSeconds(seconds))
             .flatMap(i -> favoriteRepository.top(size))
@@ -91,8 +89,11 @@ public class FavoriteService implements StatusProcessor, StatusCleaner, StatusFe
   }
 
   private FavoriteDoc toDoc(Status s) {
+    var tweetId = Long.toString(s.getId());
+
     return FavoriteDoc.builder()
-        .id(Long.toString(s.getId()))
+        .id(tweetId)
+        .tweetId(tweetId)
         .username(s.getUser().getScreenName())
         .count(valueOf(s.getFavoriteCount()))
         .updated(utcNow())

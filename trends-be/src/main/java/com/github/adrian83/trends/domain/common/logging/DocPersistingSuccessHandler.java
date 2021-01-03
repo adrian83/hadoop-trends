@@ -2,14 +2,11 @@ package com.github.adrian83.trends.domain.common.logging;
 
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 public class DocPersistingSuccessHandler<T> implements Consumer<Mono<String>> {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(DocPersistingSuccessHandler.class);
 
   private Class<T> clazz;
 
@@ -20,6 +17,6 @@ public class DocPersistingSuccessHandler<T> implements Consumer<Mono<String>> {
 
   @Override
   public void accept(Mono<String> idMono) {
-    idMono.subscribe(id -> LOGGER.info("{} with id: {} persisted", clazz.getSimpleName(), id));
+    idMono.subscribe(id -> log.info("{} with id: {} persisted", clazz.getSimpleName(), id));
   }
 }

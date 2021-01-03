@@ -5,6 +5,5 @@ import twitter4j.Status;
 
 @FunctionalInterface
 public interface StatusProcessor {
-
   void processStatusses(Flux<Status> statuses);
 }

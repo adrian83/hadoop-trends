@@ -7,7 +7,8 @@ public class FavoriteMapper {
 
   public FavoriteDoc dtoToDoc(Favorite favorite) {
     return FavoriteDoc.builder()
-        .id(favorite.getTwittId())
+        .id(favorite.getTweetId())
+        .tweetId(favorite.getTweetId())
         .username(favorite.getUsername())
         .count(favorite.getCount())
         .updated(null)
@@ -16,7 +17,7 @@ public class FavoriteMapper {
 
   public Favorite docToDto(FavoriteDoc favoriteDoc) {
     return Favorite.builder()
-        .twittId(favoriteDoc.getId())
+        .tweetId(favoriteDoc.getTweetId())
         .username(favoriteDoc.getUsername())
         .count(favoriteDoc.getCount())
         .build();

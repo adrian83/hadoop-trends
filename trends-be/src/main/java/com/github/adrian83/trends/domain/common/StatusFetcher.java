@@ -6,6 +6,5 @@ import reactor.core.publisher.Flux;
 
 @FunctionalInterface
 public interface StatusFetcher<T> {
-
   Flux<List<T>> fetch(int size, int seconds);
 }
