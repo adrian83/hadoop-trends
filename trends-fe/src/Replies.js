@@ -46,10 +46,10 @@ class Replies extends Component {
   }
 
   rowParser(i, elem) {
-      var twittUrl = "https://twitter.com/" + elem.username + "/status/" + elem.twittId;
-      return (<tr key={elem.twittId}>
+      var twittUrl = "https://twitter.com/" + elem.username + "/status/" + elem.tweetId;
+      return (<tr key={elem.tweetId}>
           <th scope="row">{i}</th>
-          <th><a target="_blank" rel="noopener noreferrer" href={twittUrl}>{elem.twittId} - {elem.username}</a></th>
+          <th><a target="_blank" rel="noopener noreferrer" href={twittUrl}>{elem.tweetId} - {elem.username}</a></th>
           <th>{elem.count}</th>
         </tr>);
   }
