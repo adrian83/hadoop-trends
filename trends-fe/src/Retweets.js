@@ -46,10 +46,10 @@ class Retweets extends Component {
   }
 
   rowParser(i, elem) {
-      var twittUrl = "https://twitter.com/" + elem.username + "/status/" + elem.twittId;
-      return (<tr key={elem.twittId}>
+      var tweetUrl = "https://twitter.com/" + elem.username + "/status/" + elem.tweetId;
+      return (<tr key={elem.tweetId}>
           <th scope="row">{i}</th>
-          <th><a target="_blank" rel="noopener noreferrer" href={twittUrl}>{elem.twittId} - {elem.username}</a></th>
+          <th><a target="_blank" rel="noopener noreferrer" href={tweetUrl}>{elem.tweetId} - {elem.username}</a></th>
           <th>{elem.count}</th>
         </tr>);
   }
@@ -58,7 +58,7 @@ class Retweets extends Component {
     return (
       <tr>
         <th scope="col">#</th>
-        <th scope="col">Twitt</th>
+        <th scope="col">Tweet</th>
         <th scope="col">Count</th>
       </tr>);
   }
