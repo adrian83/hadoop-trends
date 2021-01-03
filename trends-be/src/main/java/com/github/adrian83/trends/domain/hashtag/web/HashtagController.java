@@ -12,22 +12,26 @@ import com.github.adrian83.trends.domain.common.StatusFetcher;
 import com.github.adrian83.trends.domain.hashtag.model.Hashtag;
 import com.github.adrian83.trends.web.BaseController;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
+@Slf4j
 @RestController
 public class HashtagController extends BaseController<Hashtag> {
-	
-	private static final String HASHTAGS = "hashtags";
-	
-    @Value("${read.intervalSec}") private int readIntervalSec;
-    @Value("${read.count}") private int readCount;
-	
-	@Autowired
-	private StatusFetcher<Hashtag> hashtagService;
 
-	@GetMapping(value = SSE_PATH + HASHTAGS, produces = SSE_CONTENT_TYPE)
-	public Flux<ServerSentEvent<List<Hashtag>>> sseHashtags() {
-		return toSse(hashtagService.fetch(readCount, readIntervalSec));
-	}
+  private static final String HASHTAGS = "hashtags";
 
+  @Value("${read.intervalSec}")
+  private int readIntervalSec;
+
+  @Value("${read.count}")
+  private int readCount;
+
+  @Autowired private StatusFetcher<Hashtag> hashtagService;
+
+  @GetMapping(value = SSE_PATH + HASHTAGS, produces = SSE_CONTENT_TYPE)
+  public Flux<ServerSentEvent<List<Hashtag>>> sseHashtags() {
+    log.info("Getting most popular hashtags");
+    return toSse(hashtagService.fetch(readCount, readIntervalSec));
+  }
 }

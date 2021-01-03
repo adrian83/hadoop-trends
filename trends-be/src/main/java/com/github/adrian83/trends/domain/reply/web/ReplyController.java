@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.adrian83.trends.domain.common.StatusFetcher;
@@ -32,12 +31,7 @@ public class ReplyController extends BaseController<Reply> {
 
   @GetMapping(value = SSE_PATH + REPLIES, produces = SSE_CONTENT_TYPE)
   public Flux<ServerSentEvent<List<Reply>>> sseReplies() {
-    log.warn("Getting most replied twitts");
+    log.info("Getting most replied tweets");
     return toSse(replyService.fetch(readCount, readIntervalSec));
-  }
-
-  @RequestMapping(value = "/view/" + REPLIES)
-  public String replies() {
-    return REPLIES;
   }
 }

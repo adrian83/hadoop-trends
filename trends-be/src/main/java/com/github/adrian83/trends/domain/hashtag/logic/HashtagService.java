@@ -9,9 +9,8 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
+import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,14 +26,14 @@ import com.github.adrian83.trends.domain.hashtag.model.Hashtag;
 import com.github.adrian83.trends.domain.hashtag.model.HashtagDoc;
 import com.github.adrian83.trends.domain.hashtag.model.HashtagMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import twitter4j.Status;
 
+@Slf4j
 @Component
 public class HashtagService implements StatusProcessor, StatusCleaner, StatusFetcher<Hashtag> {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(HashtagService.class);
 
   private static final int DEF_BUFFER_SIZE = 100;
 
@@ -55,12 +54,12 @@ public class HashtagService implements StatusProcessor, StatusCleaner, StatusFet
 
   @Override
   public void processStatusses(Flux<Status> statusses) {
-    LOGGER.info("Persisting hashtags initiated");
+    log.info("Persisting hashtags initiated");
     statusses
         .map(Status::getText)
         .flatMap(hashtagFinder::findHashtags)
         .buffer(DEF_BUFFER_SIZE)
-        .flatMapIterable(this::toHashtagDoc)
+        .flatMapIterable(this::toHashtagDocs)
         .map(hashtagRepository::save)
         .subscribe(
             new DocPersistingSuccessHandler<>(Hashtag.class),
@@ -78,7 +77,7 @@ public class HashtagService implements StatusProcessor, StatusCleaner, StatusFet
 
   @Override
   public Flux<List<Hashtag>> fetch(int size, int seconds) {
-    LOGGER.info("Reading most popular hashtags");
+    log.info("Reading most popular hashtags");
     ConnectableFlux<List<Hashtag>> hashtags =
         Flux.interval(ofSeconds(seconds))
             .flatMap(i -> hashtagRepository.top(size))
@@ -88,14 +87,22 @@ public class HashtagService implements StatusProcessor, StatusCleaner, StatusFet
     return hashtags;
   }
 
-  private List<HashtagDoc> toHashtagDoc(List<String> hashtags) {
+  private List<HashtagDoc> toHashtagDocs(List<String> hashtags) {
     return hashtags
         .stream()
         .collect(groupingBy(identity(), counting()))
         .entrySet()
         .stream()
-        .map(e -> new HashtagDoc(e.getKey(), e.getValue().intValue(), utcNow()))
+        .map(this::toDoc)
         .collect(toList());
+  }
+
+  private HashtagDoc toDoc(Entry<String, Long> e) {
+    return HashtagDoc.builder()
+        .id(e.getKey()).name(e.getKey())
+        .count(e.getValue().intValue())
+        .updated(utcNow())
+        .build();
   }
 
   private List<Hashtag> toDtos(List<HashtagDoc> docs) {

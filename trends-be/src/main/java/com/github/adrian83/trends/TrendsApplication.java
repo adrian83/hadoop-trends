@@ -10,8 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class TrendsApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TrendsApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(TrendsApplication.class, args);
+  }
 }

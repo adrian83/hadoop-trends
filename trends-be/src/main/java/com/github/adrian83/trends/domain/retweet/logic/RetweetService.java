@@ -1,6 +1,5 @@
 package com.github.adrian83.trends.domain.retweet.logic;
 
-import static com.github.adrian83.trends.common.Time.utcNow;
 import static java.time.Duration.ofSeconds;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.github.adrian83.trends.common.Time;
 import com.github.adrian83.trends.domain.common.StatusCleaner;
 import com.github.adrian83.trends.domain.common.StatusFetcher;
 import com.github.adrian83.trends.domain.common.StatusProcessor;
@@ -25,6 +25,7 @@ import com.github.adrian83.trends.domain.retweet.model.Retweet;
 import com.github.adrian83.trends.domain.retweet.model.RetweetDoc;
 import com.github.adrian83.trends.domain.retweet.model.RetweetMapper;
 import com.github.adrian83.trends.domain.retweet.storage.RetweetRepository;
+
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -67,7 +68,7 @@ public class RetweetService implements StatusProcessor, StatusCleaner, StatusFet
 
   @Override
   public Flux<List<Retweet>> fetch(int size, int seconds) {
-    LOGGER.info("Reading most retweeted twitts");
+    LOGGER.info("Reading most retweeted tweets");
     ConnectableFlux<List<Retweet>> retweeted =
         Flux.interval(ofSeconds(seconds))
             .flatMap(i -> retweetRepository.top(size))
@@ -87,7 +88,14 @@ public class RetweetService implements StatusProcessor, StatusCleaner, StatusFet
   }
 
   private RetweetDoc toDoc(Status s) {
-    return new RetweetDoc(s.getId(), s.getUser().getScreenName(), s.getRetweetCount(), utcNow());
+    var tweetId = Long.toString(s.getId());
+    return RetweetDoc.builder()
+        .id(tweetId)
+        .tweetId(tweetId)
+        .username(s.getUser().getScreenName())
+        .count(s.getRetweetCount())
+        .updated(Time.utcNow())
+        .build();
   }
 
   private List<Retweet> toDtos(List<RetweetDoc> docs) {

@@ -1,21 +1,21 @@
 package com.github.adrian83.trends.domain.hashtag.model;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface HashtagMapper {
+import com.github.adrian83.trends.common.Time;
 
-  @Mappings({
-    @Mapping(target = "name", source = "name"),
-    @Mapping(target = "count", source = "count")
-  })
-  HashtagDoc dtoToDoc(Hashtag hashtag);
+@Component	
+public class HashtagMapper {
 
-  @Mappings({
-    @Mapping(target = "name", source = "name"),
-    @Mapping(target = "count", source = "count")
-  })
-  Hashtag docToDto(HashtagDoc hashtagDoc);
+  public HashtagDoc dtoToDoc(Hashtag hashtag) {
+    return HashtagDoc.builder()
+        .id(hashtag.getName())
+        .count(hashtag.getCount())
+        .updated(Time.utcNow())
+        .build();
+  }
+
+  public Hashtag docToDto(HashtagDoc hashtagDoc) {
+    return Hashtag.builder().name(hashtagDoc.getName()).count(hashtagDoc.getCount()).build();
+  }
 }

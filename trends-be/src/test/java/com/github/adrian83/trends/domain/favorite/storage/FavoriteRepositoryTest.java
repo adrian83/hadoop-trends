@@ -82,7 +82,7 @@ public class FavoriteRepositoryTest {
   }
 
   @Test
-  public void shouldGetMostFavoritedTwitts() {
+  public void shouldGetMostFavoritedTweets() {
 
     // given
     FavoriteDoc doc1 =

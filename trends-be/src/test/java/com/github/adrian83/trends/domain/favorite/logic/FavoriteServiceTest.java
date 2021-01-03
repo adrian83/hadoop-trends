@@ -114,7 +114,7 @@ public class FavoriteServiceTest {
   }
 
   @Test
-  public void shouldRemoveOldTwitts() {
+  public void shouldRemoveOldTweets() {
     // given
 
     var expectedResult = Mono.just(22l);

@@ -1,23 +1,27 @@
 package com.github.adrian83.trends.domain.retweet.model;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface RetweetMapper {
+import com.github.adrian83.trends.common.Time;
 
-  @Mappings({
-    @Mapping(target = "twittId", source = "twittId", resultType = Long.class),
-    @Mapping(target = "username", source = "username"),
-    @Mapping(target = "count", source = "count")
-  })
-  RetweetDoc dtoToDoc(Retweet retweet);
+@Component
+public class RetweetMapper {
 
-  @Mappings({
-    @Mapping(target = "twittId", source = "twittId", resultType = String.class),
-    @Mapping(target = "username", source = "username"),
-    @Mapping(target = "count", source = "count")
-  })
-  Retweet docToDto(RetweetDoc retweetDoc);
+  public RetweetDoc dtoToDoc(Retweet retweet) {
+    return RetweetDoc.builder()
+        .id(retweet.getTweetId())
+        .tweetId(retweet.getTweetId())
+        .username(retweet.getUsername())
+        .count(retweet.getCount())
+        .updated(Time.utcNow())
+        .build();
+  }
+
+  public Retweet docToDto(RetweetDoc retweetDoc) {
+    return Retweet.builder()
+        .tweetId(retweetDoc.getTweetId())
+        .count(retweetDoc.getCount())
+        .username(retweetDoc.getUsername())
+        .build();
+  }
 }
