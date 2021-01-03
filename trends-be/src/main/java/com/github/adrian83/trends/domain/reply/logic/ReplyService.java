@@ -8,8 +8,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,15 +23,15 @@ import com.github.adrian83.trends.domain.reply.model.ReplyDoc;
 import com.github.adrian83.trends.domain.reply.model.ReplyMapper;
 import com.github.adrian83.trends.domain.reply.storage.ReplyRepository;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import twitter4j.Status;
 
+@Slf4j
 @Component
 public class ReplyService implements StatusProcessor, StatusCleaner, StatusFetcher<Reply> {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ReplyService.class);
 
   private ReplyRepository replyRepository;
   private ReplyMapper replyMapper;
@@ -47,7 +45,7 @@ public class ReplyService implements StatusProcessor, StatusCleaner, StatusFetch
 
   @Override
   public void processStatusses(Flux<Status> statusses) {
-    LOGGER.info("Persisting replies initiated");
+    log.info("Persisting replies initiated");
     statusses
         .flatMap(this::toReply)
         .map(replyRepository::save)
@@ -67,7 +65,7 @@ public class ReplyService implements StatusProcessor, StatusCleaner, StatusFetch
 
   @Override
   public Flux<List<Reply>> fetch(int size, int seconds) {
-    LOGGER.info("Reading most replied twitts");
+    log.info("Reading most replied twitts");
     ConnectableFlux<List<Reply>> replies =
         Flux.interval(ofSeconds(seconds))
             .flatMap(i -> replyRepository.top(size))
@@ -81,7 +79,18 @@ public class ReplyService implements StatusProcessor, StatusCleaner, StatusFetch
     return Mono.justOrEmpty(status)
         .filter(s -> s.getInReplyToStatusId() >= 0)
         .filter(s -> nonNull(s.getInReplyToScreenName()))
-        .map(s -> new ReplyDoc(s.getInReplyToStatusId(), s.getInReplyToScreenName(), 1l, utcNow()));
+        .map(this::toDoc);
+  }
+
+  private ReplyDoc toDoc(Status s) {
+    var tweetId = Long.toString(s.getInReplyToStatusId());
+    return ReplyDoc.builder()
+        .id(tweetId)
+        .tweetId(tweetId)
+        .username(s.getInReplyToScreenName())
+        .count(1l)
+        .updated(utcNow())
+        .build();
   }
 
   private List<Reply> toDtos(List<ReplyDoc> docs) {

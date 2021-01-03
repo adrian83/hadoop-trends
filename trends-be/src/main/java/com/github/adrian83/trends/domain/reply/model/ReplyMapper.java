@@ -1,23 +1,27 @@
 package com.github.adrian83.trends.domain.reply.model;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface ReplyMapper {
+import com.github.adrian83.trends.common.Time;
 
-  @Mappings({
-    @Mapping(target = "twittId", source = "twittId", resultType = Long.class),
-    @Mapping(target = "username", source = "username"),
-    @Mapping(target = "count", source = "count")
-  })
-  ReplyDoc dtoToDoc(Reply reply);
+@Component
+public class ReplyMapper {
 
-  @Mappings({
-    @Mapping(target = "twittId", source = "twittId", resultType = String.class),
-    @Mapping(target = "username", source = "username"),
-    @Mapping(target = "count", source = "count")
-  })
-  Reply docToDto(ReplyDoc replyDoc);
+  public ReplyDoc dtoToDoc(Reply reply) {
+    return ReplyDoc.builder()
+        .id(reply.getTweetId())
+        .tweetId(reply.getTweetId())
+        .username(reply.getUsername())
+        .count(reply.getCount())
+        .updated(Time.utcNow())
+        .build();
+  }
+
+  public Reply docToDto(ReplyDoc replyDoc) {
+    return Reply.builder()
+        .tweetId(replyDoc.getTweetId())
+        .username(replyDoc.getUsername())
+        .count(replyDoc.getCount())
+        .build();
+  }
 }

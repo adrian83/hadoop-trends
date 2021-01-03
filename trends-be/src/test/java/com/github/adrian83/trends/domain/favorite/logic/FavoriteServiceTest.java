@@ -1,13 +1,13 @@
 package com.github.adrian83.trends.domain.favorite.logic;
 
+import static com.github.adrian83.trends.common.Time.utcNow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.anyInt;
-import static com.github.adrian83.trends.common.Time.utcNow;
 
 import java.util.concurrent.TimeUnit;
 
@@ -136,48 +136,51 @@ public class FavoriteServiceTest {
     var fdoc2 = FavoriteDoc.builder().id("abc").count(2).username("John").updated(utcNow()).build();
     var fdoc3 = FavoriteDoc.builder().id("abc").count(2).username("John").updated(utcNow()).build();
     var fdoc4 = FavoriteDoc.builder().id("abc").count(2).username("John").updated(utcNow()).build();
-    
-    var f1 = Favorite.builder()
-    		.twittId(fdoc1.getId())
-    		.count(fdoc1.getCount())
-    		.username(fdoc1.getUsername())
-    		.build();
-    var f2 = Favorite.builder()
-    		.twittId(fdoc1.getId())
-    		.count(fdoc1.getCount())
-    		.username(fdoc1.getUsername())
-    		.build();
-    var f3 = Favorite.builder()
-    		.twittId(fdoc1.getId())
-    		.count(fdoc1.getCount())
-    		.username(fdoc1.getUsername())
-    		.build();
-    var f4 = Favorite.builder()
-    		.twittId(fdoc1.getId())
-    		.count(fdoc1.getCount())
-    		.username(fdoc1.getUsername())
-    		.build();
-    
+
+    var f1 =
+        Favorite.builder()
+            .tweetId(fdoc1.getId())
+            .count(fdoc1.getCount())
+            .username(fdoc1.getUsername())
+            .build();
+    var f2 =
+        Favorite.builder()
+            .tweetId(fdoc1.getId())
+            .count(fdoc1.getCount())
+            .username(fdoc1.getUsername())
+            .build();
+    var f3 =
+        Favorite.builder()
+            .tweetId(fdoc1.getId())
+            .count(fdoc1.getCount())
+            .username(fdoc1.getUsername())
+            .build();
+    var f4 =
+        Favorite.builder()
+            .tweetId(fdoc1.getId())
+            .count(fdoc1.getCount())
+            .username(fdoc1.getUsername())
+            .build();
+
     var l1 = Lists.list(fdoc1, fdoc2);
     var l2 = Lists.list(fdoc3, fdoc4);
-    
+
     var docs = Flux.just(l1, l2);
-    
-    
+
     Flux.just(l1, l2);
 
     when(favoriteRepositoryMock.top(anyInt())).thenReturn(docs);
-    when(favoriteMapperMock.docToDto(any(FavoriteDoc.class))).thenReturn(f1,f2,f3,f4);
+    when(favoriteMapperMock.docToDto(any(FavoriteDoc.class))).thenReturn(f1, f2, f3, f4);
 
     // when
     var result = favoriteService.fetch(2, 1);
-    
+
     Thread.sleep(3000);
 
     StepVerifier.create(result.log())
-    .assertNext(l -> Assertions.assertEquals(l1.size(), l.size()))
-    .assertNext(l -> Assertions.assertEquals(l2.size(), l.size()))
-    .expectComplete();
+        .assertNext(l -> Assertions.assertEquals(l1.size(), l.size()))
+        .assertNext(l -> Assertions.assertEquals(l2.size(), l.size()))
+        .expectComplete();
   }
 
   private Status statusWithRetweetedStatus(Status retweeted) {

@@ -47,7 +47,7 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
   public Mono<Long> deleteOlderThan(long amount, TimeUnit unit) {
     log.info("Removing favorites older than {} {}", amount, unit);
     return reactiveMongoTemplate
-        .remove(remgenerateFindOlderThanQuery(utcNowMinus(amount, unit)), COLLECTION)
+        .remove(generateFindOlderThanQuery(utcNowMinus(amount, unit)), COLLECTION)
         .map(DeleteResult::getDeletedCount);
   }
 
@@ -62,7 +62,7 @@ public class FavoriteRepository implements Repository<FavoriteDoc> {
         .onBackpressureDrop();
   }
 
-  private Query remgenerateFindOlderThanQuery(long olderThan) {
+  private Query generateFindOlderThanQuery(long olderThan) {
     return query(where(UPDATED).lte(olderThan));
   }
 
