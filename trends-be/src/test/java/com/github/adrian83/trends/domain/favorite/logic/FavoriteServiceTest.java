@@ -12,12 +12,12 @@ import static org.mockito.Mockito.when;
 import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.util.Lists;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.github.adrian83.trends.domain.common.Repository;
 import com.github.adrian83.trends.domain.favorite.model.Favorite;
@@ -32,7 +32,7 @@ import reactor.test.StepVerifier;
 import twitter4j.Status;
 import twitter4j.User;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FavoriteServiceTest {
 
   @InjectMocks private FavoriteService favoriteService;

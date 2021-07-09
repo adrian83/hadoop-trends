@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.bson.BsonString;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -28,7 +28,7 @@ import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FavoriteRepositoryTest {
 
   @InjectMocks private FavoriteRepository favoriteRepository;

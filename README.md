@@ -2,8 +2,8 @@
 Application for collecting data from Twitter stream. 
 
 ## Application written with:
-1. [Java 14](https://www.java.com/) 
-2. [Spring 5](https://spring.io/) and [Spring Boot 2.3](https://spring.io/projects/spring-boot)
+1. [Java 15](https://www.java.com/) 
+2. [Spring 5](https://spring.io/) and [Spring Boot 2.5](https://spring.io/projects/spring-boot)
 3. [MongoDB 4.2](https://www.mongodb.com/)
 
 ## Running
@@ -22,7 +22,7 @@ Application for collecting data from Twitter stream.
 
 #### Prerequisites
 - Docker
-- Java 14
+- Java 15
 - Maven
 - Npm
 
